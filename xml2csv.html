@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML to CSV | WPToolbox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/globals.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+    <script src="js/core.js" defer></script>
+    <script src="js/xml-converter.js" defer></script>
+</head>
+
+<body class="min-h-screen flex flex-col grid-bg">
+
+    <!-- Navbar Container -->
+    <nav id="global-nav" class="sticky top-0 z-50 glass-header"></nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
+
+        <header class="mb-10 text-center md:text-left">
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white">XML to CSV Converter</h1>
+            <p class="text-zinc-500 mt-2">Convert WordPress export files to structured CSV with <span
+                    class="text-zinc-300 font-semibold underline decoration-zinc-700">Markdown
+                    conversion</span>.</p>
+        </header>
+
+        <!-- Upload Section -->
+        <section class="animate-fade-in" style="animation-delay: 0.1s;">
+            <div id="drop-zone"
+                class="shadcn-card border-2 border-dashed p-16 text-center cursor-pointer hover:bg-zinc-900/50 group">
+                <input id="file-input" type="file" accept=".xml" class="hidden">
+                <div class="flex flex-col items-center gap-6">
+                    <div
+                        class="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-400 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
+                        <i data-lucide="upload-cloud" class="w-8 h-8"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-xl font-semibold text-white">Drop WordPress Export XML</p>
+                        <p class="text-zinc-400 text-sm">or click to browse your local files</p>
+                    </div>
+                </div>
+            </div>
+            <div id="error-msg"
+                class="hidden mt-4 p-4 bg-red-900/20 border border-red-900/30 text-red-400 rounded-lg text-sm flex items-center gap-3">
+                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                <span id="error-text"></span>
+            </div>
+        </section>
+
+        <!-- Controls -->
+        <section id="controls" class="hidden mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div
+                class="flex items-center gap-4 px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl shadow-sm italic text-sm text-zinc-500">
+                <i data-lucide="file-check" class="w-4 h-4 text-green-500"></i>
+                Found <span id="record-count" class="font-bold text-white not-italic mx-1">0</span>
+                items in file
+            </div>
+            <button id="download-btn"
+                class="shadcn-button shadcn-button-primary h-14 px-8 text-base shadow-xl shadow-zinc-950">
+                <i data-lucide="download" class="w-5 h-5"></i>
+                Download CSV
+            </button>
+        </section>
+
+        <!-- Preview Table -->
+        <section id="preview-container" class="hidden mt-12 space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400 flex items-center gap-2">
+                <i data-lucide="layout" class="w-4 h-4"></i>
+                Data Preview (First 5 Rows)
+            </h3>
+            <div class="shadcn-card overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead
+                            class="bg-zinc-900 border-b border-zinc-800 text-zinc-400 font-bold text-[11px] uppercase tracking-wider">
+                            <tr>
+                                <th class="px-6 py-4">ID</th>
+                                <th class="px-6 py-4">Title</th>
+                                <th class="px-6 py-4">Type</th>
+                                <th class="px-6 py-4 w-1/3">Content Snippet</th>
+                                <th class="px-6 py-4 text-right">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="preview-body" class="divide-y divide-zinc-800 text-zinc-400">
+                            <!-- Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Global Footer Container -->
+    <footer id="global-footer"></footer>
+
+    <!-- Global Toast Container -->
+    <div id="toast" class="fixed bottom-8 right-8 translate-y-24 opacity-0 z-50">
+        <div class="shadcn-card px-6 py-4 bg-zinc-900 dark:bg-zinc-800 text-white flex items-center gap-3 shadow-2xl">
+            <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+            <span id="toast-msg" class="text-sm font-medium">Notification</span>
+        </div>
+    </div>
+</body>
+
+</html>

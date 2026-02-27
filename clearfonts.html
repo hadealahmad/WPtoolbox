@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font Cleaner | WPToolbox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/globals.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="js/core.js" defer></script>
+    <script src="js/font-cleaner.js" defer></script>
+</head>
+
+<body class="min-h-screen flex flex-col grid-bg">
+
+    <!-- Navbar Container -->
+    <nav id="global-nav" class="sticky top-0 z-50 glass-header"></nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
+
+        <header class="mb-10">
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white">Font Family Cleaner</h1>
+            <p class="text-zinc-500 mt-2">Instantly remove hardcoded font families from Gutenberg block comments.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch" style="animation-delay: 0.1s;">
+            <!-- Input Section -->
+            <div class="shadcn-card flex flex-col min-h-[500px] overflow-hidden">
+                <div class="px-4 py-3 border-b border-zinc-800 bg-zinc-900 flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase tracking-wider text-zinc-400">Input WordPress Code</span>
+                    <button onclick="FontCleaner.reset()"
+                        class="text-[10px] font-bold uppercase text-zinc-400 hover:text-primary">Reset</button>
+                </div>
+                <textarea id="input"
+                    class="flex-1 p-6 font-mono text-xs leading-relaxed focus:outline-none bg-transparent text-zinc-300"
+                    placeholder="Paste your block code here..."></textarea>
+            </div>
+
+            <!-- Output Section -->
+            <div class="shadcn-card flex flex-col min-h-[500px] overflow-hidden bg-zinc-900/50">
+                <div class="px-4 py-3 border-b border-zinc-800 bg-zinc-900 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-zinc-400">Cleaned Result</span>
+                        <span id="stat-badge"
+                            class="hidden px-2 py-0.5 bg-green-900/30 text-green-400 text-[9px] font-bold rounded-full uppercase">0
+                            Removed</span>
+                    </div>
+                    <button id="copyBtn" onclick="App.copyToClipboard(document.getElementById('output').value, this)"
+                        class="shadcn-button shadcn-button-outline h-7 px-2.5 text-[10px] uppercase font-bold">Copy</button>
+                </div>
+                <div class="relative flex-1">
+                    <textarea id="output"
+                        class="absolute inset-0 w-full h-full p-6 font-mono text-xs leading-relaxed focus:outline-none bg-transparent dark:text-emerald-400/90"
+                        readonly placeholder="The cleaned code will appear here..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 flex justify-center" style="animation-delay: 0.2s;">
+            <button onclick="FontCleaner.clean()"
+                class="shadcn-button shadcn-button-primary h-14 px-12 text-base shadow-xl shadow-zinc-200 dark:shadow-none">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                Clean Font Families
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Global Footer Container -->
+    <footer id="global-footer"></footer>
+
+    <!-- Global Toast Container -->
+    <div id="toast" class="fixed bottom-8 right-8 translate-y-24 opacity-0 z-50">
+        <div class="shadcn-card px-6 py-4 bg-zinc-900 dark:bg-zinc-800 text-white flex items-center gap-3 shadow-2xl">
+            <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+            <span id="toast-msg" class="text-sm font-medium">Notification</span>
+        </div>
+    </div>
+</body>
+
+</html>

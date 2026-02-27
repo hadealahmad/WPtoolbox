@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WP Toolbox | The All-in-One WordPress Utility Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/globals.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="js/core.js" defer></script>
+</head>
+
+<body class="min-h-screen flex flex-col grid-bg">
+
+    <!-- Navbar Container -->
+    <nav id="global-nav" class="sticky top-0 z-50 glass-header"></nav>
+
+    <!-- Hero Section -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-20 pb-40">
+
+        <div class="max-w-3xl mb-16">
+            <h1 class="text-6xl font-extrabold tracking-tighter text-white mb-6">
+                Lightweight tools for <span class="text-zinc-500">WordPress Wizards.</span>
+            </h1>
+            <p class="text-xl text-zinc-500 leading-relaxed">
+                A minimal collection of professional-grade utilities to clean, convert, and optimize your WordPress
+                workflows. Built for speed, security, and aesthetics.
+            </p>
+        </div>
+
+        <!-- Tool Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- Tool 1: Font Cleaner -->
+            <a href="clearfonts.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]"
+                style="animation-delay: 0.1s;">
+                <div>
+                    <div
+                        class="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-900 dark:text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground">
+                        <i data-lucide="eraser" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight dark:text-white">Block Font Cleaner</h3>
+                    <p class="text-zinc-500 leading-snug">Automatically remove hardcoded font-family definitions from
+                        Gutenberg and Greenshift block comments.</p>
+                </div>
+                <div
+                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
+                    Launch Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </div>
+            </a>
+
+            <!-- Tool 2: XML to CSV -->
+            <a href="xml2csv.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]"
+                style="animation-delay: 0.2s;">
+                <div>
+                    <div
+                        class="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-900 dark:text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground">
+                        <i data-lucide="file-output" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight dark:text-white">XML to CSV Converter</h3>
+                    <p class="text-zinc-500 leading-snug">Transform standard WordPress export files into structured CSVs
+                        with built-in HTML to Markdown conversion.</p>
+                </div>
+                <div
+                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
+                    Launch Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </div>
+            </a>
+
+            <!-- Tool 3: JSON to CSV -->
+            <a href="json2csv.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]"
+                style="animation-delay: 0.3s;">
+                <div>
+                    <div
+                        class="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-900 dark:text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground">
+                        <i data-lucide="file-json" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight dark:text-white">JSON to CSV Converter</h3>
+                    <p class="text-zinc-500 leading-snug">Extract and convert structured JSON data arrays into clean CSV
+                        files for spreadsheet analysis.</p>
+                </div>
+                <div
+                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
+                    Launch Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </div>
+            </a>
+
+            <!-- Tool 4: Snippets -->
+            <a href="snippets.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]"
+                style="animation-delay: 0.4s;">
+                <div>
+                    <div
+                        class="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-900 dark:text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground">
+                        <i data-lucide="code-2" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight dark:text-white">WordPress Snippets</h3>
+                    <p class="text-zinc-500 leading-snug">A curated collection of production-ready snippets for
+                        .htaccess, wp-config, and PHP performance tuning.</p>
+                </div>
+                <div
+                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
+                    Launch Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </div>
+            </a>
+
+            <!-- Tool 5: Awesome Stack -->
+            <a href="awesomestack.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
+                <div>
+                    <div
+                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-primary">
+                        <i data-lucide="layers" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white">Awesome Stack</h3>
+                    <p class="text-zinc-500 leading-snug">Generate a one-liner WP-CLI command to set up your ideal
+                        WordPress theme and plugin stack instantly.</p>
+                </div>
+                <div
+                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
+                    Launch Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </div>
+            </a>
+
+        </div>
+
+    </main>
+
+    <!-- Global Footer Container -->
+    <footer id="global-footer"></footer>
+</body>
+
+</html>

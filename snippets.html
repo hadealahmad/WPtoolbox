@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WP Snippets | WPToolbox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/globals.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="js/core.js" defer></script>
+    <script src="js/snippets.js" defer></script>
+</head>
+
+<body class="min-h-screen flex flex-col grid-bg">
+
+    <!-- Navbar Container -->
+    <nav id="global-nav" class="sticky top-0 z-50 glass-header"></nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
+
+        <header class="mb-10 flex flex-col md:flex-row justify-between items-end gap-6">
+            <div>
+                <h1 class="text-4xl font-extrabold tracking-tighter text-white">WordPress Snippets</h1>
+                <p class="text-zinc-500 mt-2">Essential code snippets for .htaccess, wp-config, and PHP optimization.
+                </p>
+            </div>
+
+            <div class="flex gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800 shadow-sm">
+                <button data-category="all"
+                    class="category-filter px-4 py-1.5 text-xs font-bold rounded-md bg-white text-zinc-950">ALL</button>
+                <button data-category="Server"
+                    class="category-filter px-4 py-1.5 text-xs font-bold rounded-md text-zinc-400 hover:text-white">HTACCESS</button>
+                <button data-category="PHP Config"
+                    class="category-filter px-4 py-1.5 text-xs font-bold rounded-md text-zinc-400 hover:text-white">PHP</button>
+                <button data-category="WordPress Core"
+                    class="category-filter px-4 py-1.5 text-xs font-bold rounded-md text-zinc-400 hover:text-white">CONFIG</button>
+                <button data-category="WordPress Plugin"
+                    class="category-filter px-4 py-1.5 text-xs font-bold rounded-md text-zinc-400 hover:text-white">PLUGINS</button>
+            </div>
+        </header>
+
+        <div id="snippets-container" class="grid grid-cols-1 md:grid-cols-2 gap-6" style="animation-delay: 0.1s;">
+            <!-- Snippets will be injected here -->
+        </div>
+
+    </main>
+
+    <!-- Global Footer Container -->
+    <footer id="global-footer"></footer>
+
+    <!-- Global Toast Container -->
+    <div id="toast" class="fixed bottom-8 right-8 translate-y-24 opacity-0 z-50">
+        <div class="shadcn-card px-6 py-4 bg-zinc-900 dark:bg-zinc-800 text-white flex items-center gap-3 shadow-2xl">
+            <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+            <span id="toast-msg" class="text-sm font-medium">Notification</span>
+        </div>
+    </div>
+</body>
+
+</html>

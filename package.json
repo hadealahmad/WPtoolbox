@@ -1,0 +1,19 @@
+{
+  "name": "wp-toolbox",
+  "version": "1.0.0",
+  "description": "Premium WordPress utilities hub",
+  "main": "index.html",
+  "scripts": {
+    "dev": "bun x serve .",
+    "start": "bun x serve ."
+  },
+  "keywords": [
+    "wordpress",
+    "gutenberg",
+    "xml",
+    "csv",
+    "markdown"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}
