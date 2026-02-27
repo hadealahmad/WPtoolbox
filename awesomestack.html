@@ -2,24 +2,10 @@
 <html lang="en">
 
 <head>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Awesome Stack | WPToolbox</title>
-    <meta name="description"
-        content="Generate production-ready WP-CLI commands for your perfect WordPress theme and plugin stack instantly.">
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://hadealahmad.github.io/WPtoolbox/awesomestack.html">
-    <meta property="og:title" content="Awesome Stack Setup | WPToolbox">
-    <meta property="og:description" content="One-liner setup for Blocksy, Greenshift, Rank Math and more.">
-    <meta property="og:image" content="https://hadealahmad.github.io/WPtoolbox/assets/og-image.png">
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@hadealahmad">
-    <meta name="twitter:title" content="Awesome Stack Setup | WPToolbox">
-    <meta name="twitter:description" content="One-liner setup for Blocksy, Greenshift, Rank Math and more.">
-    <meta name="twitter:image" content="https://hadealahmad.github.io/WPtoolbox/assets/og-image.png">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,6 +14,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="css/globals.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="js/core.js" defer></script>
     <script src="js/awesome-stack.js" defer></script>
 </head>
@@ -41,36 +28,33 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
         <header class="mb-10 text-center md:text-start">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_awesome_stack_title">Awesome
-                Stack</h1>
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_awesome_stack_title">
+                Awesome Stack</h1>
             <p class="text-zinc-500 mt-2" data-i18n="tool_awesome_stack_desc">Generate a one-liner WP-CLI command to set
-                up your ideal WordPress theme
-                and plugin stack instantly.</p>
+                up your ideal
+                WordPress theme and plugin stack instantly.</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
-            <!-- Selection Options -->
+            <!-- Options Column -->
             <div class="lg:col-span-4 space-y-8">
-
-                <!-- Theme Selection -->
-                <section>
-                    <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-4 flex items-center gap-2"
-                        data-i18n="stack_themes">
+                <section class="shadcn-card p-6">
+                    <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2"
+                        data-i18n="stack_select_themes">
                         <i data-lucide="palette" class="w-4 h-4"></i>
-                        Core Themes
+                        Select Themes
                     </h3>
-                    <div id="theme-options" class="flex flex-col gap-2">
+                    <div id="theme-options" class="grid grid-cols-1 gap-2">
                         <!-- Injected by JS -->
                     </div>
                 </section>
 
-                <!-- Plugin Selection -->
-                <section>
-                    <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-4 flex items-center gap-2"
-                        data-i18n="stack_plugins">
-                        <i data-lucide="puzzle" class="w-4 h-4"></i>
-                        Selected Plugins
+                <section class="shadcn-card p-6">
+                    <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2"
+                        data-i18n="stack_select_plugins">
+                        <i data-lucide="blocks" class="w-4 h-4"></i>
+                        Select Plugins
                     </h3>
                     <div id="plugin-options" class="grid grid-cols-1 gap-2">
                         <!-- Injected by JS -->
@@ -95,41 +79,52 @@
 
             <!-- Command Preview -->
             <div class="lg:col-span-8 flex flex-col gap-6">
-                <div class="shadcn-card bg-zinc-950 border-zinc-800 flex flex-col h-full min-h-[400px]">
-                    <div class="px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                            <div class="w-2 h-2 rounded-full bg-amber-500"></div>
-                            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                            <span class="ms-4 text-[10px] font-bold uppercase tracking-widest text-zinc-600"
-                                data-i18n="stack_console">WP-CLI
-                                Console</span>
+                <div class="shadcn-card bg-zinc-950 border-zinc-800 flex flex-col h-full min-h-[400px] overflow-hidden">
+                    <div
+                        class="px-6 py-4 border-b border-zinc-800 flex flex-col sm:flex-row gap-4 justify-between items-center bg-zinc-900/40">
+                        <div class="flex items-center gap-2 w-full sm:w-auto overflow-hidden">
+                            <div class="flex gap-1.5 shrink-0">
+                                <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                                <div class="w-3 h-3 rounded-full bg-amber-500/80"></div>
+                                <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
+                            </div>
+                            <span class="ms-4 text-[10px] font-bold uppercase tracking-widest text-zinc-600 truncate"
+                                data-i18n="stack_console">WP-CLI CONSOLE</span>
                         </div>
-                        <button
-                            onclick="App.copyToClipboard(document.getElementById('command-output').textContent, this)"
-                            class="shadcn-button shadcn-button-outline h-8 px-4 text-xs">
-                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                            <span data-i18n="stack_copy_cmd">Copy Command</span>
-                        </button>
+                        <div class="flex flex-wrap gap-2 justify-end">
+                            <button id="download-sh-btn"
+                                class="shadcn-button shadcn-button-outline h-8 px-3 text-[10px] gap-2">
+                                <i data-lucide="terminal" class="w-3 h-3"></i>
+                                <span data-i18n="btn_download_sh">Download .sh</span>
+                            </button>
+                            <button id="download-yml-btn"
+                                class="shadcn-button shadcn-button-outline h-8 px-3 text-[10px] gap-2">
+                                <i data-lucide="file-code" class="w-3 h-3"></i>
+                                <span>Blueprint</span>
+                            </button>
+                            <button id="copy-btn"
+                                class="shadcn-button shadcn-button-primary h-8 px-3 text-[10px] gap-2">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                                <span data-i18n="copy_btn">Copy</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="p-8 flex-1 font-mono text-sm leading-relaxed overflow-auto">
-                        <pre id="command-output" class="text-emerald-400/90 whitespace-pre-wrap"
-                            data-i18n="stack_placeholder"># Select items to generate command</pre>
-                    </div>
+                    <pre class="p-8 flex-1 overflow-x-auto text-sm font-mono text-zinc-300 leading-relaxed select-all"
+                        id="command-output"># Your command will appear here...</pre>
                 </div>
 
-                <!-- Pro Tip -->
-                <div class="p-6 bg-zinc-900/50 border border-zinc-800 rounded-xl flex gap-4">
-                    <div class="p-2 bg-primary/10 rounded-lg h-fit">
-                        <i data-lucide="terminal" class="w-5 h-5 text-primary"></i>
+                <!-- Save Stack Section -->
+                <div class="flex flex-col gap-6">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-500"
+                            data-i18n="label_saved_stacks">Saved Stacks</h3>
+                        <button id="save-stack-btn" class="shadcn-button shadcn-button-primary h-10 px-6 text-xs gap-2">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            <span data-i18n="btn_save_stack">Save Stack</span>
+                        </button>
                     </div>
-                    <div>
-                        <h4 class="text-sm font-bold text-white" data-i18n="stack_how_to">How to use this?</h4>
-                        <p class="text-xs text-zinc-500 mt-1 leading-relaxed" data-i18n="stack_how_to_desc">
-                            SSH into your server, navigate to your WordPress root directory, and paste the generated
-                            command. Make sure you have <a href="https://wp-cli.org/#installing" target="_blank"
-                                class="text-primary hover:underline font-bold">WP-CLI installed</a> on your system.
-                        </p>
+                    <div id="saved-stacks-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Saved stacks will be injected here -->
                     </div>
                 </div>
             </div>

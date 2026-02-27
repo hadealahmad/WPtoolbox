@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WPToolbox | Professional WordPress Wizardry Tools</title>
@@ -30,6 +31,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="css/globals.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="js/core.js" defer></script>
 </head>
 
@@ -41,16 +43,59 @@
     <!-- Hero Section -->
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-20 pb-40">
 
-        <div class="max-w-3xl mb-16">
-            <h1 class="text-6xl font-extrabold tracking-tighter text-white mb-6">
-                <span data-i18n="hero_title">Lightweight tools for</span> <span class="text-zinc-500"
-                    data-i18n="hero_subtitle">WordPress Wizards.</span>
-            </h1>
-            <p class="text-xl text-zinc-500 leading-relaxed" data-i18n="hero_desc">
-                A minimal collection of professional-grade utilities to clean, convert, and optimize your WordPress
-                workflows. Built for speed, security, and aesthetics.
-            </p>
+        <div class="flex flex-col lg:flex-row gap-16 items-start mb-20">
+            <div class="max-w-2xl">
+                <h1 class="text-6xl font-extrabold tracking-tighter text-white mb-6">
+                    <span data-i18n="hero_title">Lightweight tools for</span> <span class="text-zinc-500"
+                        data-i18n="hero_subtitle">WordPress Wizards.</span>
+                </h1>
+                <p class="text-xl text-zinc-500 leading-relaxed" data-i18n="hero_desc">
+                    A minimal collection of professional-grade utilities to clean, convert, and optimize your WordPress
+                    workflows. Built for speed, security, and aesthetics.
+                </p>
+            </div>
+
+            <!-- Tip of the Day Card -->
+            <div id="tip-of-day-card"
+                class="hidden lg:flex flex-col gap-4 p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl w-full max-w-sm animate-in fade-in slide-in-from-right-10 duration-700">
+                <div class="flex items-center gap-2 text-primary">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span class="text-xs font-bold uppercase tracking-widest" data-i18n="tip_of_day">Wizard Tip of the
+                        Day</span>
+                </div>
+                <p id="tip-content" class="text-sm text-zinc-300 leading-relaxed italic"></p>
+            </div>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', async () => {
+                try {
+                    const res = await fetch('js/tips.json');
+                    const tips = await res.json();
+                    if (tips.length > 0) {
+                        const randomTip = tips[Math.floor(Math.random() * tips.length)];
+                        const card = document.getElementById('tip-of-day-card');
+                        const content = document.getElementById('tip-content');
+                        const isAr = localStorage.getItem('wptoolbox_lang') === 'ar';
+                        content.textContent = isAr ? randomTip.fact.ar : randomTip.fact.en;
+                        card.classList.remove('hidden');
+                    }
+                } catch (e) { console.error("Failed to load tips", e); }
+            });
+
+            window.addEventListener('languageChanged', async (e) => {
+                const isAr = e.detail.lang === 'ar';
+                try {
+                    const res = await fetch('js/tips.json');
+                    const tips = await res.json();
+                    const content = document.getElementById('tip-content');
+                    // Find current tip or refresh
+                    const currentText = content.textContent;
+                    const tip = tips.find(t => t.fact.en === currentText || t.fact.ar === currentText);
+                    if (tip) content.textContent = isAr ? tip.fact.ar : tip.fact.en;
+                } catch (e) { }
+            });
+        </script>
 
         <!-- Tool Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -93,7 +138,26 @@
                 </div>
             </a>
 
-            <!-- Tool 3: Font Cleaner -->
+            <!-- Tool 3: Tips & Facts -->
+            <a href="tips.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
+                <div>
+                    <div
+                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-amber-400">
+                        <i data-lucide="lightbulb" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_tips_title">Tips &
+                        Facts</h3>
+                    <p class="text-zinc-500 leading-snug" data-i18n="tool_tips_desc">Obscure WordPress behavior, hosting
+                        bottlenecks, and clever
+                        production-tested solutions.</p>
+                </div>
+                <div
+                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
+                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </div>
+            </a>
+
+            <!-- Tool 4: Font Cleaner -->
             <a href="clearfonts.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
                 <div>
                     <div
@@ -112,7 +176,7 @@
                 </div>
             </a>
 
-            <!-- Tool 4: XML to CSV -->
+            <!-- Tool 5: XML to CSV -->
             <a href="xml2csv.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
                 <div>
                     <div
@@ -131,7 +195,7 @@
                 </div>
             </a>
 
-            <!-- Tool 5: JSON to CSV -->
+            <!-- Tool 6: JSON to CSV -->
             <a href="json2csv.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
                 <div>
                     <div
@@ -150,7 +214,7 @@
                 </div>
             </a>
 
-            <!-- Tool 6: Snippets -->
+            <!-- Tool 7: Snippets -->
             <a href="snippets.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
                 <div>
                     <div
@@ -162,25 +226,6 @@
                     <p class="text-zinc-500 leading-snug" data-i18n="tool_snippets_desc">A curated collection of
                         production-ready snippets for
                         .htaccess, wp-config, and PHP performance tuning.</p>
-                </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </div>
-            </a>
-
-            <!-- Tool 7: Tips & Facts -->
-            <a href="tips.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
-                <div>
-                    <div
-                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-amber-400">
-                        <i data-lucide="lightbulb" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_tips_title">Tips &
-                        Facts</h3>
-                    <p class="text-zinc-500 leading-snug" data-i18n="tool_tips_desc">Obscure WordPress behavior, hosting
-                        bottlenecks, and clever
-                        production-tested solutions.</p>
                 </div>
                 <div
                     class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">

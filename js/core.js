@@ -17,9 +17,95 @@ const App = {
         App.renderNavbar();
         App.renderFooter();
         App.translatePage();
+        App.initCommandPalette();
+        App.initServiceWorker();
 
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
+        }
+    },
+
+    /**
+     * Set up Service Worker for Offline Mode
+     */
+    initServiceWorker: () => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(err => {
+                console.warn('SW registration failed:', err);
+            });
+        }
+    },
+
+    /**
+     * Command Palette (Ctrl + K)
+     */
+    initCommandPalette: () => {
+        const palette = document.createElement('div');
+        palette.id = 'cmd-palette';
+        palette.className = 'fixed inset-0 z-[100] hidden flex items-start justify-center pt-[10vh] px-4 bg-zinc-950/80 backdrop-blur-sm';
+        palette.innerHTML = `
+            <div class="w-full max-w-xl bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div class="flex items-center gap-3 px-4 py-4 border-b border-zinc-800">
+                    <i data-lucide="search" class="w-5 h-5 text-zinc-500"></i>
+                    <input type="text" id="cmd-search" class="bg-transparent border-none focus:outline-none text-white w-full text-base" 
+                        placeholder="${App.t('palette_placeholder')}">
+                </div>
+                <div id="cmd-results" class="max-h-[400px] overflow-y-auto p-2"></div>
+            </div>
+        `;
+        document.body.appendChild(palette);
+
+        const input = palette.querySelector('#cmd-search');
+        const results = palette.querySelector('#cmd-results');
+
+        const tools = [
+            { name: App.t('nav_awesome_stack'), href: 'awesomestack.html', icon: 'layers' },
+            { name: App.t('nav_img2webp'), href: 'img2webp.html', icon: 'image' },
+            { name: App.t('nav_font_cleaner'), href: 'clearfonts.html', icon: 'eraser' },
+            { name: App.t('nav_xml_conv'), href: 'xml2csv.html', icon: 'file-output' },
+            { name: App.t('nav_json2csv'), href: 'json2csv.html', icon: 'file-json' },
+            { name: App.t('nav_snippets'), href: 'snippets.html', icon: 'code-2' },
+            { name: App.t('nav_tips'), href: 'tips.html', icon: 'lightbulb' }
+        ];
+
+        const renderTools = (filter = '') => {
+            const filtered = tools.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()));
+            results.innerHTML = filtered.map((t, idx) => `
+                <a href="${t.href}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-800 group transition-none">
+                    <div class="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-primary transition-none">
+                        <i data-lucide="${t.icon}" class="w-4 h-4"></i>
+                    </div>
+                    <span class="text-sm font-medium text-zinc-300 group-hover:text-white">${t.name}</span>
+                </a>
+            `).join('');
+            if (typeof lucide !== 'undefined') lucide.createIcons({ props: { class: 'w-4 h-4' }, container: results });
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                palette.classList.toggle('hidden');
+                if (!palette.classList.contains('hidden')) input.focus();
+            }
+            if (e.key === 'Escape') palette.classList.add('hidden');
+        });
+
+        palette.onclick = (e) => { if (e.target === palette) palette.classList.add('hidden'); };
+        input.oninput = (e) => renderTools(e.target.value);
+        renderTools();
+    },
+
+    /**
+     * Fire Sparkle/Confetti Effect
+     */
+    fireConfetti: () => {
+        if (typeof confetti === 'function') {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#0ad28d', '#ffffff', '#1a1a1a']
+            });
         }
     },
 
@@ -58,9 +144,12 @@ const App = {
         App.currentLang = lang;
         localStorage.setItem('wptoolbox_lang', lang);
         App.updateDirection();
-        App.renderNavbar(); // Re-render to update links/toggle
+        App.renderNavbar();
         App.renderFooter();
         App.translatePage();
+
+        const cmdSearch = document.getElementById('cmd-search');
+        if (cmdSearch) cmdSearch.placeholder = App.t('palette_placeholder');
 
         // Refresh icons for new content
         if (typeof lucide !== 'undefined') {
@@ -124,13 +213,13 @@ const App = {
 
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
         const links = [
-            { href: 'awesomestack.html', text: App.t('nav_awesome_stack') },
-            { href: 'img2webp.html', text: App.t('nav_img2webp') },
-            { href: 'clearfonts.html', text: App.t('nav_font_cleaner') },
-            { href: 'xml2csv.html', text: App.t('nav_xml_conv') },
-            { href: 'json2csv.html', text: App.t('nav_json2csv') },
-            { href: 'snippets.html', text: App.t('nav_snippets') },
-            { href: 'tips.html', text: App.t('nav_tips') }
+            { href: 'awesomestack.html', text: App.t('nav_awesome_stack'), icon: 'layers' },
+            { href: 'img2webp.html', text: App.t('nav_img2webp'), icon: 'image' },
+            { href: 'tips.html', text: App.t('nav_tips'), icon: 'lightbulb' },
+            { href: 'clearfonts.html', text: App.t('nav_font_cleaner'), icon: 'type' },
+            { href: 'xml2csv.html', text: App.t('nav_xml_conv'), icon: 'file-text' },
+            { href: 'json2csv.html', text: App.t('nav_json2csv'), icon: 'code' },
+            { href: 'snippets.html', text: App.t('nav_snippets'), icon: 'scissors' }
         ];
 
         const isAr = App.currentLang === 'ar';
@@ -144,26 +233,82 @@ const App = {
                         </div>
                         <a href="index.html" class="text-lg font-bold tracking-tight text-white">WPToolbox</a>
                     </div>
+                    
+                    <!-- Desktop Menu -->
                     <div class="hidden md:flex items-center gap-6">
                         ${links.map(link => `
                             <a href="${link.href}" class="text-sm font-medium ${currentPath === link.href ? 'text-white' : 'text-zinc-500 hover:text-white'} transition-none">${link.text}</a>
                         `).join('')}
                         <div class="h-4 w-px bg-zinc-800"></div>
-                        
-                        <!-- Language Toggle -->
                         <button onclick="App.setLanguage('${isAr ? 'en' : 'ar'}')" class="text-xs font-bold px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-zinc-400 hover:text-white transition-none uppercase tracking-widest">
                             ${isAr ? 'English' : 'العربية'}
                         </button>
-
                         <a href="https://github.com/hadealahmad/WPtoolbox" target="_blank" class="text-zinc-400 hover:text-white transition-none">
                             <i data-lucide="github" class="w-5 h-5"></i>
                         </a>
                     </div>
-                    <button class="md:hidden p-2 text-zinc-500"><i data-lucide="menu" class="w-6 h-6"></i></button>
+
+                    <!-- Mobile Toggle -->
+                    <div class="flex md:hidden items-center gap-4">
+                         <button onclick="App.setLanguage('${isAr ? 'en' : 'ar'}')" class="text-[10px] font-bold px-2 py-1 bg-zinc-900 border border-zinc-800 rounded text-zinc-400 uppercase tracking-widest">
+                            ${isAr ? 'EN' : 'AR'}
+                        </button>
+                        <button id="mobile-menu-btn" class="p-2 text-zinc-400 hover:text-white transition-none">
+                            <i data-lucide="menu" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu" class="hidden md:hidden border-t border-zinc-900 bg-zinc-950/95 backdrop-blur-xl animate-in slide-in-from-top-2 duration-200">
+                <div class="px-4 py-6 space-y-4">
+                    ${links.map(link => `
+                        <a href="${link.href}" class="flex items-center gap-3 px-4 py-3 rounded-xl ${currentPath === link.href ? 'bg-primary/10 text-white border border-primary/20' : 'text-zinc-400 hover:bg-zinc-900'} transition-none">
+                            <i data-lucide="${link.icon}" class="w-5 h-5"></i>
+                            <span class="text-sm font-medium">${link.text}</span>
+                        </a>
+                    `).join('')}
+                    <div class="pt-4 border-t border-zinc-900">
+                        <a href="https://github.com/hadealahmad/WPtoolbox" target="_blank" class="flex items-center gap-3 px-4 py-3 text-zinc-400">
+                            <i data-lucide="github" class="w-5 h-5"></i>
+                            <span class="text-sm font-medium">GitHub Repository</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         `;
         nav.innerHTML = navHtml;
+
+        // Mobile Menu Logic
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        if (btn && menu) {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                menu.classList.toggle('hidden');
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    const isOpening = !menu.classList.contains('hidden');
+                    icon.setAttribute('data-lucide', isOpening ? 'x' : 'menu');
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }
+            };
+
+            // Close menu on click outside
+            document.addEventListener('click', (e) => {
+                if (!menu.contains(e.target) && e.target !== btn) {
+                    menu.classList.add('hidden');
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        icon.setAttribute('data-lucide', 'menu');
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    }
+                }
+            });
+        }
+
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     },
 
     /**
@@ -182,7 +327,7 @@ const App = {
                         <span class="text-sm font-bold tracking-tighter uppercase text-white">WPToolbox</span>
                     </div>
                     <p class="text-zinc-400 text-xs text-center md:text-start">
-                        &copy; 2024 WPToolbox Pro. ${App.t('footer_tagline')}
+                        WPToolbox. ${App.t('footer_tagline')}
                     </p>
                     <div class="flex items-center gap-6">
                         <a href="https://x.com/hadealahmad" target="_blank" class="text-zinc-400 hover:text-white transition-none"><i data-lucide="twitter" class="w-4 h-4"></i></a>
@@ -224,7 +369,7 @@ const App = {
     /**
      * Programmatic file download
      */
-    downloadFile: (content, filename, type = 'text/csv;charset=utf-8;') => {
+    downloadFile: (content, filename, type = 'text/plain;charset=utf-8') => {
         const blob = new Blob([content], { type });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -244,13 +389,13 @@ const App = {
             const originalText = btnElement.innerHTML;
             btnElement.innerHTML = feedbackText;
             App.showToast(App.t('copy_btn') + " " + App.t('to_clipboard'));
+            App.fireConfetti();
             setTimeout(() => {
                 btnElement.innerHTML = originalText;
             }, 2000);
         };
 
         try {
-            // Priority 1: Modern Clipboard API
             if (navigator.clipboard && window.isSecureContext) {
                 await navigator.clipboard.writeText(cleanText);
                 performFeedback();
@@ -258,7 +403,6 @@ const App = {
                 throw new Error('Clipboard API unavailable');
             }
         } catch (err) {
-            // Priority 2: Fallback Legacy execCommand
             try {
                 const textArea = document.createElement("textarea");
                 textArea.value = cleanText;

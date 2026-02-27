@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XML to CSV | WPToolbox</title>
@@ -116,14 +117,23 @@
                     </div>
                 </div>
                 <div class="shadcn-card bg-zinc-950 border-zinc-800 overflow-hidden">
-                    <div class="p-6 border-b border-zinc-900 flex items-center gap-4 bg-zinc-900/50">
-                        <div class="p-2 bg-emerald-500/10 rounded-lg">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-500"></i>
+                    <div class="p-6 border-b border-zinc-900 flex items-center justify-between bg-zinc-900/50">
+                        <div class="flex items-center gap-4">
+                            <div class="p-2 bg-emerald-500/10 rounded-lg">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-emerald-500"></i>
+                            </div>
+                            <div>
+                                <p id="fileName" class="text-sm font-bold text-white">File Name</p>
+                                <p id="fileMeta" class="text-xs text-zinc-500 mt-0.5">0 items found</p>
+                            </div>
                         </div>
-                        <div>
-                            <p id="fileName" class="text-sm font-bold text-white">File Name</p>
-                            <p id="fileMeta" class="text-xs text-zinc-500 mt-0.5">0 items found</p>
-                        </div>
+                        <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest"
+                            data-i18n="preview_data">Data Preview (Top 5)</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="previewTable" class="w-full text-left border-collapse">
+                            <!-- Injected by JS -->
+                        </table>
                     </div>
                 </div>
             </div>
@@ -261,22 +271,37 @@
             }
 
             csvContent = rows.map(r => r.join(",")).join("\n");
+            renderPreview(rows);
             fileNameDisp.textContent = currentFileName;
             fileMetaDisp.textContent = `${items.length} ${App.t('items_parsed_msg')}`;
             result.classList.remove('hidden');
             document.querySelector('.shadcn-card.border-zinc-800').classList.add('hidden');
+            App.fireConfetti();
+        }
+
+        function renderPreview(rows) {
+            const table = document.getElementById('previewTable');
+            const previewRows = rows.slice(0, 6);
+
+            table.innerHTML = `
+                <thead class="bg-zinc-900/50">
+                    <tr>
+                        ${previewRows[0].map(h => `<th class="px-6 py-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-900">${h}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-900">
+                    ${previewRows.slice(1).map(row => `
+                        <tr>
+                            ${row.map(cell => `<td class="px-6 py-4 text-xs text-zinc-400 max-w-[200px] truncate">${cell.replace(/^"|"$/g, '')}</td>`).join('')}
+                        </tr>
+                    `).join('')}
+                </tbody>
+            `;
         }
 
         downloadBtn.onclick = () => {
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", currentFileName);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            App.downloadFile(csvContent, currentFileName, 'text/csv;charset=utf-8;');
+            App.fireConfetti();
         };
     </script>
 </body>

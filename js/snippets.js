@@ -3,10 +3,12 @@
  */
 const Snippets = {
     data: [],
-    categories: [],
+    favorites: [],
+    currentCategory: 'all',
 
     init: async () => {
         const container = document.getElementById('snippets-container');
+        const searchInput = document.getElementById('snippet-search');
         if (!container) return;
 
         try {
@@ -14,10 +16,17 @@ const Snippets = {
             if (!response.ok) throw new Error('Failed to load snippets');
             Snippets.data = await response.json();
 
+            // Load favorites
+            Snippets.favorites = JSON.parse(localStorage.getItem('wptoolbox_favs') || '[]');
+
+            searchInput.addEventListener('input', (e) => {
+                Snippets.render(Snippets.currentCategory, e.target.value);
+            });
+
             // Re-render when language changes
             window.addEventListener('languageChanged', () => {
                 Snippets.renderCategories();
-                Snippets.render();
+                Snippets.render(Snippets.currentCategory, searchInput.value);
             });
 
             Snippets.renderCategories();
@@ -26,6 +35,19 @@ const Snippets = {
             console.error('Error loading snippets:', err);
             container.innerHTML = `<div class="p-8 text-center text-red-400">Error loading snippets. Make sure you are running a local server.</div>`;
         }
+    },
+
+    toggleFavorite: (id) => {
+        const idx = Snippets.favorites.indexOf(id);
+        if (idx > -1) {
+            Snippets.favorites.splice(idx, 1);
+        } else {
+            Snippets.favorites.push(id);
+        }
+        localStorage.setItem('wptoolbox_favs', JSON.stringify(Snippets.favorites));
+
+        const searchInput = document.getElementById('snippet-search');
+        Snippets.render(Snippets.currentCategory, searchInput ? searchInput.value : '');
     },
 
     /**
@@ -42,45 +64,90 @@ const Snippets = {
         const catContainer = document.getElementById('categories');
         if (!catContainer) return;
 
-        const cats = [...new Set(Snippets.data.map(s => Snippets.t(s.category)))];
-        catContainer.innerHTML = `
-            <button onclick="Snippets.filter('all')" class="cat-btn active" data-i18n="cat_all">All Snippets</button>
-            ${cats.map(cat => `
-                <button onclick="Snippets.filter('${cat}')" class="cat-btn">${cat}</button>
-            `).join('')}
+        // Get unique English category names for internal filtering
+        const uniqueCats = [...new Set(Snippets.data.map(s => s.category.en))];
+
+        const btnClass = "px-6 py-2 text-xs font-bold uppercase tracking-widest rounded-md transition-none cursor-pointer";
+        const activeClass = "bg-zinc-800 text-white shadow-sm";
+        const inactiveClass = "text-zinc-500 hover:text-zinc-300";
+
+        catContainer.className = "inline-flex flex-wrap p-1 bg-zinc-900 border border-zinc-800 rounded-xl mb-8";
+
+        let html = `
+            <button onclick="Snippets.filter('all', this)" 
+                class="cat-btn ${btnClass} ${Snippets.currentCategory === 'all' ? activeClass : inactiveClass}" 
+                data-i18n="cat_all">All Snippets</button>
         `;
-        App.translatePage(); // Ensure "All Snippets" is translated
+
+        uniqueCats.forEach(catEn => {
+            // Find the translated name for display
+            const item = Snippets.data.find(s => s.category.en === catEn);
+            const catDisplay = Snippets.t(item.category);
+            html += `
+                <button onclick="Snippets.filter('${catEn}', this)" 
+                    class="cat-btn ${btnClass} ${Snippets.currentCategory === catEn ? activeClass : inactiveClass}">${catDisplay}</button>
+            `;
+        });
+
+        catContainer.innerHTML = html;
+        App.translatePage();
     },
 
-    render: (filter = 'all') => {
+    render: (filter = 'all', searchQuery = '') => {
         const container = document.getElementById('snippets-container');
         if (!container) return;
 
         container.innerHTML = '';
-        const filtered = filter === 'all'
-            ? Snippets.data
-            : Snippets.data.filter(s => Snippets.t(s.category) === filter);
 
-        filtered.forEach(item => {
+        let filtered = filter === 'all'
+            ? Snippets.data
+            : Snippets.data.filter(s => s.category.en === filter);
+
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter(s =>
+                Snippets.t(s.title).toLowerCase().includes(q) ||
+                Snippets.t(s.description).toLowerCase().includes(q) ||
+                s.code.toLowerCase().includes(q)
+            );
+        }
+
+        // Sort: Favorites first
+        const sorted = [...filtered].sort((a, b) => {
+            const aFav = Snippets.favorites.includes(a.id);
+            const bFav = Snippets.favorites.includes(b.id);
+            return (aFav === bFav) ? 0 : aFav ? -1 : 1;
+        });
+
+        sorted.forEach(item => {
+            const isFav = Snippets.favorites.includes(item.id);
             const card = document.createElement('div');
-            card.className = 'snippet-card shadcn-card p-6 flex flex-col gap-4';
+            card.className = 'snippet-card shadcn-card p-6 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300';
             card.innerHTML = `
                 <div class="flex justify-between items-start">
                     <div>
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">${Snippets.t(item.category)}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">${Snippets.t(item.category)}</span>
+                            ${isFav ? '<i data-lucide="star" class="w-3 h-3 text-amber-400 fill-amber-400"></i>' : ''}
+                        </div>
                         <h3 class="text-lg font-bold text-white mt-1">${Snippets.t(item.title)}</h3>
                     </div>
-                    <button onclick="App.copyToClipboard(\`${item.code}\`, this)" class="shadcn-button shadcn-button-outline h-8 px-4 text-[10px] gap-2">
-                        <i data-lucide="copy" class="w-3 h-3"></i>
-                        ${App.t('copy_btn')}
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="Snippets.toggleFavorite('${item.id}')" class="shadcn-button shadcn-button-outline w-10 h-10 p-0 flex items-center justify-center">
+                            <i data-lucide="star" class="w-4 h-4 ${isFav ? 'text-amber-400 fill-amber-400' : 'text-zinc-500'}"></i>
+                        </button>
+                        <button onclick="App.copyToClipboard(\`${item.code}\`, this)" class="shadcn-button shadcn-button-outline h-10 px-4 text-[10px] gap-2">
+                            <i data-lucide="copy" class="w-3 h-3"></i>
+                            <span data-i18n="copy_btn">Copy</span>
+                        </button>
+                    </div>
                 </div>
-                <p class="text-zinc-400 text-sm">${Snippets.t(item.description)}</p>
+                <p class="text-zinc-400 text-sm leading-relaxed">${Snippets.t(item.description)}</p>
                 <div class="mt-2 rounded-lg bg-zinc-950 border border-zinc-900 overflow-hidden">
                     <div class="px-4 py-2 bg-zinc-900/50 border-b border-zinc-900 flex justify-between items-center text-[10px] text-zinc-500 font-mono">
                         <span>${item.language}.php</span>
                     </div>
-                    <pre class="p-4 overflow-x-auto text-xs font-mono text-zinc-300"><code>${item.code}</code></pre>
+                    <pre class="p-4 overflow-x-auto text-xs font-mono text-zinc-300 leading-relaxed"><code>${item.code}</code></pre>
                 </div>
             `;
             container.appendChild(card);
@@ -89,11 +156,20 @@ const Snippets = {
         if (typeof lucide !== 'undefined') lucide.createIcons();
     },
 
-    filter: (category) => {
-        document.querySelectorAll('.cat-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.textContent === category || (category === 'all' && btn.dataset.i18n === 'cat_all'));
+    filter: (categoryEn, btn) => {
+        Snippets.currentCategory = categoryEn;
+
+        document.querySelectorAll('.cat-btn').forEach(b => {
+            b.classList.remove('bg-zinc-800', 'text-white', 'shadow-sm');
+            b.classList.add('text-zinc-500', 'hover:text-zinc-300');
         });
-        Snippets.render(category);
+
+        if (btn) {
+            btn.classList.add('bg-zinc-800', 'text-white', 'shadow-sm');
+            btn.classList.remove('text-zinc-500', 'hover:text-zinc-300');
+        }
+
+        Snippets.render(categoryEn, document.getElementById('snippet-search').value);
     }
 };
 

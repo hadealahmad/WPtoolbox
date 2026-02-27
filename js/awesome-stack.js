@@ -19,8 +19,11 @@ const AwesomeStack = {
         ]
     },
 
+    savedStacks: [],
+
     init: () => {
         AwesomeStack.renderCheckboxes();
+        AwesomeStack.loadSavedStacks();
         AwesomeStack.generateCommand();
 
         if (typeof lucide !== 'undefined') {
@@ -29,6 +32,91 @@ const AwesomeStack = {
 
         // Listen for options changes
         document.getElementById('include-activate').onchange = AwesomeStack.generateCommand;
+        document.getElementById('copy-btn').onclick = (e) => App.copyToClipboard(document.getElementById('command-output').textContent, e.target);
+        document.getElementById('save-stack-btn').onclick = AwesomeStack.saveCurrentStack;
+        document.getElementById('download-sh-btn').onclick = AwesomeStack.downloadShellScript;
+        document.getElementById('download-yml-btn').onclick = AwesomeStack.downloadBlueprint;
+    },
+
+    loadSavedStacks: () => {
+        AwesomeStack.savedStacks = JSON.parse(localStorage.getItem('wptoolbox_stacks') || '[]');
+        AwesomeStack.renderSavedStacks();
+    },
+
+    saveCurrentStack: () => {
+        const name = prompt("Enter a name for this stack (e.g. Starter Pack, SEO Pack):");
+        if (!name) return;
+
+        const stack = {
+            id: Date.now(),
+            name: name,
+            themes: AwesomeStack.config.themes.filter(t => t.active).map(t => t.id),
+            plugins: AwesomeStack.config.plugins.filter(p => p.active).map(p => p.id)
+        };
+
+        AwesomeStack.savedStacks.push(stack);
+        localStorage.setItem('wptoolbox_stacks', JSON.stringify(AwesomeStack.savedStacks));
+        AwesomeStack.renderSavedStacks();
+        App.showToast("Stack saved successfully!");
+        App.fireConfetti();
+    },
+
+    renderSavedStacks: () => {
+        const container = document.getElementById('saved-stacks-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        AwesomeStack.savedStacks.forEach(stack => {
+            const card = document.createElement('div');
+            card.className = 'shadcn-card p-4 flex items-center justify-between border-zinc-800 bg-zinc-900/20 hover:bg-zinc-900/40 transition-none';
+            card.innerHTML = `
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-white truncate">${stack.name}</p>
+                    <p class="text-[10px] text-zinc-500 uppercase tracking-tighter mt-1">${stack.themes.length} Themes, ${stack.plugins.length} Plugins</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="AwesomeStack.applyStack(${stack.id})" class="shadcn-button shadcn-button-outline w-8 h-8 p-0 flex items-center justify-center">
+                        <i data-lucide="play" class="w-3 h-3 text-emerald-500"></i>
+                    </button>
+                    <button onclick="AwesomeStack.deleteStack(${stack.id})" class="shadcn-button shadcn-button-outline w-8 h-8 p-0 flex items-center justify-center">
+                        <i data-lucide="trash-2" class="w-3 h-3 text-zinc-600 hover:text-red-500"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    },
+
+    applyStack: (id) => {
+        const stack = AwesomeStack.savedStacks.find(s => s.id === id);
+        if (!stack) return;
+
+        AwesomeStack.config.themes.forEach(t => {
+            t.active = stack.themes.includes(t.id);
+            const cb = document.getElementById(`cb-${t.id}`);
+            if (cb) cb.checked = t.active;
+        });
+
+        AwesomeStack.config.plugins.forEach(p => {
+            p.active = stack.plugins.includes(p.id);
+            const cb = document.getElementById(`cb-${p.id}`);
+            if (cb) cb.checked = p.active;
+        });
+
+        // Re-render the visual state of the cards (not implemented in the modular way yet, so we re-render or just call generate)
+        // For simplicity, let's just re-init or re-render checkboxes
+        document.getElementById('theme-options').innerHTML = '';
+        document.getElementById('plugin-options').innerHTML = '';
+        AwesomeStack.renderCheckboxes();
+        AwesomeStack.generateCommand();
+        App.showToast(`Applied ${stack.name}`);
+    },
+
+    deleteStack: (id) => {
+        AwesomeStack.savedStacks = AwesomeStack.savedStacks.filter(s => s.id !== id);
+        localStorage.setItem('wptoolbox_stacks', JSON.stringify(AwesomeStack.savedStacks));
+        AwesomeStack.renderSavedStacks();
     },
 
     renderCheckboxes: () => {
@@ -89,7 +177,6 @@ const AwesomeStack = {
 
         checkbox.onchange = handleChange;
 
-        // Make whole div clickable
         div.onclick = (e) => {
             if (e.target !== checkbox && e.target.tagName !== 'LABEL') {
                 checkbox.checked = !checkbox.checked;
@@ -125,9 +212,37 @@ const AwesomeStack = {
         }
 
         output.textContent = command;
+    },
+
+    downloadShellScript: () => {
+        const command = document.getElementById('command-output').textContent;
+        if (!command || command.startsWith('#')) return;
+        const script = `#!/bin/bash\n# Awesome Stack Setup Script\n\n${command}`;
+        App.downloadFile(script, 'setup-stack.sh', 'text/x-shellscript');
+        App.fireConfetti();
+    },
+
+    downloadBlueprint: () => {
+        const selectedThemes = AwesomeStack.config.themes.filter(t => t.active).map(t => t.slug);
+        const selectedPlugins = AwesomeStack.config.plugins.filter(p => p.active).map(p => p.slug);
+
+        const blueprint = {
+            "landingPage": "/wp-admin/",
+            "preferredPhpVersion": "8.0",
+            "plugins": selectedPlugins,
+            "themes": selectedThemes,
+            "steps": [
+                {
+                    "step": "installPlugin",
+                    "pluginZip": selectedPlugins
+                }
+            ]
+        };
+
+        App.downloadFile(JSON.stringify(blueprint, null, 2), 'blueprint.json', 'application/json');
+        App.fireConfetti();
     }
 };
-
 
 document.addEventListener('languageChanged', () => {
     AwesomeStack.generateCommand();

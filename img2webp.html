@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebP Converter | WPToolbox</title>
@@ -58,7 +59,25 @@
                     </div>
                 </section>
 
-                <!-- Features Info -->
+                <!-- Smart Options -->
+                <section class="shadcn-card p-6 bg-zinc-900/40">
+                    <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2">
+                        <i data-lucide="shield" class="w-4 h-4 text-emerald-500"></i>
+                        Image Size
+                    </h3>
+                    <div class="space-y-4">
+                        <label class="flex items-center justify-between cursor-pointer group">
+                            <span class="text-xs font-medium text-zinc-400 group-hover:text-white"
+                                data-i18n="label_limit_width">Limit width to 1920px</span>
+                            <div class="relative inline-flex items-center">
+                                <input type="checkbox" id="resize-toggle" class="sr-only peer">
+                                <div
+                                    class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none">
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </section>
                 <section class="space-y-4">
                     <div class="flex items-start gap-4 p-4 rounded-xl border border-zinc-900 bg-zinc-900/30">
                         <i data-lucide="shield-check" class="w-5 h-5 text-emerald-500 shrink-0"></i>
@@ -86,7 +105,7 @@
 
                 <!-- Dropzone -->
                 <div id="drop-zone"
-                    class="shadcn-card border-2 border-dashed p-16 text-center cursor-pointer hover:bg-zinc-900/50 group transition-none">
+                    class="relative shadcn-card border-2 border-dashed p-16 text-center cursor-pointer hover:bg-zinc-900/50 group transition-none overflow-hidden">
                     <input id="file-input" type="file" accept="image/*" multiple class="hidden">
                     <div class="flex flex-col items-center gap-6">
                         <div
@@ -100,14 +119,24 @@
                                 image format</p>
                         </div>
                     </div>
+                    <!-- Processing Progress -->
+                    <div id="processing-bar"
+                        class="absolute bottom-0 left-0 h-1 bg-primary w-0 transition-all duration-300"></div>
                 </div>
 
                 <!-- Results -->
                 <section id="results-section" class="hidden space-y-4">
-                    <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
-                        <i data-lucide="file-check" class="w-4 h-4"></i>
-                        <span data-i18n="label_optimized_images">Optimized Images</span>
-                    </h3>
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
+                            <i data-lucide="file-check" class="w-4 h-4"></i>
+                            <span data-i18n="label_optimized_images">Optimized Images</span>
+                        </h3>
+                        <button id="download-zip-btn"
+                            class="shadcn-button shadcn-button-primary h-10 px-6 text-xs gap-2">
+                            <i data-lucide="package" class="w-4 h-4"></i>
+                            <span data-i18n="btn_download_zip">Download all (ZIP)</span>
+                        </button>
+                    </div>
                     <div id="images-container" class="flex flex-col gap-3">
                         <!-- Injected by JS -->
                     </div>
@@ -117,6 +146,7 @@
         </div>
 
     </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <!-- Global Footer Container -->
     <footer id="global-footer"></footer>

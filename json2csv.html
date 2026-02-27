@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSON to CSV | WPToolbox</title>
@@ -110,18 +111,32 @@
                             class="shadcn-button shadcn-button-outline h-10 px-6 text-xs" data-i18n="reset_btn">
                             Reset
                         </button>
+                        <button onclick="downloadCSV()"
+                            class="shadcn-button shadcn-button-primary h-10 px-8 text-xs gap-2">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span data-i18n="btn_download_csv">Download CSV</span>
+                        </button>
                     </div>
                 </div>
                 <div class="shadcn-card bg-zinc-950 border-zinc-800 overflow-hidden">
-                    <div class="p-6 border-b border-zinc-900 flex items-center gap-4 bg-zinc-900/50">
-                        <div class="p-2 bg-emerald-500/10 rounded-lg">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-500"></i>
+                    <div class="p-6 border-b border-zinc-900 flex items-center justify-between bg-zinc-900/50">
+                        <div class="flex items-center gap-4">
+                            <div class="p-2 bg-emerald-500/10 rounded-lg">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-emerald-500"></i>
+                            </div>
+                            <div>
+                                <p id="fileName" class="text-sm font-bold text-white">data-export.csv</p>
+                                <p id="fileMeta" class="text-xs text-zinc-500 mt-0.5" data-i18n="msg_csv_success">CSV
+                                    generated successfully!</p>
+                            </div>
                         </div>
-                        <div>
-                            <p id="fileName" class="text-sm font-bold text-white">data-export.csv</p>
-                            <p id="fileMeta" class="text-xs text-zinc-500 mt-0.5" data-i18n="msg_csv_success">CSV
-                                generated successfully!</p>
-                        </div>
+                        <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest"
+                            data-i18n="preview_data">Data Preview (Top 5)</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="previewTable" class="w-full text-left border-collapse">
+                            <!-- Injected by JS -->
+                        </table>
                     </div>
                 </div>
             </div>
@@ -224,22 +239,47 @@
                 }
 
                 const csvString = csvRows.join('\n');
-                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                const url = URL.createObjectURL(blob);
-                link.setAttribute("href", url);
-                link.setAttribute("download", "data-export.csv");
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+
+                // Add download button manually since UI doesn't have it yet or use hidden link
+                renderPreview(csvRows);
 
                 resultSection.classList.remove('hidden');
                 document.querySelector('.shadcn-card.border-zinc-800').classList.add('hidden');
                 App.showToast(App.t('msg_csv_success'));
+                App.fireConfetti();
+
+                // Store for download
+                window.currentCSV = csvString;
 
             } catch (e) {
                 App.showToast(App.t('msg_invalid_json'));
+            }
+        }
+
+        function renderPreview(csvRows) {
+            const table = document.getElementById('previewTable');
+            const rows = csvRows.slice(0, 6).map(r => r.split(','));
+
+            table.innerHTML = `
+                <thead class="bg-zinc-900/50">
+                    <tr>
+                        ${rows[0].map(h => `<th class="px-6 py-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-900">${h}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-900">
+                    ${rows.slice(1).map(row => `
+                        <tr>
+                            ${row.map(cell => `<td class="px-6 py-4 text-xs text-zinc-400 max-w-[200px] truncate">${cell.replace(/^"|"$/g, '')}</td>`).join('')}
+                        </tr>
+                    `).join('')}
+                </tbody>
+            `;
+        }
+
+        function downloadCSV() {
+            if (window.currentCSV) {
+                App.downloadFile(window.currentCSV, "data-export.csv", 'text/csv;charset=utf-8;');
+                App.fireConfetti();
             }
         }
     </script>
