@@ -1,0 +1,23 @@
+[
+    {
+        "id": "cloudflare-upload-limit",
+        "title": "Cloudflare Free Upload Limit",
+        "category": "Hosting & DNS",
+        "fact": "Cloudflare's Free plan has a hard upload limit of 100MB per request. This is a common cause for '413 Request Entity Too Large' errors when importing large backups.",
+        "solution": "Temporarily 'Pause Cloudflare' or switch the DNS record to 'DNS Only' (Grey Cloud) during the upload process, then re-enable the proxy after completion."
+    },
+    {
+        "id": "wp-cron-performance",
+        "title": "WP-Cron Performance Hit",
+        "category": "Performance",
+        "fact": "WordPress's default 'WP-Cron' fires on every page load. On high-traffic sites, this can significantly slow down response times and cause database locks.",
+        "solution": "Disable WP-Cron in wp-config.php and set up a real system Cron Job (via cPanel or SSH) to hit wp-cron.php every 5-15 minutes instead."
+    },
+    {
+        "id": "heartbeat-api",
+        "title": "Admin Ajax & Heartbeat",
+        "category": "Resources",
+        "fact": "The WordPress Heartbeat API sends AJAX calls every 15-60 seconds in the dashboard. This can consume 100% of CPU on shared hosting if multiple windows are left open.",
+        "solution": "Use the 'Heartbeat Control' plugin or a custom snippet to limit frequency or disable it entirely where it's not needed."
+    }
+]

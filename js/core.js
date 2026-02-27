@@ -33,11 +33,12 @@ const App = {
 
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
         const links = [
+            { href: 'awesomestack.html', text: 'Awesome Stack' },
+            { href: 'img2webp.html', text: 'Image to WebP' },
             { href: 'clearfonts.html', text: 'Font Cleaner' },
             { href: 'xml2csv.html', text: 'XML Converter' },
             { href: 'json2csv.html', text: 'JSON to CSV' },
-            { href: 'snippets.html', text: 'Snippets' },
-            { href: 'awesomestack.html', text: 'Awesome Stack' }
+            { href: 'snippets.html', text: 'Snippets' }
         ];
 
         const navHtml = `
@@ -54,7 +55,7 @@ const App = {
                             <a href="${link.href}" class="text-sm font-medium ${currentPath === link.href ? 'text-white' : 'text-zinc-500 hover:text-white'} transition-none">${link.text}</a>
                         `).join('')}
                         <div class="h-4 w-px bg-zinc-800"></div>
-                        <a href="https://github.com/hadi" target="_blank" class="text-zinc-400 hover:text-white transition-none">
+                        <a href="https://github.com/hadealahmad/WPtoolbox" target="_blank" class="text-zinc-400 hover:text-white transition-none">
                             <i data-lucide="github" class="w-5 h-5"></i>
                         </a>
                     </div>
@@ -84,8 +85,8 @@ const App = {
                         &copy; 2024 WPToolbox Pro. Privacy-first local processing.
                     </p>
                     <div class="flex items-center gap-6">
-                        <a href="#" class="text-zinc-400 hover:text-white transition-none"><i data-lucide="twitter" class="w-4 h-4"></i></a>
-                        <a href="https://github.com/hadi" target="_blank" class="text-zinc-400 hover:text-white transition-none"><i data-lucide="github" class="w-4 h-4"></i></a>
+                        <a href="https://x.com/hadealahmad" target="_blank" class="text-zinc-400 hover:text-white transition-none"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+                        <a href="https://github.com/hadealahmad/WPtoolbox" target="_blank" class="text-zinc-400 hover:text-white transition-none"><i data-lucide="github" class="w-4 h-4"></i></a>
                     </div>
                 </div>
             </div>

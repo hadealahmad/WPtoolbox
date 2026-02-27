@@ -5,6 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Font Cleaner | WPToolbox</title>
+    <meta name="description"
+        content="Remove hardcoded font families from Gutenberg and Greenshift block comments automatically.">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hadealahmad.github.io/WPtoolbox/clearfonts.html">
+    <meta property="og:title" content="Font Cleaner | WPToolbox">
+    <meta property="og:description" content="Clean hardcoded fonts from your block code instantly.">
+    <meta property="og:image" content="https://hadealahmad.github.io/WPtoolbox/assets/og-image.png">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hadealahmad">
+    <meta name="twitter:title" content="Font Cleaner | WPToolbox">
+    <meta name="twitter:description" content="Clean hardcoded fonts from your block code instantly.">
+    <meta name="twitter:image" content="https://hadealahmad.github.io/WPtoolbox/assets/og-image.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +29,6 @@
     <link rel="stylesheet" href="css/globals.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="js/core.js" defer></script>
-    <script src="js/font-cleaner.js" defer></script>
 </head>
 
 <body class="min-h-screen flex flex-col grid-bg">
@@ -25,50 +39,42 @@
     <!-- Main Content -->
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
-        <header class="mb-10">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white">Font Family Cleaner</h1>
-            <p class="text-zinc-500 mt-2">Instantly remove hardcoded font families from Gutenberg block comments.</p>
+        <header class="mb-10 text-center md:text-left">
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white">Block Font Cleaner</h1>
+            <p class="text-zinc-500 mt-2">Automatically remove hardcoded font-family declarations from block comments.
+            </p>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch" style="animation-delay: 0.1s;">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+
             <!-- Input Section -->
-            <div class="shadcn-card flex flex-col min-h-[500px] overflow-hidden">
-                <div class="px-4 py-3 border-b border-zinc-800 bg-zinc-900 flex justify-between items-center">
-                    <span class="text-xs font-bold uppercase tracking-wider text-zinc-400">Input WordPress Code</span>
-                    <button onclick="FontCleaner.reset()"
-                        class="text-[10px] font-bold uppercase text-zinc-400 hover:text-primary">Reset</button>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Input Block Code</label>
+                    <button onclick="document.getElementById('input').value = ''"
+                        class="text-xs text-zinc-500 hover:text-white transition-none">Clear</button>
                 </div>
-                <textarea id="input"
-                    class="flex-1 p-6 font-mono text-xs leading-relaxed focus:outline-none bg-transparent text-zinc-300"
-                    placeholder="Paste your block code here..."></textarea>
+                <div class="shadcn-card bg-zinc-950 border-zinc-800">
+                    <textarea id="input"
+                        class="w-full h-[500px] bg-transparent p-6 text-sm font-mono text-zinc-300 focus:outline-none resize-none leading-relaxed"
+                        placeholder="Paste your Gutenberg / Greenshift code here..."></textarea>
+                </div>
             </div>
 
             <!-- Output Section -->
-            <div class="shadcn-card flex flex-col min-h-[500px] overflow-hidden bg-zinc-900/50">
-                <div class="px-4 py-3 border-b border-zinc-800 bg-zinc-900 flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-zinc-400">Cleaned Result</span>
-                        <span id="stat-badge"
-                            class="hidden px-2 py-0.5 bg-green-900/30 text-green-400 text-[9px] font-bold rounded-full uppercase">0
-                            Removed</span>
-                    </div>
-                    <button id="copyBtn" onclick="App.copyToClipboard(document.getElementById('output').value, this)"
-                        class="shadcn-button shadcn-button-outline h-7 px-2.5 text-[10px] uppercase font-bold">Copy</button>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Cleaned Code</label>
+                    <button onclick="App.copyToClipboard(document.getElementById('output').value, this)"
+                        class="shadcn-button shadcn-button-outline h-8 px-4 text-xs">Copy Result</button>
                 </div>
-                <div class="relative flex-1">
-                    <textarea id="output"
-                        class="absolute inset-0 w-full h-full p-6 font-mono text-xs leading-relaxed focus:outline-none bg-transparent dark:text-emerald-400/90"
-                        readonly placeholder="The cleaned code will appear here..."></textarea>
+                <div class="shadcn-card bg-zinc-950 border-zinc-900 border-2">
+                    <textarea id="output" readonly
+                        class="w-full h-[500px] bg-transparent p-6 text-sm font-mono text-emerald-400 focus:outline-none resize-none leading-relaxed"
+                        placeholder="Cleaned code will appear here..."></textarea>
                 </div>
             </div>
-        </div>
 
-        <div class="mt-8 flex justify-center" style="animation-delay: 0.2s;">
-            <button onclick="FontCleaner.clean()"
-                class="shadcn-button shadcn-button-primary h-14 px-12 text-base shadow-xl shadow-zinc-200 dark:shadow-none">
-                <i data-lucide="sparkles" class="w-5 h-5"></i>
-                Clean Font Families
-            </button>
         </div>
 
     </main>
@@ -78,11 +84,26 @@
 
     <!-- Global Toast Container -->
     <div id="toast" class="fixed bottom-8 right-8 translate-y-24 opacity-0 z-50">
-        <div class="shadcn-card px-6 py-4 bg-zinc-900 dark:bg-zinc-800 text-white flex items-center gap-3 shadow-2xl">
+        <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>
         </div>
     </div>
+
+    <script>
+        const input = document.getElementById('input');
+        const output = document.getElementById('output');
+
+        input.oninput = () => {
+            let val = input.value;
+            // Enhanced regex to catch font-family in both JSON and standard comment styles
+            val = val.replace(/"fontFamily":"[^"]*",?/g, '');
+            val = val.replace(/font-family:[^;"]*;?/g, '');
+            // Clean up trailing commas in objects
+            val = val.replace(/,}/g, '}');
+            output.value = val;
+        };
+    </script>
 </body>
 
 </html>

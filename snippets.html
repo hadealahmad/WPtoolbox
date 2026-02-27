@@ -4,7 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WP Snippets | WPToolbox</title>
+    <title>WordPress Snippets | WPToolbox</title>
+    <meta name="description"
+        content="Production-ready WordPress snippets for performance, security, and development. Curated and high-impact.">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hadealahmad.github.io/WPtoolbox/snippets.html">
+    <meta property="og:title" content="WordPress Snippets | WPToolbox">
+    <meta property="og:description" content="A curated collection of essential WordPress development snippets.">
+    <meta property="og:image" content="https://hadealahmad.github.io/WPtoolbox/assets/og-image.png">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hadealahmad">
+    <meta name="twitter:title" content="WordPress Snippets | WPToolbox">
+    <meta name="twitter:description" content="A curated collection of essential WordPress development snippets.">
+    <meta name="twitter:image" content="https://hadealahmad.github.io/WPtoolbox/assets/og-image.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,14 +40,14 @@
     <!-- Main Content -->
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
-        <header class="mb-10 flex flex-col md:flex-row justify-between items-end gap-6">
+        <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-                <h1 class="text-4xl font-extrabold tracking-tighter text-white">WordPress Snippets</h1>
-                <p class="text-zinc-500 mt-2">Essential code snippets for .htaccess, wp-config, and PHP optimization.
-                </p>
+                <h1 class="text-4xl font-extrabold tracking-tighter text-white">Project Snippets</h1>
+                <p class="text-zinc-500 mt-2">Essential configurations for WordPress, PHP, and Apache.</p>
             </div>
 
-            <div class="flex gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800 shadow-sm">
+            <!-- Category Filter -->
+            <div id="category-filters" class="flex flex-wrap gap-2 p-1 bg-zinc-900 border border-zinc-800 rounded-lg">
                 <button data-category="all"
                     class="category-filter px-4 py-1.5 text-xs font-bold rounded-md bg-white text-zinc-950">ALL</button>
                 <button data-category="Server"
@@ -46,8 +61,14 @@
             </div>
         </header>
 
-        <div id="snippets-container" class="grid grid-cols-1 md:grid-cols-2 gap-6" style="animation-delay: 0.1s;">
-            <!-- Snippets will be injected here -->
+        <!-- Snippets Grid -->
+        <div id="snippets-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Injected by JS -->
+            <div class="col-span-full py-20 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-zinc-800 border-t-primary">
+                </div>
+                <p class="mt-4 text-zinc-500 font-medium">Loading snippets library...</p>
+            </div>
         </div>
 
     </main>
@@ -57,7 +78,7 @@
 
     <!-- Global Toast Container -->
     <div id="toast" class="fixed bottom-8 right-8 translate-y-24 opacity-0 z-50">
-        <div class="shadcn-card px-6 py-4 bg-zinc-900 dark:bg-zinc-800 text-white flex items-center gap-3 shadow-2xl">
+        <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>
         </div>

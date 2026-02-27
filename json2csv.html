@@ -5,6 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSON to CSV | WPToolbox</title>
+    <meta name="description"
+        content="Extract and convert structured JSON data arrays into clean CSV files instantly. Safe and browser-based.">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hadealahmad.github.io/WPtoolbox/json2csv.html">
+    <meta property="og:title" content="JSON to CSV Converter | WPToolbox">
+    <meta property="og:description" content="Small, fast utility for JSON to CSV conversion.">
+    <meta property="og:image" content="https://hadealahmad.github.io/WPtoolbox/assets/og-image.png">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hadealahmad">
+    <meta name="twitter:title" content="JSON to CSV Converter | WPToolbox">
+    <meta name="twitter:description" content="Small, fast utility for JSON to CSV conversion.">
+    <meta name="twitter:image" content="https://hadealahmad.github.io/WPtoolbox/assets/og-image.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +29,6 @@
     <link rel="stylesheet" href="css/globals.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="js/core.js" defer></script>
-    <script src="js/json-converter.js" defer></script>
 </head>
 
 <body class="min-h-screen flex flex-col grid-bg">
@@ -27,60 +41,57 @@
 
         <header class="mb-10 text-center md:text-left">
             <h1 class="text-4xl font-extrabold tracking-tighter text-white">JSON to CSV Converter</h1>
-            <p class="text-zinc-500 mt-2">Convert JSON files with a <span
-                    class="text-zinc-300 font-semibold underline decoration-zinc-700">"data"</span>
-                array to structured CSV format.</p>
+            <p class="text-zinc-500 mt-2">Paste a JSON array of objects to generate a downloadable CSV file instantly.
+            </p>
         </header>
 
-        <!-- Upload Section -->
-        <section class="animate-fade-in" style="animation-delay: 0.1s;">
-            <div id="drop-zone"
-                class="shadcn-card border-2 border-dashed p-16 text-center cursor-pointer hover:bg-zinc-900/50 group">
-                <input id="file-input" type="file" accept=".json" class="hidden">
-                <div class="flex flex-col items-center gap-6">
-                    <div
-                        class="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-400 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
-                        <i data-lucide="file-json" class="w-8 h-8"></i>
-                    </div>
-                    <div class="space-y-2">
-                        <p class="text-xl font-semibold text-white">Drop JSON file here</p>
-                        <p class="text-zinc-400 text-sm">or click to browse your computer</p>
-                    </div>
-                </div>
-            </div>
-            <div id="status-bar"
-                class="hidden mt-4 p-4 border border-zinc-800 rounded-xl bg-zinc-900 shadow-sm flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div id="status-icon" class="p-1.5 bg-blue-900/20 text-blue-400 rounded-lg">
-                        <i data-lucide="loader-2" class="w-4 h-4"></i>
-                    </div>
-                    <span id="status-text" class="text-sm font-medium text-zinc-400">Processing
-                        file...</span>
-                </div>
-                <button id="download-btn" disabled
-                    class="shadcn-button shadcn-button-primary h-10 px-6 opacity-50 cursor-not-allowed">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                    Download CSV
-                </button>
-            </div>
-        </section>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-        <!-- Preview -->
-        <section id="preview-section" class="hidden mt-12 space-y-4">
-            <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400 flex items-center gap-2">
-                <i data-lucide="eye" class="w-4 h-4"></i>
-                CSV Output Preview
-            </h3>
-            <div class="shadcn-card bg-zinc-900 border-zinc-800 p-6 overflow-hidden relative">
-                <div
-                    class="absolute top-4 right-4 text-[10px] font-bold text-zinc-700 uppercase tracking-widest pointer-events-none">
-                    TTY_TERMINAL</div>
-                <div id="csv-preview"
-                    class="font-mono text-xs text-emerald-400/90 leading-relaxed whitespace-pre overflow-auto max-h-[400px] scrollbar-hide">
-                    Upload a file to see preview...
+            <!-- Input Section -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">JSON Input</label>
+                    <button onclick="document.getElementById('input').value = ''"
+                        class="text-xs text-zinc-500 hover:text-white transition-none">Clear</button>
+                </div>
+                <div class="shadcn-card bg-zinc-950 border-zinc-800">
+                    <textarea id="input"
+                        class="w-full h-[500px] bg-transparent p-6 text-sm font-mono text-zinc-300 focus:outline-none resize-none leading-relaxed"
+                        placeholder='[{"id": 1, "name": "Example"}, {"id": 2, "name": "Item"}]'></textarea>
                 </div>
             </div>
-        </section>
+
+            <!-- Settings & Action Section -->
+            <div class="space-y-8">
+                <section class="shadcn-card p-8 bg-zinc-900/50 border-zinc-800">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-6">Convert & Download</h3>
+                    <div class="space-y-6">
+                        <div class="p-4 bg-zinc-950 rounded-xl border border-zinc-800">
+                            <p class="text-xs text-zinc-500 leading-relaxed">The tool will automatically detect keys
+                                from
+                                the first object and use them as headers. Only arrays of objects are supported.</p>
+                        </div>
+                        <button onclick="handleConvert()"
+                            class="shadcn-button shadcn-button-primary w-full h-12 text-sm gap-2">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            Download CSV
+                        </button>
+                    </div>
+                </section>
+
+                <section class="p-6 border border-zinc-900 rounded-xl flex items-start gap-4">
+                    <div class="p-2 bg-primary/10 rounded-lg">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-primary"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">Browser Processing</h4>
+                        <p class="text-xs text-zinc-500 mt-1 leading-relaxed">Your JSON data is processed entirely in
+                            your browser. Nothing is sent to any server.</p>
+                    </div>
+                </section>
+            </div>
+
+        </div>
 
     </main>
 
@@ -89,11 +100,57 @@
 
     <!-- Global Toast Container -->
     <div id="toast" class="fixed bottom-8 right-8 translate-y-24 opacity-0 z-50">
-        <div class="shadcn-card px-6 py-4 bg-zinc-900 dark:bg-zinc-800 text-white flex items-center gap-3 shadow-2xl">
+        <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>
         </div>
     </div>
+
+    <script>
+        function handleConvert() {
+            const input = document.getElementById('input').value;
+            if (!input.trim()) {
+                App.showToast('Please enter some JSON data.');
+                return;
+            }
+
+            try {
+                const data = JSON.parse(input);
+                if (!Array.isArray(data)) {
+                    App.showToast('JSON must be an array of objects.');
+                    return;
+                }
+
+                const keys = Object.keys(data[0]);
+                const csvRows = [];
+                csvRows.push(keys.join(','));
+
+                for (const row of data) {
+                    const values = keys.map(key => {
+                        const val = row[key] === null || row[key] === undefined ? "" : row[key];
+                        const escaped = ('' + val).replace(/"/g, '""');
+                        return `"${escaped}"`;
+                    });
+                    csvRows.push(values.join(','));
+                }
+
+                const csvString = csvRows.join('\n');
+                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", "data-export.csv");
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                App.showToast('CSV generated successfully!');
+
+            } catch (e) {
+                App.showToast('Invalid JSON format.');
+            }
+        }
+    </script>
 </body>
 
 </html>
