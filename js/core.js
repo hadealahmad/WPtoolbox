@@ -3,170 +3,46 @@
  * Shared logic for all tools
  */
 
-const App = {
+// -----------------------------------------------------------------------------
+// 1. STATE MANAGEMENT
+// -----------------------------------------------------------------------------
+const State = {
     translations: {},
     currentLang: localStorage.getItem('wptoolbox_lang') || 'en',
 
-    /**
-     * Initialize Lucide icons, theme, and shared components
-     */
-    init: async () => {
-        App.initTheme(); // Must be first to prevent light flash
-        await App.loadTranslations();
-        App.updateDirection();
-        App.renderNavbar();
-        App.renderFooter();
-        App.translatePage();
-        App.initCommandPalette();
-        App.initServiceWorker();
+    setLanguage(lang) {
+        this.currentLang = lang;
+        localStorage.setItem('wptoolbox_lang', lang);
+    }
+};
 
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    },
-
-    /**
-     * Set up Service Worker for Offline Mode
-     */
-    initServiceWorker: () => {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').catch(err => {
-                console.warn('SW registration failed:', err);
-            });
-        }
-    },
-
-    /**
-     * Command Palette (Ctrl + K)
-     */
-    initCommandPalette: () => {
-        const palette = document.createElement('div');
-        palette.id = 'cmd-palette';
-        palette.className = 'fixed inset-0 z-[100] hidden flex items-start justify-center pt-[10vh] px-4 bg-zinc-950/80 backdrop-blur-sm';
-        palette.innerHTML = `
-            <div class="w-full max-w-xl bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div class="flex items-center gap-3 px-4 py-4 border-b border-zinc-800">
-                    <i data-lucide="search" class="w-5 h-5 text-zinc-500"></i>
-                    <input type="text" id="cmd-search" class="bg-transparent border-none focus:outline-none text-white w-full text-base" 
-                        placeholder="${App.t('palette_placeholder')}">
-                </div>
-                <div id="cmd-results" class="max-h-[400px] overflow-y-auto p-2"></div>
-            </div>
-        `;
-        document.body.appendChild(palette);
-
-        const input = palette.querySelector('#cmd-search');
-        const results = palette.querySelector('#cmd-results');
-
-        const tools = [
-            { name: App.t('nav_awesome_stack'), href: 'awesomestack.html', icon: 'layers' },
-            { name: App.t('nav_img2webp'), href: 'img2webp.html', icon: 'image' },
-            { name: App.t('nav_font_cleaner'), href: 'clearfonts.html', icon: 'eraser' },
-            { name: App.t('nav_xml_conv'), href: 'xml2csv.html', icon: 'file-output' },
-            { name: App.t('nav_json2csv'), href: 'json2csv.html', icon: 'file-json' },
-            { name: App.t('nav_snippets'), href: 'snippets.html', icon: 'code-2' },
-            { name: App.t('nav_tips'), href: 'tips.html', icon: 'lightbulb' }
-        ];
-
-        const renderTools = (filter = '') => {
-            const filtered = tools.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()));
-            results.innerHTML = filtered.map((t, idx) => `
-                <a href="${t.href}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-800 group transition-none">
-                    <div class="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-primary transition-none">
-                        <i data-lucide="${t.icon}" class="w-4 h-4"></i>
-                    </div>
-                    <span class="text-sm font-medium text-zinc-300 group-hover:text-white">${t.name}</span>
-                </a>
-            `).join('');
-            if (typeof lucide !== 'undefined') lucide.createIcons({ props: { class: 'w-4 h-4' }, container: results });
-        };
-
-        window.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                palette.classList.toggle('hidden');
-                if (!palette.classList.contains('hidden')) input.focus();
-            }
-            if (e.key === 'Escape') palette.classList.add('hidden');
-        });
-
-        palette.onclick = (e) => { if (e.target === palette) palette.classList.add('hidden'); };
-        input.oninput = (e) => renderTools(e.target.value);
-        renderTools();
-    },
-
-    /**
-     * Fire Sparkle/Confetti Effect
-     */
-    fireConfetti: () => {
-        if (typeof confetti === 'function') {
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#0ad28d', '#ffffff', '#1a1a1a']
-            });
-        }
-    },
-
-    /**
-     * Load translations from JSON
-     */
-    loadTranslations: async () => {
+// -----------------------------------------------------------------------------
+// 2. INTERNATIONALIZATION (I18n)
+// -----------------------------------------------------------------------------
+const I18n = {
+    async loadTranslations() {
         try {
             const response = await fetch('js/translations.json');
-            App.translations = await response.json();
+            State.translations = await response.json();
         } catch (err) {
             console.error('Failed to load translations:', err);
         }
     },
 
-    /**
-     * Set up dark theme (Dark Only Mode)
-     */
-    initTheme: () => {
-        document.documentElement.classList.add('dark');
-    },
-
-    /**
-     * Update document direction and language attribute
-     */
-    updateDirection: () => {
-        const lang = App.currentLang;
+    updateDirection() {
+        const lang = State.currentLang;
         document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
         document.documentElement.lang = lang;
     },
 
-    /**
-     * Switch language and reload UI
-     */
-    setLanguage: (lang) => {
-        App.currentLang = lang;
-        localStorage.setItem('wptoolbox_lang', lang);
-        App.updateDirection();
-        App.renderNavbar();
-        App.renderFooter();
-        App.translatePage();
-
-        const cmdSearch = document.getElementById('cmd-search');
-        if (cmdSearch) cmdSearch.placeholder = App.t('palette_placeholder');
-
-        // Refresh icons for new content
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-
-        // Custom event for tool-specific translations (snippets, tips, etc)
-        window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
+    t(key) {
+        return State.translations[State.currentLang]?.[key] || key;
     },
 
-    /**
-     * Translate static elements with data-i18n attributes
-     */
-    translatePage: () => {
-        if (!App.translations[App.currentLang]) return;
+    translatePage() {
+        if (!State.translations[State.currentLang]) return;
 
-        const langData = App.translations[App.currentLang];
+        const langData = State.translations[State.currentLang];
 
         // Translate text content
         document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -195,34 +71,33 @@ const App = {
             const meta = document.querySelector('meta[name="description"]');
             if (meta) meta.setAttribute('content', docDesc);
         }
+    }
+};
+
+// -----------------------------------------------------------------------------
+// 3. USER INTERFACE (UI)
+// -----------------------------------------------------------------------------
+const UI = {
+    initTheme() {
+        document.documentElement.classList.add('dark');
     },
 
-    /**
-     * Get a specific translation string
-     */
-    t: (key) => {
-        return App.translations[App.currentLang]?.[key] || key;
-    },
-
-    /**
-     * Render the unified navbar
-     */
-    renderNavbar: () => {
+    renderNavbar() {
         const nav = document.getElementById('global-nav');
         if (!nav) return;
 
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
         const links = [
-            { href: 'awesomestack.html', text: App.t('nav_awesome_stack'), icon: 'layers' },
-            { href: 'img2webp.html', text: App.t('nav_img2webp'), icon: 'image' },
-            { href: 'tips.html', text: App.t('nav_tips'), icon: 'lightbulb' },
-            { href: 'clearfonts.html', text: App.t('nav_font_cleaner'), icon: 'type' },
-            { href: 'xml2csv.html', text: App.t('nav_xml_conv'), icon: 'file-text' },
-            { href: 'json2csv.html', text: App.t('nav_json2csv'), icon: 'code' },
-            { href: 'snippets.html', text: App.t('nav_snippets'), icon: 'scissors' }
+            { href: 'awesomestack.html', text: I18n.t('nav_awesome_stack'), icon: 'layers' },
+            { href: 'img2webp.html', text: I18n.t('nav_img2webp'), icon: 'image' },
+            { href: 'tips.html', text: I18n.t('nav_tips'), icon: 'lightbulb' },
+            { href: 'clearfonts.html', text: I18n.t('nav_font_cleaner'), icon: 'type' },
+            { href: 'xml2csv.html', text: I18n.t('nav_xml_conv'), icon: 'file-text' },
+            { href: 'json2csv.html', text: I18n.t('nav_json2csv'), icon: 'code' },
+            { href: 'snippets.html', text: I18n.t('nav_snippets'), icon: 'scissors' }
         ];
 
-        const isAr = App.currentLang === 'ar';
+        const isAr = State.currentLang === 'ar';
 
         const navHtml = `
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -240,6 +115,12 @@ const App = {
                             <a href="${link.href}" class="text-sm font-medium ${currentPath === link.href ? 'text-white' : 'text-zinc-500 hover:text-white'} transition-none">${link.text}</a>
                         `).join('')}
                         <div class="h-4 w-px bg-zinc-800"></div>
+                        
+                        <button onclick="document.getElementById('cmd-palette')?.classList.remove('hidden'); document.getElementById('cmd-search')?.focus();" class="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-zinc-400 hover:text-white transition-none group">
+                            <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                            <span class="text-[10px] font-mono tracking-widest opacity-80 mt-px">CTRL+K</span>
+                        </button>
+
                         <button onclick="App.setLanguage('${isAr ? 'en' : 'ar'}')" class="text-xs font-bold px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-zinc-400 hover:text-white transition-none uppercase tracking-widest">
                             ${isAr ? 'English' : 'العربية'}
                         </button>
@@ -311,10 +192,7 @@ const App = {
         if (typeof lucide !== 'undefined') lucide.createIcons();
     },
 
-    /**
-     * Render the unified footer
-     */
-    renderFooter: () => {
+    renderFooter() {
         const footer = document.getElementById('global-footer');
         if (!footer) return;
 
@@ -327,7 +205,7 @@ const App = {
                         <span class="text-sm font-bold tracking-tighter uppercase text-white">WPToolbox</span>
                     </div>
                     <p class="text-zinc-400 text-xs text-center md:text-start">
-                        WPToolbox. ${App.t('footer_tagline')}
+                        WPToolbox. ${I18n.t('footer_tagline')}
                     </p>
                     <div class="flex items-center gap-6">
                         <a href="https://x.com/hadealahmad" target="_blank" class="text-zinc-400 hover:text-white transition-none"><i data-lucide="twitter" class="w-4 h-4"></i></a>
@@ -338,10 +216,63 @@ const App = {
         `;
     },
 
-    /**
-     * Show a global toast notification
-     */
-    showToast: (msg, duration = 3000) => {
+    initCommandPalette() {
+        const palette = document.createElement('div');
+        palette.id = 'cmd-palette';
+        palette.className = 'fixed inset-0 z-[100] hidden flex items-start justify-center pt-[10vh] px-4 bg-zinc-950/80 backdrop-blur-sm';
+        palette.innerHTML = `
+            <div class="w-full max-w-xl bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div class="flex items-center gap-3 px-4 py-4 border-b border-zinc-800">
+                    <i data-lucide="search" class="w-5 h-5 text-zinc-500"></i>
+                    <input type="text" id="cmd-search" class="bg-transparent border-none focus:outline-none text-white w-full text-base" 
+                        placeholder="${I18n.t('palette_placeholder')}">
+                </div>
+                <div id="cmd-results" class="max-h-[400px] overflow-y-auto p-2"></div>
+            </div>
+        `;
+        document.body.appendChild(palette);
+
+        const input = palette.querySelector('#cmd-search');
+        const results = palette.querySelector('#cmd-results');
+
+        const tools = [
+            { name: I18n.t('nav_awesome_stack'), href: 'awesomestack.html', icon: 'layers' },
+            { name: I18n.t('nav_img2webp'), href: 'img2webp.html', icon: 'image' },
+            { name: I18n.t('nav_font_cleaner'), href: 'clearfonts.html', icon: 'eraser' },
+            { name: I18n.t('nav_xml_conv'), href: 'xml2csv.html', icon: 'file-output' },
+            { name: I18n.t('nav_json2csv'), href: 'json2csv.html', icon: 'file-json' },
+            { name: I18n.t('nav_snippets'), href: 'snippets.html', icon: 'code-2' },
+            { name: I18n.t('nav_tips'), href: 'tips.html', icon: 'lightbulb' }
+        ];
+
+        const renderTools = (filter = '') => {
+            const filtered = tools.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()));
+            results.innerHTML = filtered.map((t, idx) => `
+                <a href="${t.href}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-800 group transition-none">
+                    <div class="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-primary transition-none">
+                        <i data-lucide="${t.icon}" class="w-4 h-4"></i>
+                    </div>
+                    <span class="text-sm font-medium text-zinc-300 group-hover:text-white">${t.name}</span>
+                </a>
+            `).join('');
+            if (typeof lucide !== 'undefined') lucide.createIcons({ props: { class: 'w-4 h-4' }, container: results });
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                palette.classList.toggle('hidden');
+                if (!palette.classList.contains('hidden')) input.focus();
+            }
+            if (e.key === 'Escape') palette.classList.add('hidden');
+        });
+
+        palette.onclick = (e) => { if (e.target === palette) palette.classList.add('hidden'); };
+        input.oninput = (e) => renderTools(e.target.value);
+        renderTools();
+    },
+
+    showToast(msg, duration = 3000) {
         const toast = document.getElementById('toast');
         const toastMsg = document.getElementById('toast-msg');
         if (!toast || !toastMsg) return;
@@ -354,10 +285,31 @@ const App = {
         }, duration);
     },
 
-    /**
-     * Handle CSV string escaping
-     */
-    escapeCSV: (val) => {
+    fireConfetti() {
+        if (typeof confetti === 'function') {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#0ad28d', '#ffffff', '#1a1a1a']
+            });
+        }
+    }
+};
+
+// -----------------------------------------------------------------------------
+// 4. UTILITIES (Utils)
+// -----------------------------------------------------------------------------
+const Utils = {
+    initServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(err => {
+                console.warn('SW registration failed:', err);
+            });
+        }
+    },
+
+    escapeCSV(val) {
         if (val === null || val === undefined) return '""';
         let s = String(val).replace(/\r/g, '').replace(/\n/g, ' ');
         if (/[",\n\r]/.test(s)) {
@@ -366,10 +318,7 @@ const App = {
         return s;
     },
 
-    /**
-     * Programmatic file download
-     */
-    downloadFile: (content, filename, type = 'text/plain;charset=utf-8') => {
+    downloadFile(content, filename, type = 'text/plain;charset=utf-8') {
         const blob = new Blob([content], { type });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -381,15 +330,15 @@ const App = {
         URL.revokeObjectURL(url);
     },
 
-    copyToClipboard: async (text, btnElement, feedbackText = App.t('copy_btn') + "!") => {
+    async copyToClipboard(text, btnElement, feedbackText) {
         const cleanText = String(text || "").trim();
         if (!cleanText) return;
 
         const performFeedback = () => {
             const originalText = btnElement.innerHTML;
-            btnElement.innerHTML = feedbackText;
-            App.showToast(App.t('copy_btn') + " " + App.t('to_clipboard'));
-            App.fireConfetti();
+            btnElement.innerHTML = feedbackText || (I18n.t('copy_btn') + "!");
+            UI.showToast(I18n.t('copy_btn') + " " + I18n.t('to_clipboard'));
+            UI.fireConfetti();
             setTimeout(() => {
                 btnElement.innerHTML = originalText;
             }, 2000);
@@ -420,10 +369,77 @@ const App = {
                     throw new Error('ExecCommand failed');
                 }
             } catch (fallbackErr) {
-                App.showToast("Failed to copy", 2000);
+                UI.showToast("Failed to copy", 2000);
             }
         }
     }
+};
+
+// -----------------------------------------------------------------------------
+// 5. APPLICATION FACADE (App)
+// -----------------------------------------------------------------------------
+const App = {
+    // 5.1 Expose variables
+    get translations() { return State.translations; },
+    set translations(val) { State.translations = val; },
+
+    get currentLang() { return State.currentLang; },
+    set currentLang(val) { State.currentLang = val; },
+
+    // 5.2 Expose Initialization
+    async init() {
+        UI.initTheme(); // Must be first to prevent light flash
+        await I18n.loadTranslations();
+        I18n.updateDirection();
+        UI.renderNavbar();
+        UI.renderFooter();
+        I18n.translatePage();
+        UI.initCommandPalette();
+        Utils.initServiceWorker();
+
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    },
+
+    // 5.3 Expose Public Methods
+    setLanguage(lang) {
+        State.setLanguage(lang);
+        I18n.updateDirection();
+        UI.renderNavbar();
+        UI.renderFooter();
+        I18n.translatePage();
+
+        const cmdSearch = document.getElementById('cmd-search');
+        if (cmdSearch) cmdSearch.placeholder = I18n.t('palette_placeholder');
+
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
+    },
+
+    t: (key) => I18n.t(key),
+
+    // UI
+    showToast: (msg, duration) => UI.showToast(msg, duration),
+    fireConfetti: () => UI.fireConfetti(),
+
+    // Tools
+    escapeCSV: (val) => Utils.escapeCSV(val),
+    downloadFile: (content, filename, type) => Utils.downloadFile(content, filename, type),
+    copyToClipboard: (text, btnElement, feedbackText) => Utils.copyToClipboard(text, btnElement, feedbackText),
+
+    // Internals
+    initTheme: () => UI.initTheme(),
+    loadTranslations: () => I18n.loadTranslations(),
+    updateDirection: () => I18n.updateDirection(),
+    renderNavbar: () => UI.renderNavbar(),
+    renderFooter: () => UI.renderFooter(),
+    translatePage: () => I18n.translatePage(),
+    initCommandPalette: () => UI.initCommandPalette(),
+    initServiceWorker: () => Utils.initServiceWorker()
 };
 
 // Auto-init on load
