@@ -9,6 +9,7 @@ A premium suite of lightweight, professional, and privacy-first browser-based to
 - **WordPress Snippets**: A curated collection of essential snippets for `.htaccess`, `wp-config.php`, and WordPress plugins.
 - **Block Font Cleaner**: Automatically remove hardcoded fonts from Gutenberg and Greenshift block comments.
 - **Data Converters**: Robust XML to CSV (with HTML-to-Markdown) and JSON to CSV utilities.
+- **Multilingual Support**: Professional Arabic and English localization with automatic RTL (Right-to-Left) layout switching.
 
 ## 🛡️ Privacy First
 
@@ -27,5 +28,5 @@ If you are a developer looking to contribute or understand the project structure
 This project is licensed under the [MIT License](LICENSE).
 
 ---
-Created by [Hadeal Ahmad](https://github.com/hadealahmad)
+Created by [Hadi Alahmad](https://github.com/hadealahmad)
 Follow on [X / Twitter](https://x.com/hadealahmad)

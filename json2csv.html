@@ -24,7 +24,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/globals.css">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -39,58 +39,92 @@
     <!-- Main Content -->
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
-        <header class="mb-10 text-center md:text-left">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white">JSON to CSV Converter</h1>
-            <p class="text-zinc-500 mt-2">Paste a JSON array of objects to generate a downloadable CSV file instantly.
-            </p>
+        <header class="mb-10 text-center md:text-start">
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_json2csv_title">JSON to CSV
+                Converter</h1>
+            <p class="text-zinc-500 mt-2" data-i18n="tool_json2csv_desc">Extract and convert structured JSON data arrays
+                into clean CSV files for
+                spreadsheet analysis.</p>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-
-            <!-- Input Section -->
-            <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">JSON Input</label>
-                    <button onclick="document.getElementById('input').value = ''"
-                        class="text-xs text-zinc-500 hover:text-white transition-none">Clear</button>
+        <div class="grid grid-cols-1 gap-10">
+            <!-- Input Card -->
+            <div class="shadcn-card border-zinc-800 bg-zinc-950/50 overflow-hidden">
+                <!-- Tab Headers -->
+                <div class="flex border-b border-zinc-800 bg-zinc-900/30">
+                    <button id="tab-file-btn"
+                        class="px-8 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-primary text-white transition-none"
+                        data-i18n="tab_file">
+                        File Upload
+                    </button>
+                    <button id="tab-text-btn"
+                        class="px-8 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-zinc-500 hover:text-zinc-300 transition-none"
+                        data-i18n="tab_text">
+                        Paste Text
+                    </button>
                 </div>
-                <div class="shadcn-card bg-zinc-950 border-zinc-800">
-                    <textarea id="input"
-                        class="w-full h-[500px] bg-transparent p-6 text-sm font-mono text-zinc-300 focus:outline-none resize-none leading-relaxed"
-                        placeholder='[{"id": 1, "name": "Example"}, {"id": 2, "name": "Item"}]'></textarea>
-                </div>
-            </div>
 
-            <!-- Settings & Action Section -->
-            <div class="space-y-8">
-                <section class="shadcn-card p-8 bg-zinc-900/50 border-zinc-800">
-                    <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-6">Convert & Download</h3>
-                    <div class="space-y-6">
-                        <div class="p-4 bg-zinc-950 rounded-xl border border-zinc-800">
-                            <p class="text-xs text-zinc-500 leading-relaxed">The tool will automatically detect keys
-                                from
-                                the first object and use them as headers. Only arrays of objects are supported.</p>
+                <!-- Tab Content: File -->
+                <div id="file-tab-content" class="p-10">
+                    <div id="drop-zone"
+                        class="border-2 border-dashed border-zinc-800 rounded-2xl p-20 text-center cursor-pointer hover:bg-zinc-900/50 group transition-none">
+                        <input type="file" id="fileInput" accept=".json" class="hidden">
+                        <div class="flex flex-col items-center gap-6">
+                            <div
+                                class="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-400 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-none">
+                                <i data-lucide="upload-cloud" class="w-8 h-8"></i>
+                            </div>
+                            <div class="space-y-2">
+                                <p class="text-xl font-semibold text-white" data-i18n="drop_json">Drop your JSON file
+                                    here
+                                </p>
+                                <p class="text-zinc-400 text-sm" data-i18n="drop_browse">or click to browse your files
+                                </p>
+                            </div>
                         </div>
-                        <button onclick="handleConvert()"
-                            class="shadcn-button shadcn-button-primary w-full h-12 text-sm gap-2">
-                            <i data-lucide="download" class="w-4 h-4"></i>
-                            Download CSV
+                    </div>
+                </div>
+
+                <!-- Tab Content: Text -->
+                <div id="text-tab-content" class="p-10 hidden space-y-6">
+                    <textarea id="textInput"
+                        class="w-full h-[400px] bg-zinc-950 border border-zinc-800 rounded-xl p-6 text-sm font-mono text-zinc-300 focus:outline-none focus:border-primary resize-none leading-relaxed"
+                        placeholder='[{"id": 1, "name": "Example"}]'></textarea>
+                    <div class="flex justify-end">
+                        <button id="convertTextBtn"
+                            class="shadcn-button shadcn-button-primary h-12 px-10 text-xs gap-2">
+                            <i data-lucide="zap" class="w-4 h-4"></i>
+                            <span data-i18n="btn_convert">Convert to CSV</span>
                         </button>
                     </div>
-                </section>
-
-                <section class="p-6 border border-zinc-900 rounded-xl flex items-start gap-4">
-                    <div class="p-2 bg-primary/10 rounded-lg">
-                        <i data-lucide="shield-check" class="w-5 h-5 text-primary"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-sm font-bold text-white">Browser Processing</h4>
-                        <p class="text-xs text-zinc-500 mt-1 leading-relaxed">Your JSON data is processed entirely in
-                            your browser. Nothing is sent to any server.</p>
-                    </div>
-                </section>
+                </div>
             </div>
 
+            <!-- Result Section -->
+            <div id="result" class="hidden space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-500" data-i18n="conversion_ready">
+                        Conversion Ready</h3>
+                    <div class="flex gap-2">
+                        <button onclick="location.reload()"
+                            class="shadcn-button shadcn-button-outline h-10 px-6 text-xs" data-i18n="reset_btn">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+                <div class="shadcn-card bg-zinc-950 border-zinc-800 overflow-hidden">
+                    <div class="p-6 border-b border-zinc-900 flex items-center gap-4 bg-zinc-900/50">
+                        <div class="p-2 bg-emerald-500/10 rounded-lg">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-500"></i>
+                        </div>
+                        <div>
+                            <p id="fileName" class="text-sm font-bold text-white">data-export.csv</p>
+                            <p id="fileMeta" class="text-xs text-zinc-500 mt-0.5" data-i18n="msg_csv_success">CSV
+                                generated successfully!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </main>
@@ -99,7 +133,7 @@
     <footer id="global-footer"></footer>
 
     <!-- Global Toast Container -->
-    <div id="toast" class="fixed bottom-8 right-8 translate-y-24 opacity-0 z-50">
+    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>
@@ -107,17 +141,72 @@
     </div>
 
     <script>
-        function handleConvert() {
-            const input = document.getElementById('input').value;
-            if (!input.trim()) {
-                App.showToast('Please enter some JSON data.');
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('fileInput');
+        const textInput = document.getElementById('textInput');
+        const fileTabBtn = document.getElementById('tab-file-btn');
+        const textTabBtn = document.getElementById('tab-text-btn');
+        const fileTabContent = document.getElementById('file-tab-content');
+        const textTabContent = document.getElementById('text-tab-content');
+        const convertTextBtn = document.getElementById('convertTextBtn');
+        const resultSection = document.getElementById('result');
+
+        // Tab Switching Logic
+        fileTabBtn.onclick = () => {
+            fileTabBtn.classList.add('border-primary', 'text-white');
+            fileTabBtn.classList.remove('border-transparent', 'text-zinc-500');
+            textTabBtn.classList.remove('border-primary', 'text-white');
+            textTabBtn.classList.add('border-transparent', 'text-zinc-500');
+            fileTabContent.classList.remove('hidden');
+            textTabContent.classList.add('hidden');
+        };
+
+        textTabBtn.onclick = () => {
+            textTabBtn.classList.add('border-primary', 'text-white');
+            textTabBtn.classList.remove('border-transparent', 'text-zinc-500');
+            fileTabBtn.classList.remove('border-primary', 'text-white');
+            fileTabBtn.classList.add('border-transparent', 'text-zinc-500');
+            textTabContent.classList.remove('hidden');
+            fileTabContent.classList.add('hidden');
+        };
+
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+        dropZone.ondragover = (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-primary');
+        };
+        dropZone.ondragleave = () => dropZone.classList.remove('border-primary');
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            handleFile(e.dataTransfer.files[0]);
+        };
+
+        convertTextBtn.onclick = () => {
+            const content = textInput.value.trim();
+            if (!content) {
+                App.showToast(App.t('msg_enter_json'));
                 return;
             }
+            processJSON(content);
+        };
 
+        function handleFile(file) {
+            if (!file || !file.name.endsWith('.json')) {
+                App.showToast('Please upload a valid JSON file.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => processJSON(e.target.result);
+            reader.readAsText(file);
+        }
+
+        function processJSON(jsonString) {
             try {
-                const data = JSON.parse(input);
+                const data = JSON.parse(jsonString);
                 if (!Array.isArray(data)) {
-                    App.showToast('JSON must be an array of objects.');
+                    App.showToast(App.t('msg_json_array'));
                     return;
                 }
 
@@ -144,10 +233,13 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                App.showToast('CSV generated successfully!');
+
+                resultSection.classList.remove('hidden');
+                document.querySelector('.shadcn-card.border-zinc-800').classList.add('hidden');
+                App.showToast(App.t('msg_csv_success'));
 
             } catch (e) {
-                App.showToast('Invalid JSON format.');
+                App.showToast(App.t('msg_invalid_json'));
             }
         }
     </script>

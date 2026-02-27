@@ -4,20 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordPress Snippets | WPToolbox</title>
+    <title>Tips & Facts | WPToolbox</title>
     <meta name="description"
-        content="Production-ready WordPress snippets for performance, security, and development. Curated and high-impact.">
+        content="A curated collection of obscure WordPress facts and production-ready solutions for hard-to-solve issues.">
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://hadealahmad.github.io/WPtoolbox/snippets.html">
-    <meta property="og:title" content="WordPress Snippets | WPToolbox">
-    <meta property="og:description" content="A curated collection of essential WordPress development snippets.">
+    <meta property="og:url" content="https://hadealahmad.github.io/WPtoolbox/tips.html">
+    <meta property="og:title" content="WordPress Tips & Facts | WPToolbox">
+    <meta property="og:description" content="Discover obscure WordPress facts and their practical solutions.">
     <meta property="og:image" content="https://hadealahmad.github.io/WPtoolbox/assets/og-image.png">
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hadealahmad">
-    <meta name="twitter:title" content="WordPress Snippets | WPToolbox">
-    <meta name="twitter:description" content="A curated collection of essential WordPress development snippets.">
+    <meta name="twitter:title" content="WordPress Tips & Facts | WPToolbox">
+    <meta name="twitter:description" content="Discover obscure WordPress facts and their practical solutions.">
     <meta name="twitter:image" content="https://hadealahmad.github.io/WPtoolbox/assets/og-image.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="css/globals.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="js/core.js" defer></script>
-    <script src="js/snippets.js" defer></script>
+    <script src="js/tips.js" defer></script>
 </head>
 
 <body class="min-h-screen flex flex-col grid-bg">
@@ -41,26 +41,34 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
         <header class="mb-10 text-center md:text-start">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_snippets_title">WordPress
-                Snippets</h1>
-            <p class="text-zinc-500 mt-2" data-i18n="tool_snippets_desc">A curated collection of production-ready
-                snippets for
-                .htaccess, wp-config, and PHP performance tuning.</p>
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_tips_title">Tips & Facts
+            </h1>
+            <p class="text-zinc-500 mt-2" data-i18n="tool_tips_desc">Obscure WordPress behavior, hosting bottlenecks,
+                and clever production-tested
+                solutions.</p>
         </header>
 
-        <!-- Category Filter -->
-        <div id="categories" class="flex flex-wrap gap-2 p-1 bg-zinc-900 border border-zinc-800 rounded-lg">
-            <!-- Injected by JS -->
-        </div>
-
-        <!-- Snippets Grid -->
-        <div id="snippets-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Tips Grid -->
+        <div id="tips-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <!-- Injected by JS -->
             <div class="col-span-full py-20 text-center">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-zinc-800 border-t-primary">
                 </div>
-                <p class="mt-4 text-zinc-500 font-medium">Loading snippets library...</p>
             </div>
+        </div>
+
+        <!-- Call to action -->
+        <div
+            class="mt-20 p-10 shadcn-card bg-primary text-primary-foreground rounded-2xl flex flex-col items-center text-center">
+            <h2 class="text-3xl font-bold tracking-tight mb-4" data-i18n="cta_ninja_title">Have a Ninja Tip?</h2>
+            <p class="max-w-xl opacity-90 mb-8 font-medium" data-i18n="cta_ninja_desc">If you've encountered a
+                hard-to-solve WordPress issue and
+                found a clever fix, we want to hear it! Help other developers save hours of debugging.</p>
+            <a href="https://x.com/hadealahmad" target="_blank"
+                class="bg-white text-zinc-950 px-8 py-3 rounded-xl font-bold flex items-center gap-3 hover:scale-105 transition-all">
+                <i data-lucide="twitter" class="w-5 h-5"></i>
+                <span data-i18n="cta_ninja_btn">Submit a Tip</span>
+            </a>
         </div>
 
     </main>

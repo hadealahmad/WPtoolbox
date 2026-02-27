@@ -125,7 +125,7 @@ const XMLConverter = {
                 <td class="px-6 py-4 font-medium text-zinc-800">${r.title || 'Untitled'}</td>
                 <td class="px-6 py-4"><span class="px-2 py-0.5 bg-zinc-100 text-[10px] font-bold rounded uppercase">${r.type}</span></td>
                 <td class="px-6 py-4 text-zinc-400 truncate max-w-xs">${r.content.substring(0, 80)}...</td>
-                <td class="px-6 py-4 text-right tabular-nums text-zinc-500">${new Date(r.date).toLocaleDateString()}</td>
+                <td class="px-6 py-4 text-end tabular-nums text-zinc-500">${new Date(r.date).toLocaleDateString()}</td>
             `;
             XMLConverter.elements.previewBody.appendChild(tr);
         });

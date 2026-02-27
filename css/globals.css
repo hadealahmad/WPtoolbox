@@ -33,6 +33,10 @@ body {
     line-height: 1.5;
 }
 
+html[lang="ar"] body {
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
 .glass-header {
     background-color: var(--background);
     opacity: 0.98;

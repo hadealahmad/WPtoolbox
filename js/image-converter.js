@@ -46,7 +46,7 @@ const ImageConverter = {
     handleFiles: (fileList) => {
         const validFiles = Array.from(fileList).filter(f => f.type.startsWith('image/'));
         if (validFiles.length === 0) {
-            App.showToast('Please upload valid image files');
+            App.showToast(App.t('msg_upload_images'));
             return;
         }
 
@@ -107,18 +107,18 @@ const ImageConverter = {
             <div class="w-20 h-20 rounded-lg overflow-hidden bg-zinc-950 border border-zinc-800 shrink-0">
                 <img src="${item.url}" class="w-full h-full object-cover">
             </div>
-            <div class="flex-1 min-w-0 text-center md:text-left">
+            <div class="flex-1 min-w-0 text-center md:text-start">
                 <p class="text-sm font-bold text-white truncate">${item.name}</p>
                 <div class="flex flex-wrap justify-center md:justify-start gap-4 mt-1">
-                    <span class="text-[10px] text-zinc-500 uppercase tracking-tighter">Original: <b>${(item.originalSize / 1024).toFixed(1)} KB</b></span>
-                    <span class="text-[10px] text-white uppercase tracking-tighter">WebP: <b>${(item.newSize / 1024).toFixed(1)} KB</b></span>
-                    <span class="text-[10px] ${savings > 0 ? 'text-emerald-400' : 'text-amber-400'} font-bold uppercase tracking-widest">${savings}% Saved</span>
+                    <span class="text-[10px] text-zinc-500 uppercase tracking-tighter">${App.t('label_original')}: <b>${(item.originalSize / 1024).toFixed(1)} KB</b></span>
+                    <span class="text-[10px] text-white uppercase tracking-tighter">${App.t('label_webp')}: <b>${(item.newSize / 1024).toFixed(1)} KB</b></span>
+                    <span class="text-[10px] ${savings > 0 ? 'text-emerald-400' : 'text-amber-400'} font-bold uppercase tracking-widest">${savings}% ${App.t('label_saved')}</span>
                 </div>
             </div>
             <button onclick="ImageConverter.download('${item.url}', '${item.name}')" 
                 class="shadcn-button shadcn-button-outline h-10 px-6 text-xs gap-2 shrink-0">
                 <i data-lucide="download" class="w-4 h-4"></i>
-                Download
+                ${App.t('download_btn')}
             </button>
         `;
         container.appendChild(div);
@@ -132,5 +132,12 @@ const ImageConverter = {
         a.click();
     }
 };
+
+
+document.addEventListener('languageChanged', () => {
+    if (ImageConverter.files.length > 0) {
+        ImageConverter.processAll();
+    }
+});
 
 document.addEventListener('DOMContentLoaded', ImageConverter.init);

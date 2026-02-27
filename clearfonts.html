@@ -24,7 +24,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/globals.css">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -39,10 +39,12 @@
     <!-- Main Content -->
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
-        <header class="mb-10 text-center md:text-left">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white">Block Font Cleaner</h1>
-            <p class="text-zinc-500 mt-2">Automatically remove hardcoded font-family declarations from block comments.
-            </p>
+        <header class="mb-10 text-center md:text-start">
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_font_cleaner_title">Block
+                Font Cleaner</h1>
+            <p class="text-zinc-500 mt-2" data-i18n="tool_font_cleaner_desc">Automatically remove hardcoded font-family
+                definitions from Gutenberg and
+                Greenshift block comments.</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -50,13 +52,16 @@
             <!-- Input Section -->
             <div class="space-y-4">
                 <div class="flex justify-between items-center">
-                    <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Input Block Code</label>
+                    <label class="text-xs font-bold uppercase tracking-widest text-zinc-500"
+                        data-i18n="label_input_block">Input Block Code</label>
                     <button onclick="document.getElementById('input').value = ''"
-                        class="text-xs text-zinc-500 hover:text-white transition-none">Clear</button>
+                        class="text-xs text-zinc-500 hover:text-white transition-none"
+                        data-i18n="btn_clear">Clear</button>
                 </div>
                 <div class="shadcn-card bg-zinc-950 border-zinc-800">
                     <textarea id="input"
                         class="w-full h-[500px] bg-transparent p-6 text-sm font-mono text-zinc-300 focus:outline-none resize-none leading-relaxed"
+                        data-i18n-placeholder="placeholder_input_block"
                         placeholder="Paste your Gutenberg / Greenshift code here..."></textarea>
                 </div>
             </div>
@@ -64,13 +69,16 @@
             <!-- Output Section -->
             <div class="space-y-4">
                 <div class="flex justify-between items-center">
-                    <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Cleaned Code</label>
+                    <label class="text-xs font-bold uppercase tracking-widest text-zinc-500"
+                        data-i18n="label_cleaned_code">Cleaned Code</label>
                     <button onclick="App.copyToClipboard(document.getElementById('output').value, this)"
-                        class="shadcn-button shadcn-button-outline h-8 px-4 text-xs">Copy Result</button>
+                        class="shadcn-button shadcn-button-outline h-8 px-4 text-xs" data-i18n="btn_copy_result">Copy
+                        Result</button>
                 </div>
                 <div class="shadcn-card bg-zinc-950 border-zinc-900 border-2">
                     <textarea id="output" readonly
                         class="w-full h-[500px] bg-transparent p-6 text-sm font-mono text-emerald-400 focus:outline-none resize-none leading-relaxed"
+                        data-i18n-placeholder="placeholder_cleaned_code"
                         placeholder="Cleaned code will appear here..."></textarea>
                 </div>
             </div>
@@ -83,7 +91,7 @@
     <footer id="global-footer"></footer>
 
     <!-- Global Toast Container -->
-    <div id="toast" class="fixed bottom-8 right-8 translate-y-24 opacity-0 z-50">
+    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>

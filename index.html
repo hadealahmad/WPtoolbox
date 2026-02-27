@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/globals.css">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -43,9 +43,10 @@
 
         <div class="max-w-3xl mb-16">
             <h1 class="text-6xl font-extrabold tracking-tighter text-white mb-6">
-                Lightweight tools for <span class="text-zinc-500">WordPress Wizards.</span>
+                <span data-i18n="hero_title">Lightweight tools for</span> <span class="text-zinc-500"
+                    data-i18n="hero_subtitle">WordPress Wizards.</span>
             </h1>
-            <p class="text-xl text-zinc-500 leading-relaxed">
+            <p class="text-xl text-zinc-500 leading-relaxed" data-i18n="hero_desc">
                 A minimal collection of professional-grade utilities to clean, convert, and optimize your WordPress
                 workflows. Built for speed, security, and aesthetics.
             </p>
@@ -61,13 +62,15 @@
                         class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-primary">
                         <i data-lucide="layers" class="w-6 h-6"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white">Awesome Stack</h3>
-                    <p class="text-zinc-500 leading-snug">Generate a one-liner WP-CLI command to set up your ideal
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_awesome_stack_title">
+                        Awesome Stack</h3>
+                    <p class="text-zinc-500 leading-snug" data-i18n="tool_awesome_stack_desc">Generate a one-liner
+                        WP-CLI command to set up your ideal
                         WordPress theme and plugin stack instantly.</p>
                 </div>
                 <div
                     class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    Launch Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </div>
             </a>
 
@@ -78,13 +81,15 @@
                         class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-primary">
                         <i data-lucide="image" class="w-6 h-6"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white">WebP Converter</h3>
-                    <p class="text-zinc-500 leading-snug">Convert and compress PNG/JPG images to WebP format directly in
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_img2webp_title">WebP
+                        Converter</h3>
+                    <p class="text-zinc-500 leading-snug" data-i18n="tool_img2webp_desc">Convert and compress PNG/JPG
+                        images to WebP format directly in
                         your browser for faster site speeds.</p>
                 </div>
                 <div
                     class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    Launch Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </div>
             </a>
 
@@ -95,13 +100,15 @@
                         class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground">
                         <i data-lucide="eraser" class="w-6 h-6"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white">Block Font Cleaner</h3>
-                    <p class="text-zinc-500 leading-snug">Automatically remove hardcoded font-family definitions from
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_font_cleaner_title">
+                        Block Font Cleaner</h3>
+                    <p class="text-zinc-500 leading-snug" data-i18n="tool_font_cleaner_desc">Automatically remove
+                        hardcoded font-family definitions from
                         Gutenberg and Greenshift block comments.</p>
                 </div>
                 <div
                     class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    Launch Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </div>
             </a>
 
@@ -112,13 +119,15 @@
                         class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground">
                         <i data-lucide="file-output" class="w-6 h-6"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white">XML to CSV Converter</h3>
-                    <p class="text-zinc-500 leading-snug">Transform standard WordPress export files into structured CSVs
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_xml_conv_title">XML to
+                        CSV Converter</h3>
+                    <p class="text-zinc-500 leading-snug" data-i18n="tool_xml_conv_desc">Transform standard WordPress
+                        export files into structured CSVs
                         with built-in HTML to Markdown conversion.</p>
                 </div>
                 <div
                     class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    Launch Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </div>
             </a>
 
@@ -129,13 +138,15 @@
                         class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground">
                         <i data-lucide="file-json" class="w-6 h-6"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white">JSON to CSV Converter</h3>
-                    <p class="text-zinc-500 leading-snug">Extract and convert structured JSON data arrays into clean CSV
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_json2csv_title">JSON
+                        to CSV Converter</h3>
+                    <p class="text-zinc-500 leading-snug" data-i18n="tool_json2csv_desc">Extract and convert structured
+                        JSON data arrays into clean CSV
                         files for spreadsheet analysis.</p>
                 </div>
                 <div
                     class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    Launch Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </div>
             </a>
 
@@ -146,13 +157,34 @@
                         class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground">
                         <i data-lucide="code-2" class="w-6 h-6"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white">WordPress Snippets</h3>
-                    <p class="text-zinc-500 leading-snug">A curated collection of production-ready snippets for
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_snippets_title">
+                        WordPress Snippets</h3>
+                    <p class="text-zinc-500 leading-snug" data-i18n="tool_snippets_desc">A curated collection of
+                        production-ready snippets for
                         .htaccess, wp-config, and PHP performance tuning.</p>
                 </div>
                 <div
                     class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    Launch Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </div>
+            </a>
+
+            <!-- Tool 7: Tips & Facts -->
+            <a href="tips.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
+                <div>
+                    <div
+                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-amber-400">
+                        <i data-lucide="lightbulb" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_tips_title">Tips &
+                        Facts</h3>
+                    <p class="text-zinc-500 leading-snug" data-i18n="tool_tips_desc">Obscure WordPress behavior, hosting
+                        bottlenecks, and clever
+                        production-tested solutions.</p>
+                </div>
+                <div
+                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
+                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </div>
             </a>
 

@@ -4,15 +4,34 @@
  */
 
 const App = {
+    translations: {},
+    currentLang: localStorage.getItem('wptoolbox_lang') || 'en',
+
     /**
      * Initialize Lucide icons, theme, and shared components
      */
-    init: () => {
+    init: async () => {
         App.initTheme(); // Must be first to prevent light flash
+        await App.loadTranslations();
+        App.updateDirection();
         App.renderNavbar();
         App.renderFooter();
+        App.translatePage();
+
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
+        }
+    },
+
+    /**
+     * Load translations from JSON
+     */
+    loadTranslations: async () => {
+        try {
+            const response = await fetch('js/translations.json');
+            App.translations = await response.json();
+        } catch (err) {
+            console.error('Failed to load translations:', err);
         }
     },
 
@@ -21,7 +40,79 @@ const App = {
      */
     initTheme: () => {
         document.documentElement.classList.add('dark');
-        // We no longer check localStorage as dark mode is now mandatory
+    },
+
+    /**
+     * Update document direction and language attribute
+     */
+    updateDirection: () => {
+        const lang = App.currentLang;
+        document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+        document.documentElement.lang = lang;
+    },
+
+    /**
+     * Switch language and reload UI
+     */
+    setLanguage: (lang) => {
+        App.currentLang = lang;
+        localStorage.setItem('wptoolbox_lang', lang);
+        App.updateDirection();
+        App.renderNavbar(); // Re-render to update links/toggle
+        App.renderFooter();
+        App.translatePage();
+
+        // Refresh icons for new content
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        // Custom event for tool-specific translations (snippets, tips, etc)
+        window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
+    },
+
+    /**
+     * Translate static elements with data-i18n attributes
+     */
+    translatePage: () => {
+        if (!App.translations[App.currentLang]) return;
+
+        const langData = App.translations[App.currentLang];
+
+        // Translate text content
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const translation = langData[el.dataset.i18n];
+            if (translation) {
+                if (el.tagName === 'INPUT' && (el.type === 'button' || el.type === 'submit')) {
+                    el.value = translation;
+                } else {
+                    el.textContent = translation;
+                }
+            }
+        });
+
+        // Translate placeholders
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const translation = langData[el.dataset.i18nPlaceholder];
+            if (translation) el.placeholder = translation;
+        });
+
+        // Translate document title and meta description
+        const docTitle = langData[`title_${window.location.pathname.split('/').pop() || 'index.html'}`];
+        if (docTitle) document.title = docTitle;
+
+        const docDesc = langData[`desc_${window.location.pathname.split('/').pop() || 'index.html'}`];
+        if (docDesc) {
+            const meta = document.querySelector('meta[name="description"]');
+            if (meta) meta.setAttribute('content', docDesc);
+        }
+    },
+
+    /**
+     * Get a specific translation string
+     */
+    t: (key) => {
+        return App.translations[App.currentLang]?.[key] || key;
     },
 
     /**
@@ -33,13 +124,16 @@ const App = {
 
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
         const links = [
-            { href: 'awesomestack.html', text: 'Awesome Stack' },
-            { href: 'img2webp.html', text: 'Image to WebP' },
-            { href: 'clearfonts.html', text: 'Font Cleaner' },
-            { href: 'xml2csv.html', text: 'XML Converter' },
-            { href: 'json2csv.html', text: 'JSON to CSV' },
-            { href: 'snippets.html', text: 'Snippets' }
+            { href: 'awesomestack.html', text: App.t('nav_awesome_stack') },
+            { href: 'img2webp.html', text: App.t('nav_img2webp') },
+            { href: 'clearfonts.html', text: App.t('nav_font_cleaner') },
+            { href: 'xml2csv.html', text: App.t('nav_xml_conv') },
+            { href: 'json2csv.html', text: App.t('nav_json2csv') },
+            { href: 'snippets.html', text: App.t('nav_snippets') },
+            { href: 'tips.html', text: App.t('nav_tips') }
         ];
+
+        const isAr = App.currentLang === 'ar';
 
         const navHtml = `
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,6 +149,12 @@ const App = {
                             <a href="${link.href}" class="text-sm font-medium ${currentPath === link.href ? 'text-white' : 'text-zinc-500 hover:text-white'} transition-none">${link.text}</a>
                         `).join('')}
                         <div class="h-4 w-px bg-zinc-800"></div>
+                        
+                        <!-- Language Toggle -->
+                        <button onclick="App.setLanguage('${isAr ? 'en' : 'ar'}')" class="text-xs font-bold px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-zinc-400 hover:text-white transition-none uppercase tracking-widest">
+                            ${isAr ? 'English' : 'العربية'}
+                        </button>
+
                         <a href="https://github.com/hadealahmad/WPtoolbox" target="_blank" class="text-zinc-400 hover:text-white transition-none">
                             <i data-lucide="github" class="w-5 h-5"></i>
                         </a>
@@ -81,8 +181,8 @@ const App = {
                         <i data-lucide="zap" class="w-4 h-4 text-white"></i>
                         <span class="text-sm font-bold tracking-tighter uppercase text-white">WPToolbox</span>
                     </div>
-                    <p class="text-zinc-400 text-xs text-center md:text-left">
-                        &copy; 2024 WPToolbox Pro. Privacy-first local processing.
+                    <p class="text-zinc-400 text-xs text-center md:text-start">
+                        &copy; 2024 WPToolbox Pro. ${App.t('footer_tagline')}
                     </p>
                     <div class="flex items-center gap-6">
                         <a href="https://x.com/hadealahmad" target="_blank" class="text-zinc-400 hover:text-white transition-none"><i data-lucide="twitter" class="w-4 h-4"></i></a>
@@ -136,14 +236,14 @@ const App = {
         URL.revokeObjectURL(url);
     },
 
-    copyToClipboard: async (text, btnElement, feedbackText = "Copied!") => {
+    copyToClipboard: async (text, btnElement, feedbackText = App.t('copy_btn') + "!") => {
         const cleanText = String(text || "").trim();
         if (!cleanText) return;
 
         const performFeedback = () => {
             const originalText = btnElement.innerHTML;
             btnElement.innerHTML = feedbackText;
-            App.showToast("Copied to clipboard");
+            App.showToast(App.t('copy_btn') + " " + App.t('to_clipboard'));
             setTimeout(() => {
                 btnElement.innerHTML = originalText;
             }, 2000);
@@ -163,7 +263,7 @@ const App = {
                 const textArea = document.createElement("textarea");
                 textArea.value = cleanText;
                 textArea.style.position = "fixed";
-                textArea.style.left = "-9999px";
+                textArea.style.insetInlineStart = "-9999px";
                 textArea.style.top = "0";
                 document.body.appendChild(textArea);
                 textArea.focus();

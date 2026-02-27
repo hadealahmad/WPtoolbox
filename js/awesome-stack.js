@@ -120,12 +120,17 @@ const AwesomeStack = {
         }
 
         if (!command) {
-            output.textContent = '# Select items to generate command';
+            output.textContent = App.t('stack_placeholder');
             return;
         }
 
         output.textContent = command;
     }
 };
+
+
+document.addEventListener('languageChanged', () => {
+    AwesomeStack.generateCommand();
+});
 
 document.addEventListener('DOMContentLoaded', AwesomeStack.init);

@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/globals.css">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -25,9 +25,12 @@
     <!-- Main Content -->
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
-        <header class="mb-10 text-center md:text-left">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white">Image to WebP Converter</h1>
-            <p class="text-zinc-500 mt-2">Convert and compress JPG/PNG to WebP format instantly in your browser.</p>
+        <header class="mb-10 text-center md:text-start">
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_img2webp_title">WebP
+                Converter</h1>
+            <p class="text-zinc-500 mt-2" data-i18n="tool_img2webp_desc">Convert and compress PNG/JPG images to WebP
+                format directly in your browser
+                for faster site speeds.</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -38,7 +41,8 @@
                 <!-- Quality Control -->
                 <section class="shadcn-card p-6">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2"
+                            data-i18n="label_compression">
                             <i data-lucide="settings-2" class="w-4 h-4"></i>
                             Compression
                         </h3>
@@ -49,8 +53,8 @@
                         class="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-primary">
                     <div
                         class="flex justify-between mt-3 text-[10px] uppercase font-bold text-zinc-600 tracking-widest">
-                        <span>High Comp</span>
-                        <span>Best Quality</span>
+                        <span data-i18n="label_high_comp">High Comp</span>
+                        <span data-i18n="label_best_quality">Best Quality</span>
                     </div>
                 </section>
 
@@ -59,16 +63,18 @@
                     <div class="flex items-start gap-4 p-4 rounded-xl border border-zinc-900 bg-zinc-900/30">
                         <i data-lucide="shield-check" class="w-5 h-5 text-emerald-500 shrink-0"></i>
                         <div>
-                            <p class="text-sm font-bold text-zinc-300">100% Private</p>
-                            <p class="text-xs text-zinc-500">Processing happens entirely on your device. No images are
+                            <p class="text-sm font-bold text-zinc-300" data-i18n="label_private">100% Private</p>
+                            <p class="text-xs text-zinc-500" data-i18n="private_desc">Processing happens entirely on
+                                your device. No images are
                                 uploaded to any server.</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-4 p-4 rounded-xl border border-zinc-900 bg-zinc-900/30">
                         <i data-lucide="zap" class="w-5 h-5 text-amber-500 shrink-0"></i>
                         <div>
-                            <p class="text-sm font-bold text-zinc-300">Instant Batch</p>
-                            <p class="text-xs text-zinc-500">Drop multiple images to convert them all at once with
+                            <p class="text-sm font-bold text-zinc-300" data-i18n="label_batch">Instant Batch</p>
+                            <p class="text-xs text-zinc-500" data-i18n="batch_desc">Drop multiple images to convert them
+                                all at once with
                                 matching quality.</p>
                         </div>
                     </div>
@@ -88,8 +94,10 @@
                             <i data-lucide="image-plus" class="w-8 h-8"></i>
                         </div>
                         <div class="space-y-2">
-                            <p class="text-xl font-semibold text-white">Drop images to convert</p>
-                            <p class="text-zinc-400 text-sm">PNG, JPG, or any common image format</p>
+                            <p class="text-xl font-semibold text-white" data-i18n="drop_images_msg">Drop images to
+                                convert</p>
+                            <p class="text-zinc-400 text-sm" data-i18n="drop_images_format">PNG, JPG, or any common
+                                image format</p>
                         </div>
                     </div>
                 </div>
@@ -98,7 +106,7 @@
                 <section id="results-section" class="hidden space-y-4">
                     <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
                         <i data-lucide="file-check" class="w-4 h-4"></i>
-                        Optimized Images
+                        <span data-i18n="label_optimized_images">Optimized Images</span>
                     </h3>
                     <div id="images-container" class="flex flex-col gap-3">
                         <!-- Injected by JS -->
@@ -114,7 +122,7 @@
     <footer id="global-footer"></footer>
 
     <!-- Global Toast Container -->
-    <div id="toast" class="fixed bottom-8 right-8 translate-y-24 opacity-0 z-50">
+    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>
