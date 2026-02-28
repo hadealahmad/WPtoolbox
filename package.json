@@ -5,7 +5,8 @@
   "main": "index.html",
   "scripts": {
     "dev": "bun x serve .",
-    "start": "bun x serve ."
+    "start": "bun x serve .",
+    "build:css": "bun x @tailwindcss/cli -i css/input.css -o css/style.css --minify"
   },
   "keywords": [
     "wordpress",
@@ -15,5 +16,9 @@
     "markdown"
   ],
   "author": "Antigravity",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.1",
+    "tailwindcss": "^4.2.1"
+  }
 }

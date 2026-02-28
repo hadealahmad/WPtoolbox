@@ -23,13 +23,13 @@
     <meta name="twitter:description" content="Clean, convert, and optimize your WordPress workflow with WPToolbox.">
     <meta name="twitter:image" content="https://hadealahmad.github.io/WPtoolbox/assets/og-image.png">
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="css/globals.css">
+    <link rel="stylesheet" href="css/style.css?v=1.1">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="js/core.js" defer></script>
@@ -70,14 +70,14 @@
         <script>
             document.addEventListener('DOMContentLoaded', async () => {
                 try {
-                    const res = await fetch('js/tips.json');
+                    const res = await fetch('js/data/tips.json');
                     const tips = await res.json();
                     if (tips.length > 0) {
                         const randomTip = tips[Math.floor(Math.random() * tips.length)];
                         const card = document.getElementById('tip-of-day-card');
                         const content = document.getElementById('tip-content');
                         const isAr = localStorage.getItem('wptoolbox_lang') === 'ar';
-                        content.textContent = isAr ? randomTip.fact.ar : randomTip.fact.en;
+                        content.textContent = isAr ? (randomTip.fact.ar || randomTip.fact.en) : randomTip.fact.en;
                         card.classList.remove('hidden');
                     }
                 } catch (e) { console.error("Failed to load tips", e); }
@@ -86,13 +86,13 @@
             window.addEventListener('languageChanged', async (e) => {
                 const isAr = e.detail.lang === 'ar';
                 try {
-                    const res = await fetch('js/tips.json');
+                    const res = await fetch('js/data/tips.json');
                     const tips = await res.json();
                     const content = document.getElementById('tip-content');
                     // Find current tip or refresh
                     const currentText = content.textContent;
-                    const tip = tips.find(t => t.fact.en === currentText || t.fact.ar === currentText);
-                    if (tip) content.textContent = isAr ? tip.fact.ar : tip.fact.en;
+                    const tip = tips.find(t => (t.fact.en === currentText || t.fact.ar === currentText));
+                    if (tip) content.textContent = isAr ? (tip.fact.ar || tip.fact.en) : tip.fact.en;
                 } catch (e) { }
             });
         </script>

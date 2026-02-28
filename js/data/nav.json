@@ -1,0 +1,37 @@
+[
+    {
+        "href": "awesomestack.html",
+        "text": "nav_awesome_stack",
+        "icon": "layers"
+    },
+    {
+        "href": "img2webp.html",
+        "text": "nav_img2webp",
+        "icon": "image"
+    },
+    {
+        "href": "tips.html",
+        "text": "nav_tips",
+        "icon": "lightbulb"
+    },
+    {
+        "href": "clearfonts.html",
+        "text": "nav_font_cleaner",
+        "icon": "type"
+    },
+    {
+        "href": "xml2csv.html",
+        "text": "nav_xml_conv",
+        "icon": "file-text"
+    },
+    {
+        "href": "json2csv.html",
+        "text": "nav_json2csv",
+        "icon": "code"
+    },
+    {
+        "href": "snippets.html",
+        "text": "nav_snippets",
+        "icon": "scissors"
+    }
+]

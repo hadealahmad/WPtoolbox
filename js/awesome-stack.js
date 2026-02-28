@@ -3,39 +3,35 @@
  */
 const AwesomeStack = {
     config: {
-        themes: [
-            { id: 'blocksy', slug: 'blocksy', name: 'Blocksy Theme', active: true },
-            { id: 'blocksy-child', slug: 'https://creativethemes.com/blocksy/blocksy-child.zip', name: 'Blocksy Child Theme', active: false }
-        ],
-        plugins: [
-            { id: 'blocksy-companion', slug: 'blocksy-companion', name: 'Blocksy Companion', active: true },
-            { id: 'greenshift', slug: 'greenshift-animation-and-page-builder-blocks', name: 'Greenshift (Page Builder)', active: true },
-            { id: 'rank-math', slug: 'seo-by-rank-math', name: 'Rank Math SEO', active: true },
-            { id: 'forminator', slug: 'forminator', name: 'Forminator (Forms)', active: false },
-            { id: 'polylang', slug: 'polylang', name: 'Polylang (Multilingual)', active: false },
-            { id: 'litespeed', slug: 'litespeed-cache', name: 'LiteSpeed Cache', active: false },
-            { id: 'recaptcha', slug: 'advanced-google-recaptcha', name: 'Advanced Google reCAPTCHA', active: false },
-            { id: 'zoho', slug: 'zoho-mail', name: 'Zoho Mail', active: false }
-        ]
+        themes: [],
+        plugins: []
     },
 
     savedStacks: [],
 
-    init: () => {
-        AwesomeStack.renderCheckboxes();
-        AwesomeStack.loadSavedStacks();
-        AwesomeStack.generateCommand();
+    init: async () => {
+        try {
+            const response = await fetch('js/data/stack-config.json');
+            if (!response.ok) throw new Error('Failed to load stack config');
+            AwesomeStack.config = await response.json();
 
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
+            AwesomeStack.renderCheckboxes();
+            AwesomeStack.loadSavedStacks();
+            AwesomeStack.generateCommand();
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            // Listen for options changes
+            document.getElementById('include-activate').onchange = AwesomeStack.generateCommand;
+            document.getElementById('copy-btn').onclick = (e) => App.copyToClipboard(document.getElementById('command-output').textContent, e.target);
+            document.getElementById('save-stack-btn').onclick = AwesomeStack.saveCurrentStack;
+            document.getElementById('download-sh-btn').onclick = AwesomeStack.downloadShellScript;
+            document.getElementById('download-yml-btn').onclick = AwesomeStack.downloadBlueprint;
+        } catch (err) {
+            console.error('Error initializing AwesomeStack:', err);
         }
-
-        // Listen for options changes
-        document.getElementById('include-activate').onchange = AwesomeStack.generateCommand;
-        document.getElementById('copy-btn').onclick = (e) => App.copyToClipboard(document.getElementById('command-output').textContent, e.target);
-        document.getElementById('save-stack-btn').onclick = AwesomeStack.saveCurrentStack;
-        document.getElementById('download-sh-btn').onclick = AwesomeStack.downloadShellScript;
-        document.getElementById('download-yml-btn').onclick = AwesomeStack.downloadBlueprint;
     },
 
     loadSavedStacks: () => {

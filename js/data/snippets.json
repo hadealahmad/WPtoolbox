@@ -14,7 +14,7 @@
             "ar": "قواعد إعادة توجيه ووردبريس القياسية لخوادم Apache."
         },
         "code": "# BEGIN WordPress\n<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteBase /\nRewriteRule ^index\\.php$ - [L]\nRewriteCond %{REQUEST_FILENAME} !-f\nRewriteCond %{REQUEST_FILENAME} !-d\nRewriteRule . /index.php [L]\n</IfModule>\n# END WordPress",
-        "language": "apacheconf"
+        "language": ".htaccess"
     },
     {
         "id": "php-limits-htaccess",
@@ -31,7 +31,7 @@
             "ar": "زيادة حدود المعالجة عبر إعدادات Apache."
         },
         "code": "php_value upload_max_filesize 256M\nphp_value post_max_size 256M\nphp_value memory_limit 512M\nphp_value max_execution_time 300\nphp_value max_input_vars 3000",
-        "language": "apacheconf"
+        "language": ".htaccess"
     },
     {
         "id": "php-limits-ini",

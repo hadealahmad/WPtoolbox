@@ -8,6 +8,7 @@
 // -----------------------------------------------------------------------------
 const State = {
     translations: {},
+    nav: [],
     currentLang: localStorage.getItem('wptoolbox_lang') || 'en',
 
     setLanguage(lang) {
@@ -20,12 +21,16 @@ const State = {
 // 2. INTERNATIONALIZATION (I18n)
 // -----------------------------------------------------------------------------
 const I18n = {
-    async loadTranslations() {
+    async loadData() {
         try {
-            const response = await fetch('js/translations.json');
-            State.translations = await response.json();
+            const [transRes, navRes] = await Promise.all([
+                fetch('js/data/translations.json'),
+                fetch('js/data/nav.json')
+            ]);
+            State.translations = await transRes.json();
+            State.nav = await navRes.json();
         } catch (err) {
-            console.error('Failed to load translations:', err);
+            console.error('Failed to load core data:', err);
         }
     },
 
@@ -87,15 +92,7 @@ const UI = {
         if (!nav) return;
 
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-        const links = [
-            { href: 'awesomestack.html', text: I18n.t('nav_awesome_stack'), icon: 'layers' },
-            { href: 'img2webp.html', text: I18n.t('nav_img2webp'), icon: 'image' },
-            { href: 'tips.html', text: I18n.t('nav_tips'), icon: 'lightbulb' },
-            { href: 'clearfonts.html', text: I18n.t('nav_font_cleaner'), icon: 'type' },
-            { href: 'xml2csv.html', text: I18n.t('nav_xml_conv'), icon: 'file-text' },
-            { href: 'json2csv.html', text: I18n.t('nav_json2csv'), icon: 'code' },
-            { href: 'snippets.html', text: I18n.t('nav_snippets'), icon: 'scissors' }
-        ];
+        const links = State.nav;
 
         const isAr = State.currentLang === 'ar';
 
@@ -112,7 +109,7 @@ const UI = {
                     <!-- Desktop Menu -->
                     <div class="hidden md:flex items-center gap-6">
                         ${links.map(link => `
-                            <a href="${link.href}" class="text-sm font-medium ${currentPath === link.href ? 'text-white' : 'text-zinc-500 hover:text-white'} transition-none">${link.text}</a>
+                            <a href="${link.href}" class="text-sm font-medium ${currentPath === link.href ? 'text-white' : 'text-zinc-500 hover:text-white'} transition-none">${I18n.t(link.text)}</a>
                         `).join('')}
                         <div class="h-4 w-px bg-zinc-800"></div>
                         
@@ -147,7 +144,7 @@ const UI = {
                     ${links.map(link => `
                         <a href="${link.href}" class="flex items-center gap-3 px-4 py-3 rounded-xl ${currentPath === link.href ? 'bg-primary/10 text-white border border-primary/20' : 'text-zinc-400 hover:bg-zinc-900'} transition-none">
                             <i data-lucide="${link.icon}" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">${link.text}</span>
+                            <span class="text-sm font-medium">${I18n.t(link.text)}</span>
                         </a>
                     `).join('')}
                     <div class="pt-4 border-t border-zinc-900">
@@ -235,15 +232,11 @@ const UI = {
         const input = palette.querySelector('#cmd-search');
         const results = palette.querySelector('#cmd-results');
 
-        const tools = [
-            { name: I18n.t('nav_awesome_stack'), href: 'awesomestack.html', icon: 'layers' },
-            { name: I18n.t('nav_img2webp'), href: 'img2webp.html', icon: 'image' },
-            { name: I18n.t('nav_font_cleaner'), href: 'clearfonts.html', icon: 'eraser' },
-            { name: I18n.t('nav_xml_conv'), href: 'xml2csv.html', icon: 'file-output' },
-            { name: I18n.t('nav_json2csv'), href: 'json2csv.html', icon: 'file-json' },
-            { name: I18n.t('nav_snippets'), href: 'snippets.html', icon: 'code-2' },
-            { name: I18n.t('nav_tips'), href: 'tips.html', icon: 'lightbulb' }
-        ];
+        const tools = State.nav.map(link => ({
+            name: I18n.t(link.text),
+            href: link.href,
+            icon: link.icon
+        }));
 
         const renderTools = (filter = '') => {
             const filtered = tools.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()));
@@ -389,7 +382,7 @@ const App = {
     // 5.2 Expose Initialization
     async init() {
         UI.initTheme(); // Must be first to prevent light flash
-        await I18n.loadTranslations();
+        await I18n.loadData();
         I18n.updateDirection();
         UI.renderNavbar();
         UI.renderFooter();
@@ -433,7 +426,7 @@ const App = {
 
     // Internals
     initTheme: () => UI.initTheme(),
-    loadTranslations: () => I18n.loadTranslations(),
+    loadData: () => I18n.loadData(),
     updateDirection: () => I18n.updateDirection(),
     renderNavbar: () => UI.renderNavbar(),
     renderFooter: () => UI.renderFooter(),

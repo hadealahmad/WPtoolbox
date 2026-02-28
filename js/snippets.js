@@ -12,7 +12,7 @@ const Snippets = {
         if (!container) return;
 
         try {
-            const response = await fetch('js/snippets.json');
+            const response = await fetch('js/data/snippets.json');
             if (!response.ok) throw new Error('Failed to load snippets');
             Snippets.data = await response.json();
 
@@ -145,7 +145,7 @@ const Snippets = {
                 <p class="text-zinc-400 text-sm leading-relaxed">${Snippets.t(item.description)}</p>
                 <div class="mt-2 rounded-lg bg-zinc-950 border border-zinc-900 overflow-hidden">
                     <div class="px-4 py-2 bg-zinc-900/50 border-b border-zinc-900 flex justify-between items-center text-[10px] text-zinc-500 font-mono">
-                        <span>${item.language}.php</span>
+                        <span>${item.language}</span>
                     </div>
                     <pre class="p-4 overflow-x-auto text-xs font-mono text-zinc-300 leading-relaxed"><code>${item.code}</code></pre>
                 </div>

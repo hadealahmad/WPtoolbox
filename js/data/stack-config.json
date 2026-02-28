@@ -1,0 +1,66 @@
+{
+    "themes": [
+        {
+            "id": "blocksy",
+            "slug": "blocksy",
+            "name": "Blocksy Theme",
+            "active": true
+        },
+        {
+            "id": "blocksy-child",
+            "slug": "https://creativethemes.com/blocksy/blocksy-child.zip",
+            "name": "Blocksy Child Theme",
+            "active": false
+        }
+    ],
+    "plugins": [
+        {
+            "id": "blocksy-companion",
+            "slug": "blocksy-companion",
+            "name": "Blocksy Companion",
+            "active": true
+        },
+        {
+            "id": "greenshift",
+            "slug": "greenshift-animation-and-page-builder-blocks",
+            "name": "Greenshift (Page Builder)",
+            "active": true
+        },
+        {
+            "id": "rank-math",
+            "slug": "seo-by-rank-math",
+            "name": "Rank Math SEO",
+            "active": true
+        },
+        {
+            "id": "forminator",
+            "slug": "forminator",
+            "name": "Forminator (Forms)",
+            "active": false
+        },
+        {
+            "id": "polylang",
+            "slug": "polylang",
+            "name": "Polylang (Multilingual)",
+            "active": false
+        },
+        {
+            "id": "litespeed",
+            "slug": "litespeed-cache",
+            "name": "LiteSpeed Cache",
+            "active": false
+        },
+        {
+            "id": "recaptcha",
+            "slug": "advanced-google-recaptcha",
+            "name": "Advanced Google reCAPTCHA",
+            "active": false
+        },
+        {
+            "id": "zoho",
+            "slug": "zoho-mail",
+            "name": "Zoho Mail",
+            "active": false
+        }
+    ]
+}

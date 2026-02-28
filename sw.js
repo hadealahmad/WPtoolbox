@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wptoolbox-v1';
+const CACHE_NAME = 'wptoolbox-v2';
 const ASSETS = [
     './',
     './index.html',
@@ -12,12 +12,18 @@ const ASSETS = [
     './favicon.svg',
     './css/globals.css',
     './js/core.js',
-    './js/translations.json',
+    './js/data/translations.json',
+    './js/data/nav.json',
+    './js/data/stack-config.json',
     './js/snippets.js',
+    './js/tips.js',
     './js/image-converter.js',
     './js/awesome-stack.js',
-    './js/snippets.json',
-    './js/tips.json'
+    './js/font-cleaner.js',
+    './js/xml-converter.js',
+    './js/json-converter.js',
+    './js/data/snippets.json',
+    './js/data/tips.json'
 ];
 
 self.addEventListener('install', (event) => {
