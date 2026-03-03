@@ -219,10 +219,14 @@ const Snippets = {
             return 0;
         });
 
-        sorted.forEach(item => {
+        sorted.forEach((item, index) => {
             const isFav = Snippets.favorites.includes(item.id);
             const card = document.createElement('div');
             card.className = 'snippet-card shadcn-card p-6 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300';
+
+            // Generate a safe ID for the code block to reference
+            const codeId = `code-block-${index}`;
+
             card.innerHTML = `
                 <div class="flex justify-between items-start">
                     <div>
@@ -235,16 +239,16 @@ const Snippets = {
                     </div>
                     <div class="flex gap-2">
                         ${item.isUser ? `
-                            <button onclick="Snippets.deleteSnippet('${item.id}')" class="shadcn-button shadcn-button-outline w-12 h-12 p-0 flex items-center justify-center border-red-900/50 hover:bg-red-900/20 text-red-500" title="Delete">
-                                <i data-lucide="trash-2" style="width: 28px; height: 28px;"></i>
+                            <button onclick="Snippets.deleteSnippet('${item.id}')" class="shadcn-button shadcn-button-outline w-12 h-12 p-0 flex items-center justify-center border-red-900/50 hover:bg-red-900/20 text-red-500 transition-none" title="Delete">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
                             </button>
                         ` : ''}
-                        <button onclick="Snippets.toggleFavorite('${item.id}')" class="shadcn-button shadcn-button-outline w-12 h-12 p-0 flex items-center justify-center" title="Favorite">
-                            <i data-lucide="star" style="width: 28px; height: 28px;" class="${isFav ? 'text-amber-400 fill-amber-400' : 'text-zinc-500'}"></i>
+                        <button onclick="Snippets.toggleFavorite('${item.id}')" class="shadcn-button shadcn-button-outline w-12 h-12 p-0 flex items-center justify-center transition-none" title="Favorite">
+                            <i data-lucide="star" class="w-5 h-5 ${isFav ? 'text-amber-400 fill-amber-400' : 'text-zinc-500'}"></i>
                         </button>
-                        <button onclick="App.copyToClipboard(\`${item.code.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, this)" class="shadcn-button shadcn-button-outline h-12 px-4 text-[10px] gap-2">
+                        <button onclick="Snippets.copyCode('${codeId}', this)" class="shadcn-button shadcn-button-outline h-12 px-4 text-[10px] gap-2 transition-none">
                             <i data-lucide="copy" class="w-3 h-3"></i>
-                            <span data-i18n="copy_btn">Copy</span>
+                            <span data-i18n="copy_btn">${App.t('copy_btn')}</span>
                         </button>
                     </div>
                 </div>
@@ -253,13 +257,29 @@ const Snippets = {
                     <div class="px-4 py-2 bg-zinc-900/50 border-b border-zinc-900 flex justify-between items-center text-[10px] text-zinc-500 font-mono">
                         <span>${item.language}</span>
                     </div>
-                    <pre class="p-4 overflow-x-auto text-xs font-mono text-zinc-300 leading-relaxed"><code>${item.code}</code></pre>
+                    <pre class="p-4 overflow-x-auto text-xs font-mono text-zinc-300 leading-relaxed"><code id="${codeId}">${Snippets.escapeHtml(item.code)}</code></pre>
                 </div>
             `;
             container.appendChild(card);
         });
 
         if (typeof lucide !== 'undefined') lucide.createIcons();
+    },
+
+    copyCode: (elementId, btn) => {
+        const codeElement = document.getElementById(elementId);
+        if (codeElement) {
+            App.copyToClipboard(codeElement.textContent, btn);
+        }
+    },
+
+    escapeHtml: (unsafe) => {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     },
 
     filter: (categoryEn, btn) => {
