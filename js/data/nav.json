@@ -28,5 +28,10 @@
         "href": "wp-mapper.html",
         "text": "nav_wp_mapper",
         "icon": "map"
+    },
+    {
+        "href": "demo-generator.html",
+        "text": "nav_demo_generator",
+        "icon": "sparkles"
     }
 ]
