@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title_wp-mapper.html">WordPress Export Mapper | WPToolbox</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=1.1">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="js/core.js" defer></script>
+    <script src="js/wp-mapper.js" defer></script>
+</head>
+
+<body class="min-h-screen flex flex-col grid-bg">
+
+    <!-- Navbar Container -->
+    <nav id="global-nav" class="sticky top-0 z-50 glass-header"></nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
+
+        <header class="mb-10 text-center md:text-start">
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_wp_mapper_title">WordPress
+                Export Mapper</h1>
+            <p class="text-zinc-500 mt-2" data-i18n="tool_wp_mapper_desc">Convert CSV/JSON/XML to WordPress XML (WXR)
+                with custom post type and custom field mapping.</p>
+        </header>
+
+        <div class="space-y-8">
+
+            <!-- Step 1: Input -->
+            <section id="step-1" class="shadcn-card p-0 overflow-hidden">
+                <div class="p-6 border-b border-zinc-900 bg-zinc-900/30 flex items-center gap-4">
+                    <div
+                        class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-lg shadow-primary/20">
+                        1</div>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider" data-i18n="step_source_title">
+                        Import Data SOURCE</h2>
+                </div>
+                <div class="p-8">
+                    <div id="drop-zone"
+                        class="border-2 border-dashed border-zinc-800 rounded-2xl p-16 text-center cursor-pointer hover:bg-zinc-900/50 group transition-all">
+                        <input type="file" id="file-input" accept=".csv,.json,.xml" class="hidden">
+                        <div class="flex flex-col items-center gap-6">
+                            <div
+                                class="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-400 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                                <i data-lucide="file-up" class="w-8 h-8"></i>
+                            </div>
+                            <div class="space-y-2">
+                                <p class="text-xl font-bold text-white" data-i18n="drop_xml">Select CSV, JSON, or XML
+                                </p>
+                                <p class="text-zinc-500 text-sm" data-i18n="drop_browse">Large files are processed
+                                    locally in your browser.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2: Configuration & Mapper (Hidden until data is loaded) -->
+            <section id="step-2" class="hidden space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div class="shadcn-card p-0 overflow-hidden">
+                    <div class="p-6 border-b border-zinc-900 bg-zinc-900/30">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-lg shadow-primary/20">
+                                2</div>
+                            <div>
+                                <h2 class="text-sm font-bold text-white uppercase tracking-wider"
+                                    data-i18n="step_target_title">Target Settings</h2>
+                                <p class="text-[10px] text-zinc-500 mt-0.5" data-i18n="step_target_desc">Configure your
+                                    output format and post
+                                    options</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8 grid grid-cols-1 md:grid-cols-12 gap-10">
+                        <!-- Left: Format Selection -->
+                        <div class="md:col-span-5 space-y-4">
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500"
+                                data-i18n="label_output_format">Output
+                                Format</label>
+                            <div class="grid grid-cols-3 gap-2 p-1 bg-zinc-950 border border-zinc-900 rounded-xl">
+                                <button onclick="WPMapper.setTargetFormat('xml')" id="target-xml-btn"
+                                    class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">XML</button>
+                                <button onclick="WPMapper.setTargetFormat('csv')" id="target-csv-btn"
+                                    class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">CSV</button>
+                                <button onclick="WPMapper.setTargetFormat('json')" id="target-json-btn"
+                                    class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">JSON</button>
+                            </div>
+                            <p class="text-[9px] text-zinc-600 leading-relaxed italic" data-i18n="label_wxr_desc">WXR
+                                format is recommended for
+                                direct WordPress imports. CSV/JSON are better for general data migration.</p>
+                        </div>
+
+                        <!-- Right: Settings -->
+                        <div class="md:col-span-7 space-y-6">
+                            <div id="wp-settings" class="space-y-4">
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
+                                        data-i18n="label_post_type">WordPress
+                                        Post Type</label>
+                                    <input type="text" id="post-type-input" value="post"
+                                        data-i18n-placeholder="placeholder_post_type"
+                                        class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white placeholder:text-zinc-700 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
+                                </div>
+
+                                <div id="markdown-settings"
+                                    class="hidden animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <div
+                                        class="flex items-center justify-between p-4 rounded-xl border border-zinc-800 bg-zinc-950/50">
+                                        <div class="space-y-0.5 pe-4 rtl:pe-0 rtl:ps-4">
+                                            <p class="text-[10px] font-bold text-white uppercase tracking-tight"
+                                                data-i18n="label_markdown_transformation">
+                                                Markdown Transformation</p>
+                                            <p class="text-[9px] text-zinc-500 leading-none"
+                                                data-i18n="desc_markdown_transformation">Clean HTML blocks into pure
+                                                Markdown syntax</p>
+                                        </div>
+                                        <button onclick="WPMapper.toggleMarkdown()" id="markdown-toggle"
+                                            class="shrink-0 w-11 h-6 rounded-full bg-zinc-800 relative transition-colors duration-200 group border border-zinc-700">
+                                            <div id="markdown-toggle-knob"
+                                                class="absolute top-1 left-1 rtl:left-auto rtl:right-1 w-3.5 h-3.5 rounded-full bg-zinc-500 transition-all duration-200 shadow-sm">
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Mapping -->
+                <div class="shadcn-card p-0 overflow-hidden border-zinc-800/50">
+                    <div
+                        class="p-6 border-b border-zinc-900 bg-zinc-900/30 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-lg shadow-primary/20">
+                                3</div>
+                            <div class="text-start">
+                                <h2 class="text-sm font-bold text-white uppercase tracking-wider"
+                                    data-i18n="step_mapping_title">Field Mapping</h2>
+                                <p class="text-[10px] text-zinc-500 mt-0.5" data-i18n="step_mapping_desc">Link your
+                                    source data to WordPress fields
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="flex flex-wrap items-center gap-2 p-1 bg-zinc-950 border border-zinc-900 rounded-lg">
+                            <button onclick="WPMapper.toggleFilter('unmapped')" id="filter-unmapped"
+                                class="px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider text-zinc-500 hover:text-white transition-all"
+                                data-i18n="filter_unmapped">Unmapped</button>
+                            <button onclick="WPMapper.toggleFilter('wp')" id="filter-wp"
+                                class="px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider text-zinc-500 hover:text-white transition-all"
+                                data-i18n="filter_wp">WP
+                                Tags</button>
+                        </div>
+                    </div>
+                    <div class="p-0">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-zinc-900/50">
+                                    <th class="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-900"
+                                        data-i18n="label_source_column">Source Column</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-900"
+                                        data-i18n="label_wp_field">WP Field</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-900"
+                                        data-i18n="label_meta_key">
+                                        Custom Meta Key</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mapping-body" class="divide-y divide-zinc-900">
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-6 border-t border-zinc-900 bg-zinc-900/30">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                            <div class="text-zinc-500 text-xs" data-i18n-html="msg_mapping_hint">
+                                <i data-lucide="info" class="w-4 h-4 inline-block -mt-1 mr-1"></i>
+                                Map at least a <b>Title</b> or <b>Content</b> for valid WordPress import.
+                            </div>
+                            <button id="generate-btn"
+                                class="shadcn-button shadcn-button-primary h-12 px-10 text-xs gap-2">
+                                <i data-lucide="zap" class="w-4 h-4"></i>
+                                <span id="generate-btn-text" data-i18n="btn_generate">Generate Target File</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Preview Section (Hidden until generated) -->
+            <section id="preview-section" class="hidden space-y-4 animate-in fade-in zoom-in-95 duration-300">
+                <div class="flex justify-between items-center">
+                    <h3 id="preview-title" class="text-xs font-bold uppercase tracking-widest text-zinc-500">Preview
+                    </h3>
+                    <button id="download-btn" class="shadcn-button shadcn-button-outline h-10 px-8 text-xs gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span id="download-text">Download File</span>
+                    </button>
+                </div>
+                <div class="shadcn-card bg-zinc-950 border-zinc-800 p-0 overflow-hidden">
+                    <pre id="xml-preview"
+                        class="p-6 text-sm font-mono text-zinc-400 overflow-x-auto max-h-[400px] leading-relaxed"></pre>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- Global Footer Container -->
+    <footer id="global-footer"></footer>
+
+    <!-- Processing Overlay -->
+    <div id="processing-overlay"
+        class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="shadcn-card max-w-md w-full p-8 space-y-6 text-center animate-in fade-in zoom-in-95 duration-200">
+            <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
+                <i data-lucide="loader-2" class="w-8 h-8 text-primary animate-spin"></i>
+            </div>
+            <div class="space-y-2">
+                <h3 class="text-lg font-bold text-white uppercase tracking-tight" data-i18n="processing_title">
+                    Processing...</h3>
+                <p class="text-sm text-zinc-500" data-i18n="processing_desc">Performing conversion and mapping. This may
+                    take a moment for large files.</p>
+            </div>
+
+            <div class="space-y-3">
+                <div class="h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
+                    <div id="progress-bar" class="h-full bg-primary transition-all duration-300 w-0"></div>
+                </div>
+                <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                    <span id="progress-status">0%</span>
+                    <span id="processed-count">0 / 0</span>
+                </div>
+            </div>
+
+            <button onclick="WPMapper.cancelProcessing()"
+                class="shadcn-button shadcn-button-outline w-full h-11 text-xs gap-2 border-red-900/30 text-red-400 hover:bg-red-900/10">
+                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                <span data-i18n="btn_cancel">Cancel</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Global Toast Container -->
+    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
+        <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
+            <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+            <span id="toast-msg" class="text-sm font-medium">Notification</span>
+        </div>
+    </div>
+</body>
+
+</html>

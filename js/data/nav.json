@@ -20,18 +20,13 @@
         "icon": "type"
     },
     {
-        "href": "xml2csv.html",
-        "text": "nav_xml_conv",
-        "icon": "file-text"
-    },
-    {
-        "href": "json2csv.html",
-        "text": "nav_json2csv",
-        "icon": "code"
-    },
-    {
         "href": "snippets.html",
         "text": "nav_snippets",
         "icon": "scissors"
+    },
+    {
+        "href": "wp-mapper.html",
+        "text": "nav_wp_mapper",
+        "icon": "map"
     }
 ]

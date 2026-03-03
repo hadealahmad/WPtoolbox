@@ -50,11 +50,15 @@ const I18n = {
         const langData = State.translations[State.currentLang];
 
         // Translate text content
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const translation = langData[el.dataset.i18n];
+        document.querySelectorAll('[data-i18n], [data-i18n-html]').forEach(el => {
+            const key = el.dataset.i18n || el.dataset.i18nHtml;
+            const isHtml = !!el.dataset.i18nHtml;
+            const translation = langData[key];
             if (translation) {
                 if (el.tagName === 'INPUT' && (el.type === 'button' || el.type === 'submit')) {
                     el.value = translation;
+                } else if (isHtml) {
+                    el.innerHTML = translation;
                 } else {
                     el.textContent = translation;
                 }

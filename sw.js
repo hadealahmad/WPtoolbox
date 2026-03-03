@@ -1,13 +1,12 @@
-const CACHE_NAME = 'wptoolbox-v2';
+const CACHE_NAME = 'wptoolbox-v6';
 const ASSETS = [
     './',
     './index.html',
     './awesomestack.html',
     './img2webp.html',
     './clearfonts.html',
-    './xml2csv.html',
-    './json2csv.html',
     './snippets.html',
+    './wp-mapper.html',
     './tips.html',
     './favicon.svg',
     './css/globals.css',
@@ -18,10 +17,9 @@ const ASSETS = [
     './js/snippets.js',
     './js/tips.js',
     './js/image-converter.js',
+    './js/wp-mapper.js',
     './js/awesome-stack.js',
     './js/font-cleaner.js',
-    './js/xml-converter.js',
-    './js/json-converter.js',
     './js/data/snippets.json',
     './js/data/tips.json'
 ];
