@@ -155,29 +155,32 @@ export class WptNavbar extends HTMLElement {
         // Mobile Menu Logic
         const btn = this.querySelector('#mobile-menu-btn');
         const menu = this.querySelector('#mobile-menu');
+        
         if (btn && menu) {
             btn.onclick = (e) => {
                 e.stopPropagation();
                 menu.classList.toggle('hidden');
-                const icon = btn.querySelector('i');
-                if (icon) {
-                    const isOpening = !menu.classList.contains('hidden');
-                    icon.setAttribute('data-lucide', isOpening ? 'x' : 'menu');
-                    if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
-                }
+                const isOpening = !menu.classList.contains('hidden');
+                btn.innerHTML = `<i data-lucide="${isOpening ? 'x' : 'menu'}" class="w-6 h-6"></i>`;
+                if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
             };
 
-            // Close menu on click outside
-            document.addEventListener('click', (e) => {
-                if (!menu.contains(e.target) && e.target !== btn) {
-                    menu.classList.add('hidden');
-                    const icon = btn.querySelector('i');
-                    if (icon) {
-                        icon.setAttribute('data-lucide', 'menu');
+            // Clean up old listener if it exists to avoid accumulation
+            if (this._outsideClickHandler) {
+                document.removeEventListener('click', this._outsideClickHandler);
+            }
+
+            this._outsideClickHandler = (e) => {
+                if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                    if (!menu.classList.contains('hidden')) {
+                        menu.classList.add('hidden');
+                        btn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
                         if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
                     }
                 }
-            });
+            };
+
+            document.addEventListener('click', this._outsideClickHandler);
         }
 
         if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
