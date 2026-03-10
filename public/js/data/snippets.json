@@ -1,0 +1,172 @@
+[
+    {
+        "id": "htaccess-default",
+        "category": {
+            "en": "Server",
+            "ar": "خادم"
+        },
+        "title": {
+            "en": "Default .htaccess",
+            "ar": "ملف .htaccess الافتراضي"
+        },
+        "description": {
+            "en": "Standard WordPress rewrite rules for Apache.",
+            "ar": "قواعد إعادة توجيه ووردبريس القياسية لخوادم Apache."
+        },
+        "code": "# BEGIN WordPress\n<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteBase /\nRewriteRule ^index\\.php$ - [L]\nRewriteCond %{REQUEST_FILENAME} !-f\nRewriteCond %{REQUEST_FILENAME} !-d\nRewriteRule . /index.php [L]\n</IfModule>\n# END WordPress",
+        "language": ".htaccess"
+    },
+    {
+        "id": "php-limits-htaccess",
+        "category": {
+            "en": "PHP Config",
+            "ar": "إعدادات PHP"
+        },
+        "title": {
+            "en": "PHP Limits (.htaccess)",
+            "ar": "حدود PHP (عبر .htaccess)"
+        },
+        "description": {
+            "en": "Increase limits via Apache configuration.",
+            "ar": "زيادة حدود المعالجة عبر إعدادات Apache."
+        },
+        "code": "php_value upload_max_filesize 256M\nphp_value post_max_size 256M\nphp_value memory_limit 512M\nphp_value max_execution_time 300\nphp_value max_input_vars 3000",
+        "language": ".htaccess"
+    },
+    {
+        "id": "php-limits-ini",
+        "category": {
+            "en": "PHP Config",
+            "ar": "إعدادات PHP"
+        },
+        "title": {
+            "en": "PHP Limits (php.ini)",
+            "ar": "حدود PHP (عبر php.ini)"
+        },
+        "description": {
+            "en": "Standard PHP configuration file settings.",
+            "ar": "إعدادات ملف تكوين PHP القياسي."
+        },
+        "code": "upload_max_filesize = 256M\npost_max_size = 256M\nmemory_limit = 512M\nmax_execution_time = 300\nmax_input_vars = 3000",
+        "language": "ini"
+    },
+    {
+        "id": "wpconfig-limits",
+        "category": {
+            "en": "PHP Config",
+            "ar": "إعدادات PHP"
+        },
+        "title": {
+            "en": "Memory Limit (wp-config)",
+            "ar": "حد الذاكرة (wp-config)"
+        },
+        "description": {
+            "en": "Increase WordPress-specific memory limit.",
+            "ar": "زيادة حد الذاكرة المخصص لووردبريس."
+        },
+        "code": "define( 'WP_MEMORY_LIMIT', '256M' );\ndefine( 'WP_MAX_MEMORY_LIMIT', '512M' );",
+        "language": "php"
+    },
+    {
+        "id": "wpconfig-multisite",
+        "category": {
+            "en": "WordPress Core",
+            "ar": "نواة ووردبريس"
+        },
+        "title": {
+            "en": "Enable Multisite",
+            "ar": "تفعيل المواقع المتعددة"
+        },
+        "description": {
+            "en": "The first step to activating WordPress Network.",
+            "ar": "الخطوة الأولى لتفعيل شبكة مواقع ووردبريس."
+        },
+        "code": "define( 'WP_ALLOW_MULTISITE', true );",
+        "language": "php"
+    },
+    {
+        "id": "wpconfig-debug",
+        "category": {
+            "en": "WordPress Core",
+            "ar": "نواة ووردبريس"
+        },
+        "title": {
+            "en": "Debug Mode",
+            "ar": "وضع التصحيح"
+        },
+        "description": {
+            "en": "Log errors to wp-content/debug.log instead of showing them.",
+            "ar": "تسجيل الأخطاء في ملف debug.log بدلاً من عرضها للمستخدمين."
+        },
+        "code": "define( 'WP_DEBUG', true );\ndefine( 'WP_DEBUG_LOG', true );\ndefine( 'WP_DEBUG_DISPLAY', false );\n@ini_set( 'display_errors', 0 );",
+        "language": "php"
+    },
+    {
+        "id": "wpconfig-security",
+        "category": {
+            "en": "WordPress Core",
+            "ar": "نواة ووردبريس"
+        },
+        "title": {
+            "en": "Disable XML-RPC & Cron",
+            "ar": "تعطيل XML-RPC و Cron"
+        },
+        "description": {
+            "en": "Improve security and performance by disabling these features.",
+            "ar": "تحسين الأمان والأداء عبر تعطيل هذه الخصائص."
+        },
+        "code": "// Disable XML-RPC\nadd_filter( 'xmlrpc_enabled', '__return_false' );\n\n// Disable WP Cron (use system cron instead)\ndefine( 'DISABLE_WP_CRON', true );",
+        "language": "php"
+    },
+    {
+        "id": "robots-default",
+        "category": {
+            "en": "Server",
+            "ar": "خادم"
+        },
+        "title": {
+            "en": "Standard robots.txt",
+            "ar": "ملف robots.txt قياسي"
+        },
+        "description": {
+            "en": "Optimized robots.txt for WordPress security and SEO.",
+            "ar": "ملف robots.txt محسن لأمان ووردبريس والأرشفة."
+        },
+        "code": "User-agent: *\nDisallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\nDisallow: /wp-includes/\nDisallow: /wp-content/plugins/\nDisallow: /wp-content/themes/\nDisallow: /wp-login.php\nDisallow: /wp-register.php\nDisallow: */trackback/\nDisallow: */feed/\nDisallow: */comments/feed/\nDisallow: /?s=*\nDisallow: /search/",
+        "language": "robots"
+    },
+    {
+        "id": "ai1wm-restore",
+        "category": {
+            "en": "WordPress Plugin",
+            "ar": "إضافة ووردبريس"
+        },
+        "title": {
+            "en": "Ai1WM Restore From Server (No Pro)",
+            "ar": "استعادة Ai1WM من الخادم (بدون Pro)"
+        },
+        "description": {
+            "en": "Bypass Pro requirement for 'Restore from Server'. Run in Browser Console. Replace FILENAME.wpress.",
+            "ar": "تجاوز متطلبات نسخة Pro للاستعادة من الخادم. يعمل عبر كونسول المتصفح."
+        },
+        "code": "var filename = 'FILENAME.wpress';\nvar importer = new Ai1wm.Import();\nvar storage = Ai1wm.Util.random(12);\nvar options = Ai1wm.Util.form('#ai1wm-backups-form')\n.concat({name: 'storage', value: storage})\n.concat({name: 'archive', value: filename});\nimporter.setParams(options);\nimporter.start();",
+        "language": "javascript"
+    },
+    {
+        "id": "custom-login-logo",
+        "category": {
+            "en": "WordPress Core",
+            "ar": "نواة ووردبريس"
+        },
+        "title": {
+            "en": "Custom Login Logo",
+            "ar": "تخصيص شعار الدخول"
+        },
+        "description": {
+            "en": "Change the default WordPress branding on the login screen via functions.php.",
+            "ar": "تغيير شعار ووردبريس الافتراضي في صفحة الدخول عبر ملف functions.php."
+        },
+        "code": "function custom_login_logo() {\n    echo '<style type=\"text/css\">\n        #login h1 a {\n            background-image: url(YOUR_LOGO_URL_HERE);\n            height: 80px;\n            width: 320px;\n            background-size: contain;\n            background-repeat: no-repeat;\n            padding-bottom: 30px;\n        }\n    </style>';\n}\nadd_action( 'login_head', 'custom_login_logo' );",
+        "language": "php"
+    }
+]

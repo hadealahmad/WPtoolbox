@@ -7,7 +7,7 @@ import { App } from './core/app.js';
 export const Home = {
     init: async () => {
         try {
-            const res = await fetch('/js/data/tips.json');
+            const res = await fetch('./js/data/tips.json');
             const tips = await res.json();
             if (tips.length > 0) {
                 const randomTip = tips[Math.floor(Math.random() * tips.length)];

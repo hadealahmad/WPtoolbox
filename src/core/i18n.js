@@ -7,8 +7,8 @@ export const I18n = {
     async loadData() {
         try {
             const [transRes, navRes] = await Promise.all([
-                fetch('/js/data/translations.json'),
-                fetch('/js/data/nav.json')
+                fetch('./js/data/translations.json'),
+                fetch('./js/data/nav.json')
             ]);
             State.translations = await transRes.json();
             State.nav = await navRes.json();

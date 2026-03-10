@@ -36,7 +36,7 @@ export class WptNavbar extends HTMLElement {
                     <!-- Logo Area -->
                     <div class="flex items-center gap-2">
                         <div class="p-1.5 bg-zinc-900 border border-zinc-800 text-white rounded-lg shadow-sm">
-                            <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                            <i data-lucide="zap" class="w-5 h-5 text-primary"></i>
                         </div>
                         <a href="index.html" class="text-lg font-bold tracking-tight text-white hover:opacity-80 transition-opacity">WPToolbox</a>
                     </div>

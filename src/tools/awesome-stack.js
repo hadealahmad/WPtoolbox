@@ -15,7 +15,7 @@ export const AwesomeStack = {
     init: async () => {
         try {
             // Updated path to be relative to root
-            const response = await fetch('/js/data/stack-config.json');
+            const response = await fetch('./js/data/stack-config.json');
             if (!response.ok) throw new Error('Failed to load stack config');
             AwesomeStack.config = await response.json();
 

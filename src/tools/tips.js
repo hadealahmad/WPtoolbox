@@ -13,7 +13,7 @@ export const Tips = {
 
         try {
             // Updated path to be relative to root
-            const response = await fetch('/js/data/tips.json');
+            const response = await fetch('./js/data/tips.json');
             if (!response.ok) throw new Error('Failed to load tips');
             Tips.data = await response.json();
             Tips.render();
