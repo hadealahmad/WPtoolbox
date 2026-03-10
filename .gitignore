@@ -7,7 +7,9 @@ node_modules/
 /coverage
 
 # Production
-
+dist
+dist-ssr
+*.local
 # Misc
 .DS_Store
 .env
