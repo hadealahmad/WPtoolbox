@@ -25,6 +25,12 @@
                 "text": "nav_font_cleaner",
                 "icon": "type",
                 "desc": "nav_font_cleaner_desc"
+            },
+            {
+                "href": "blocksy-palette.html",
+                "text": "nav_blocksy_palette",
+                "icon": "palette",
+                "desc": "nav_blocksy_palette_desc"
             }
         ]
     },

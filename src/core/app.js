@@ -34,6 +34,9 @@ export const App = {
         if (typeof createIcons !== 'undefined' && typeof icons !== 'undefined') {
             createIcons({ icons });
         }
+
+        // Signal all tools that translations are ready
+        window.dispatchEvent(new Event('appReady'));
     },
 
     // Public Methods
