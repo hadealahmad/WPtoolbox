@@ -10,6 +10,11 @@
         "icon": "image"
     },
     {
+        "href": "unify-aspect-ratio.html",
+        "text": "nav_unify_aspect_ratio",
+        "icon": "expand"
+    },
+    {
         "href": "tips.html",
         "text": "nav_tips",
         "icon": "lightbulb"
