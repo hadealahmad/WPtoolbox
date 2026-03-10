@@ -1,9 +1,6 @@
 @import "tailwindcss";
 @import "./globals.css";
 
-@source "../*.html";
-@source "../js/*.js";
-
 @theme {
     --color-primary: oklch(0.488 0.243 264.376);
     --color-primary-foreground: oklch(0.97 0.014 254.604);
