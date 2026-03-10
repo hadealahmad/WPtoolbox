@@ -221,19 +221,11 @@ const UnifyAspectRatio = {
     },
 
     downloadZip: async (asWebp) => {
-        if (typeof JSZip === 'undefined') {
-            App.showToast("JSZip not loaded");
-            return;
-        }
-        const zip = new JSZip();
-        UnifyAspectRatio.processedImages.forEach(img => {
-            const blob = asWebp ? img.webpBlob : img.pngBlob;
-            const ext = asWebp ? 'webp' : 'png';
-            zip.file(`${img.name}.${ext}`, blob);
-        });
-        const content = await zip.generateAsync({ type: 'blob' });
-        App.downloadFile(content, `unified-aspect-ratio-${asWebp ? 'webp' : 'png'}.zip`, 'application/zip');
-        App.fireConfetti();
+        const files = UnifyAspectRatio.processedImages.map(img => ({
+            name: `${img.name}.${asWebp ? 'webp' : 'png'}`,
+            blob: asWebp ? img.webpBlob : img.pngBlob
+        }));
+        App.downloadZip(files, `unified-aspect-ratio-${asWebp ? 'webp' : 'png'}.zip`);
     }
 };
 

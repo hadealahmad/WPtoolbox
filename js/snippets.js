@@ -257,7 +257,7 @@ const Snippets = {
                     <div class="px-4 py-2 bg-zinc-900/50 border-b border-zinc-900 flex justify-between items-center text-[10px] text-zinc-500 font-mono">
                         <span>${item.language}</span>
                     </div>
-                    <pre class="p-4 overflow-x-auto text-xs font-mono text-zinc-300 leading-relaxed"><code id="${codeId}">${Snippets.escapeHtml(item.code)}</code></pre>
+                    <pre class="p-4 overflow-x-auto text-xs font-mono text-zinc-300 leading-relaxed"><code id="${codeId}">${App.escapeHtml(item.code)}</code></pre>
                 </div>
             `;
             container.appendChild(card);
@@ -273,14 +273,6 @@ const Snippets = {
         }
     },
 
-    escapeHtml: (unsafe) => {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    },
 
     filter: (categoryEn, btn) => {
         Snippets.currentCategory = categoryEn;

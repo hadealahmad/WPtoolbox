@@ -134,24 +134,41 @@ class BaseTool {
     }
 }
 
-/**
- * WPToolbox Core Utilities
- * Shared logic for all tools
- */
-
 // -----------------------------------------------------------------------------
-// 1. STATE MANAGEMENT
+// 1. STATE MANAGEMENT (REACTIVE)
 // -----------------------------------------------------------------------------
-const State = {
+const _state = {
     translations: {},
     nav: [],
-    currentLang: localStorage.getItem('wptoolbox_lang') || 'en',
-
-    setLanguage(lang) {
-        this.currentLang = lang;
-        localStorage.setItem('wptoolbox_lang', lang);
-    }
+    currentLang: localStorage.getItem('wptoolbox_lang') || 'en'
 };
+
+const State = new Proxy(_state, {
+    set(target, prop, value) {
+        const oldValue = target[prop];
+        target[prop] = value;
+        
+        if (prop === 'currentLang' && oldValue !== value) {
+            localStorage.setItem('wptoolbox_lang', value);
+            I18n.updateDirection();
+            I18n.translatePage();
+            
+            // Notify components
+            window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: value } }));
+            
+            // Update UI elements that are not web components but need translation
+            const cmdSearch = document.getElementById('cmd-search');
+            if (cmdSearch) cmdSearch.placeholder = I18n.t('palette_placeholder');
+        }
+        
+        if (prop === 'nav' || prop === 'translations') {
+            // Potentially re-render components that depend on these
+            window.dispatchEvent(new CustomEvent('dataLoaded', { detail: { prop } }));
+        }
+
+        return true;
+    }
+});
 
 // -----------------------------------------------------------------------------
 // 2. INTERNATIONALIZATION (I18n)
@@ -174,6 +191,13 @@ const I18n = {
         const lang = State.currentLang;
         document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
         document.documentElement.lang = lang;
+        
+        // Update font for Arabic
+        if (lang === 'ar') {
+            document.body.style.fontFamily = "'IBM Plex Sans Arabic', sans-serif";
+        } else {
+            document.body.style.fontFamily = "'Inter', sans-serif";
+        }
     },
 
     t(key) {
@@ -246,21 +270,35 @@ const I18n = {
 };
 
 // -----------------------------------------------------------------------------
-// 3. USER INTERFACE (UI)
+// 3. WEB COMPONENTS (Navbar & Footer)
 // -----------------------------------------------------------------------------
-const UI = {
-    initTheme() {
-        document.documentElement.classList.add('dark');
-    },
 
-    renderNavbar() {
-        const navContainer = document.getElementById('global-nav');
-        if (!navContainer) return;
+class WptNavbar extends HTMLElement {
+    constructor() {
+        super();
+        this.onLanguageChange = this.render.bind(this);
+        this.onDataLoaded = this.render.bind(this);
+    }
+
+    connectedCallback() {
+        window.addEventListener('languageChanged', this.onLanguageChange);
+        window.addEventListener('dataLoaded', this.onDataLoaded);
+        this.render();
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('languageChanged', this.onLanguageChange);
+        window.removeEventListener('dataLoaded', this.onDataLoaded);
+    }
+
+    render() {
+        if (!State.nav || State.nav.length === 0) return;
 
         const groups = State.nav;
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
 
-        const navHtml = `
+        this.className = "sticky top-0 z-50 glass-header block";
+        this.innerHTML = `
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16 items-center">
                     <!-- Logo Area -->
@@ -382,11 +420,9 @@ const UI = {
             </div>
         `;
 
-        navContainer.innerHTML = navHtml;
-
         // Mobile Menu Logic
-        const btn = document.getElementById('mobile-menu-btn');
-        const menu = document.getElementById('mobile-menu');
+        const btn = this.querySelector('#mobile-menu-btn');
+        const menu = this.querySelector('#mobile-menu');
         if (btn && menu) {
             btn.onclick = (e) => {
                 e.stopPropagation();
@@ -413,14 +449,27 @@ const UI = {
         }
 
         if (typeof lucide !== 'undefined') lucide.createIcons();
-    },
+    }
+}
 
-    renderFooter() {
-        const footer = document.getElementById('global-footer');
-        if (!footer) return;
+class WptFooter extends HTMLElement {
+    constructor() {
+        super();
+        this.onLanguageChange = this.render.bind(this);
+    }
 
-        footer.className = "bg-zinc-950 border-t border-zinc-900 py-12 mt-20 transition-none";
-        footer.innerHTML = `
+    connectedCallback() {
+        window.addEventListener('languageChanged', this.onLanguageChange);
+        this.render();
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('languageChanged', this.onLanguageChange);
+    }
+
+    render() {
+        this.className = "bg-zinc-950 border-t border-zinc-900 py-12 mt-20 transition-none block";
+        this.innerHTML = `
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                     <div class="flex items-center gap-2">
@@ -437,6 +486,19 @@ const UI = {
                 </div>
             </div>
         `;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+}
+
+customElements.define('wpt-navbar', WptNavbar);
+customElements.define('wpt-footer', WptFooter);
+
+// -----------------------------------------------------------------------------
+// 4. USER INTERFACE (UI)
+// -----------------------------------------------------------------------------
+const UI = {
+    initTheme() {
+        document.documentElement.classList.add('dark');
     },
 
     initCommandPalette() {
@@ -458,26 +520,34 @@ const UI = {
         const input = palette.querySelector('#cmd-search');
         const results = palette.querySelector('#cmd-results');
 
-        const tools = State.nav.flatMap(group => 
-            group.items.map(item => ({
-                name: I18n.t(item.text),
-                href: item.href,
-                icon: item.icon
-            }))
-        );
+        const updatePalette = () => {
+            const tools = State.nav.flatMap(group => 
+                group.items.map(item => ({
+                    name: I18n.t(item.text),
+                    href: item.href,
+                    icon: item.icon
+                }))
+            );
 
-        const renderTools = (filter = '') => {
-            const filtered = tools.filter(t => (t.name || '').toLowerCase().includes((filter || '').toLowerCase()));
-            results.innerHTML = filtered.map((t, idx) => `
-                <a href="${t.href}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-800 group transition-none">
-                    <div class="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-primary transition-none">
-                        <i data-lucide="${t.icon}" class="w-4 h-4"></i>
-                    </div>
-                    <span class="text-sm font-medium text-zinc-300 group-hover:text-white">${t.name}</span>
-                </a>
-            `).join('');
-            if (typeof lucide !== 'undefined') lucide.createIcons({ props: { class: 'w-4 h-4' }, container: results });
+            const renderTools = (filter = '') => {
+                const filtered = tools.filter(t => (t.name || '').toLowerCase().includes((filter || '').toLowerCase()));
+                results.innerHTML = filtered.map((t, idx) => `
+                    <a href="${t.href}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-800 group transition-none">
+                        <div class="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-primary transition-none">
+                            <i data-lucide="${t.icon}" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-sm font-medium text-zinc-300 group-hover:text-white">${t.name}</span>
+                    </a>
+                `).join('');
+                if (typeof lucide !== 'undefined') lucide.createIcons({ props: { class: 'w-4 h-4' }, container: results });
+            };
+
+            input.oninput = (e) => renderTools(e.target.value);
+            renderTools();
         };
+
+        window.addEventListener('languageChanged', updatePalette);
+        window.addEventListener('dataLoaded', updatePalette);
 
         window.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -489,8 +559,7 @@ const UI = {
         });
 
         palette.onclick = (e) => { if (e.target === palette) palette.classList.add('hidden'); };
-        input.oninput = (e) => renderTools(e.target.value);
-        renderTools();
+        updatePalette();
     },
 
     showToast(msg, duration = 3000) {
@@ -519,7 +588,7 @@ const UI = {
 };
 
 // -----------------------------------------------------------------------------
-// 4. UTILITIES (Utils)
+// 5. UTILITIES (Utils)
 // -----------------------------------------------------------------------------
 const Utils = {
     initServiceWorker() {
@@ -539,8 +608,39 @@ const Utils = {
         return s;
     },
 
+    escapeHtml(unsafe) {
+        if (!unsafe) return "";
+        return String(unsafe)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    },
+
+    htmlToMarkdown(html) {
+        if (!html) return '';
+        let md = String(html)
+            .replace(/<h[1-6][^>]*>(.*?)<\/h[1-6]>/gi, (m, c) => `\n\n# ${c}\n\n`)
+            .replace(/<p[^>]*>(.*?)<\/p>/gi, '\n\n$1\n\n')
+            .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
+            .replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**')
+            .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
+            .replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*')
+            .replace(/<ul[^>]*>(.*?)<\/ul>/gi, '\n$1\n')
+            .replace(/<ol[^>]*>(.*?)<\/ol>/gi, '\n$1\n')
+            .replace(/<li[^>]*>(.*?)<\/li>/gi, '\n* $1')
+            .replace(/<a href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
+            .replace(/<img[^>]*src="([^"]*)"[^>]*>/gi, '![image]($1)')
+            .replace(/<br[^>]*>/gi, '\n')
+            .replace(/<[^>]+>/g, '')
+            .replace(/\n\s*\n/g, '\n\n')
+            .trim();
+        return md;
+    },
+
     downloadFile(content, filename, type = 'text/plain;charset=utf-8') {
-        const blob = new Blob([content], { type });
+        const blob = content instanceof Blob ? content : new Blob([content], { type });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -549,6 +649,20 @@ const Utils = {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    },
+
+    async downloadZip(files, zipFilename = 'download.zip') {
+        if (typeof JSZip === 'undefined') {
+            UI.showToast("JSZip not loaded");
+            return;
+        }
+        const zip = new JSZip();
+        files.forEach(file => {
+            zip.file(file.name, file.content || file.blob);
+        });
+        const content = await zip.generateAsync({ type: 'blob' });
+        this.downloadFile(content, zipFilename, 'application/zip');
+        UI.fireConfetti();
     },
 
     async copyToClipboard(text, btnElement, feedbackText) {
@@ -597,30 +711,26 @@ const Utils = {
 };
 
 // -----------------------------------------------------------------------------
-// 5. APPLICATION FACADE (App)
+// 6. APPLICATION FACADE (App)
 // -----------------------------------------------------------------------------
 const App = {
-    // 5.1 Expose variables
+    // 6.1 State accessors
     get translations() { return State.translations; },
-    set translations(val) { State.translations = val; },
-
     get currentLang() { return State.currentLang; },
     set currentLang(val) { State.currentLang = val; },
 
-    // 5.2 Tool Registry
+    // 6.2 Tool Registry
     tools: {},
     registerTool(id, config) {
         this.tools[id] = new BaseTool(id, config);
         return this.tools[id];
     },
 
-    // 5.3 Expose Initialization
+    // 6.3 Lifecycle
     async init() {
         UI.initTheme(); // Must be first to prevent light flash
-        await I18n.loadData();
         I18n.updateDirection();
-        UI.renderNavbar();
-        UI.renderFooter();
+        await I18n.loadData();
         I18n.translatePage();
         I18n.initObserver(); // Watch for dynamic content
         UI.initCommandPalette();
@@ -631,25 +741,13 @@ const App = {
         }
     },
 
-    // 5.3 Expose Public Methods
+    // 6.4 Public Methods
     setLanguage(lang) {
-        State.setLanguage(lang);
-        I18n.updateDirection();
-        I18n.translatePage();
-
-        const cmdSearch = document.getElementById('cmd-search');
-        if (cmdSearch) cmdSearch.placeholder = I18n.t('palette_placeholder');
-
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-
-        window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
+        State.currentLang = lang;
     },
 
     toggleLanguage() {
-        const nextLang = State.currentLang === 'ar' ? 'en' : 'ar';
-        this.setLanguage(nextLang);
+        this.setLanguage(State.currentLang === 'ar' ? 'en' : 'ar');
     },
 
     t: (key) => I18n.t(key),
@@ -658,20 +756,16 @@ const App = {
     showToast: (msg, duration) => UI.showToast(msg, duration),
     fireConfetti: () => UI.fireConfetti(),
 
-    // Tools
+    // Utilities
     escapeCSV: (val) => Utils.escapeCSV(val),
+    escapeHtml: (val) => Utils.escapeHtml(val),
+    htmlToMarkdown: (val) => Utils.htmlToMarkdown(val),
     downloadFile: (content, filename, type) => Utils.downloadFile(content, filename, type),
+    downloadZip: (files, filename) => Utils.downloadZip(files, filename),
     copyToClipboard: (text, btnElement, feedbackText) => Utils.copyToClipboard(text, btnElement, feedbackText),
 
-    // Internals
-    initTheme: () => UI.initTheme(),
-    loadData: () => I18n.loadData(),
-    updateDirection: () => I18n.updateDirection(),
-    renderNavbar: () => UI.renderNavbar(),
-    renderFooter: () => UI.renderFooter(),
-    translatePage: () => I18n.translatePage(),
-    initCommandPalette: () => UI.initCommandPalette(),
-    initServiceWorker: () => Utils.initServiceWorker()
+    // Internals (backward compatibility or direct access)
+    translatePage: () => I18n.translatePage()
 };
 
 // Auto-init on load

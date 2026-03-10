@@ -384,7 +384,7 @@ const WPMapper = {
             let val = row[h];
 
             if (WPMapper.markdownMode && (m.wpField === 'content' || m.wpField === 'excerpt')) {
-                val = WPMapper.htmlToMarkdown(val);
+                val = App.htmlToMarkdown(val);
             }
 
             if (m.wpField === 'custom') {
@@ -428,10 +428,7 @@ const WPMapper = {
         for (let i = 0; i < data.length; i++) {
             if (mapper.isCancelled) return;
             const row = data[i];
-            const values = headers.map(h => {
-                const val = (row[h] || '').toString().replace(/"/g, '""');
-                return `"${val}"`;
-            });
+            const values = headers.map(h => App.escapeCSV(row[h]));
             csvRows.push(values.join(','));
             if (i % 500 === 0) await new Promise(resolve => setTimeout(resolve, 0));
         }
@@ -590,26 +587,6 @@ const WPMapper = {
         App.fireConfetti();
     },
 
-    htmlToMarkdown: (html) => {
-        if (!html) return '';
-        let md = html
-            .replace(/<h[1-6][^>]*>(.*?)<\/h[1-6]>/gi, (m, c) => `\n\n# ${c}\n\n`)
-            .replace(/<p[^>]*>(.*?)<\/p>/gi, '\n\n$1\n\n')
-            .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
-            .replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**')
-            .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
-            .replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*')
-            .replace(/<ul[^>]*>(.*?)<\/ul>/gi, '\n$1\n')
-            .replace(/<ol[^>]*>(.*?)<\/ol>/gi, '\n$1\n')
-            .replace(/<li[^>]*>(.*?)<\/li>/gi, '\n* $1')
-            .replace(/<a href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
-            .replace(/<img[^>]*src="([^"]*)"[^>]*>/gi, '![image]($1)')
-            .replace(/<br[^>]*>/gi, '\n')
-            .replace(/<[^>]+>/g, '')
-            .replace(/\n\s*\n/g, '\n\n')
-            .trim();
-        return md;
-    }
 };
 
 document.addEventListener('DOMContentLoaded', WPMapper.init);

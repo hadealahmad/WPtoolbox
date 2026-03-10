@@ -171,17 +171,8 @@ const ImageConverter = {
     },
 
     downloadZip: async () => {
-        if (typeof JSZip === 'undefined') {
-            App.showToast("JSZip not loaded");
-            return;
-        }
-        const zip = new JSZip();
-        ImageConverter.convertedImages.forEach(img => {
-            zip.file(img.name, img.blob);
-        });
-        const content = await zip.generateAsync({ type: 'blob' });
-        App.downloadFile(content, 'wptoolbox-images.zip', 'application/zip');
-        App.fireConfetti();
+        const files = ImageConverter.convertedImages.map(img => ({ name: img.name, blob: img.blob }));
+        App.downloadZip(files, 'wptoolbox-images.zip');
     }
 };
 
