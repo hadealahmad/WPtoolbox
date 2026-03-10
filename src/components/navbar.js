@@ -23,6 +23,18 @@ export class WptNavbar extends HTMLElement {
         window.removeEventListener('dataLoaded', this.onDataLoaded);
     }
 
+    toggleMenu(e) {
+        if (e) e.stopPropagation();
+        const btn = this.querySelector('#mobile-menu-btn');
+        const menu = this.querySelector('#mobile-menu');
+        if (!btn || !menu) return;
+
+        menu.classList.toggle('hidden');
+        const isOpening = !menu.classList.contains('hidden');
+        btn.innerHTML = `<i data-lucide="${isOpening ? 'x' : 'menu'}" class="w-6 h-6 pointer-events-none"></i>`;
+        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+    }
+
     render() {
         if (!State.nav || State.nav.length === 0) return;
 
@@ -104,15 +116,15 @@ export class WptNavbar extends HTMLElement {
                         <button onclick="App.toggleLanguage()" class="px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] font-bold text-zinc-500 uppercase" data-i18n="toggle_lang">
                             ${I18n.t('toggle_lang')}
                         </button>
-                        <button id="mobile-menu-btn" class="p-2 text-zinc-400 hover:text-white">
-                            <i data-lucide="menu" class="w-6 h-6"></i>
+                        <button id="mobile-menu-btn" onclick="this.closest('wpt-navbar').toggleMenu(event)" class="p-2 text-zinc-400 hover:text-white relative z-50 cursor-pointer">
+                            <i data-lucide="menu" class="w-6 h-6 pointer-events-none"></i>
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- Mobile Menu Dropdown -->
-            <div id="mobile-menu" class="hidden md:hidden fixed inset-x-0 top-16 bottom-0 bg-zinc-950/98 backdrop-blur-3xl z-40 overflow-y-auto border-t border-zinc-900/50">
+            <div id="mobile-menu" class="hidden md:hidden fixed inset-x-0 top-16 h-[calc(100vh-4rem)] bg-zinc-950/98 backdrop-blur-3xl z-40 overflow-y-auto border-t border-zinc-900/50">
                 <div class="p-6 space-y-8">
                     <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-zinc-900/50 border border-zinc-800 text-zinc-300">
                         <i data-lucide="home" class="w-4 h-4"></i>
@@ -152,37 +164,23 @@ export class WptNavbar extends HTMLElement {
             </div>
         `;
 
-        // Mobile Menu Logic
-        const btn = this.querySelector('#mobile-menu-btn');
-        const menu = this.querySelector('#mobile-menu');
-        
-        if (btn && menu) {
-            btn.onclick = (e) => {
-                e.stopPropagation();
-                menu.classList.toggle('hidden');
-                const isOpening = !menu.classList.contains('hidden');
-                btn.innerHTML = `<i data-lucide="${isOpening ? 'x' : 'menu'}" class="w-6 h-6"></i>`;
-                if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
-            };
-
-            // Clean up old listener if it exists to avoid accumulation
-            if (this._outsideClickHandler) {
-                document.removeEventListener('click', this._outsideClickHandler);
-            }
-
-            this._outsideClickHandler = (e) => {
-                if (!menu.contains(e.target) && !btn.contains(e.target)) {
-                    if (!menu.classList.contains('hidden')) {
-                        menu.classList.add('hidden');
-                        btn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
-                        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
-                    }
-                }
-            };
-
-            document.addEventListener('click', this._outsideClickHandler);
+        if (this._outsideClickHandler) {
+            document.removeEventListener('click', this._outsideClickHandler);
         }
 
+        this._outsideClickHandler = (e) => {
+            const menu = this.querySelector('#mobile-menu');
+            const btn = this.querySelector('#mobile-menu-btn');
+            if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+                if (!menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                    btn.innerHTML = '<i data-lucide="menu" class="w-6 h-6 pointer-events-none"></i>';
+                    if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+                }
+            }
+        };
+
+        document.addEventListener('click', this._outsideClickHandler);
         if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
     }
 }
