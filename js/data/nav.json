@@ -6,19 +6,19 @@
                 "href": "img2webp.html",
                 "text": "nav_img2webp",
                 "icon": "image",
-                "desc": "Optimize images for the web."
+                "desc": "nav_img2webp_desc"
             },
             {
                 "href": "unify-aspect-ratio.html",
                 "text": "nav_unify_aspect_ratio",
                 "icon": "expand",
-                "desc": "Resize icons & assets cleanly."
+                "desc": "nav_unify_aspect_ratio_desc"
             },
             {
                 "href": "clearfonts.html",
                 "text": "nav_font_cleaner",
                 "icon": "type",
-                "desc": "Clean up Google Font blobs."
+                "desc": "nav_font_cleaner_desc"
             }
         ]
     },
@@ -29,19 +29,19 @@
                 "href": "checklist.html",
                 "text": "nav_checklist",
                 "icon": "check-square",
-                "desc": "Pre-launch site verification."
+                "desc": "nav_checklist_desc"
             },
             {
                 "href": "demo-generator.html",
                 "text": "nav_demo_generator",
                 "icon": "sparkles",
-                "desc": "Generate realistic dummy sites."
+                "desc": "nav_demo_generator_desc"
             },
             {
                 "href": "awesomestack.html",
                 "text": "nav_awesome_stack",
                 "icon": "layers",
-                "desc": "Curated plugins & themes."
+                "desc": "nav_awesome_stack_desc"
             }
         ]
     },
@@ -52,19 +52,19 @@
                 "href": "snippets.html",
                 "text": "nav_snippets",
                 "icon": "scissors",
-                "desc": "Pro PHP & CSS snippets."
+                "desc": "nav_snippets_desc"
             },
             {
                 "href": "wp-mapper.html",
                 "text": "nav_wp_mapper",
                 "icon": "map",
-                "desc": "XML to JSON/CSV data mapper."
+                "desc": "nav_wp_mapper_desc"
             },
             {
                 "href": "tips.html",
                 "text": "nav_tips",
                 "icon": "lightbulb",
-                "desc": "WordPress performance facts."
+                "desc": "nav_tips_desc"
             }
         ]
     }

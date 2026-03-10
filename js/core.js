@@ -140,7 +140,7 @@ const UI = {
                                                     </div>
                                                     <div class="min-w-0">
                                                         <div class="text-[13.5px] font-bold text-zinc-200 group-hover/item:text-white tracking-tight leading-tight mb-0.5" data-i18n="${item.text}">${I18n.t(item.text)}</div>
-                                                        <div class="text-[11px] text-zinc-500 line-clamp-1 truncate font-medium group-hover/item:text-zinc-400 transition-colors">${item.desc || ''}</div>
+                                                        <div class="text-[11px] text-zinc-500 line-clamp-1 truncate font-medium group-hover/item:text-zinc-400 transition-colors" data-i18n="${item.desc}">${I18n.t(item.desc) || ''}</div>
                                                     </div>
                                                 </a>
                                             `).join('')}
@@ -199,7 +199,7 @@ const UI = {
                                         </div>
                                         <div class="min-w-0">
                                             <div class="text-[13px] font-bold tracking-tight text-zinc-200" data-i18n="${item.text}">${I18n.t(item.text)}</div>
-                                            <div class="text-[10px] text-zinc-500 line-clamp-1 truncate font-medium">${item.desc || ''}</div>
+                                            <div class="text-[10px] text-zinc-500 line-clamp-1 truncate font-medium" data-i18n="${item.desc}">${I18n.t(item.desc) || ''}</div>
                                         </div>
                                     </a>
                                 `).join('')}
