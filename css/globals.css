@@ -115,9 +115,9 @@ html[lang="ar"] body {
     animation: none !important;
 }
 
-/* Disable all transitions for instant UI */
+/* Disable all transitions for instant UI (Except specifically enabled ones) */
 * {
-    transition: none !important;
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease !important;
 }
 
 /* Custom Scrollbar */
@@ -141,11 +141,113 @@ html[lang="ar"] body {
 
 .bg-grid-small {
     background-image: 
-        linear-gradient(45deg, #111 25%, transparent 25%), 
-        linear-gradient(-45deg, #111 25%, transparent 25%), 
-        linear-gradient(45deg, transparent 75%, #111 75%), 
-        linear-gradient(-45deg, transparent 75%, #111 75%);
+    linear-gradient(45deg, #111 25%, transparent 25%), 
+    linear-gradient(-45deg, #111 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #111 75%), 
+    linear-gradient(-45deg, transparent 75%, #111 75%);
     background-size: 10px 10px;
     background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
     background-color: #000;
+}
+
+/* line-clamp utility */
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+}
+
+/* Mega Menu Enhancements */
+.group:hover .group-hover\:visible {
+    visibility: visible;
+}
+
+.group\/item:hover {
+    border-color: oklch(0.488 0.243 264.376 / 0.3) !important;
+}
+
+.group\/item:hover div i {
+    transform: scale(1.1);
+}
+
+.transition-all {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Checklist Specific Styles */
+.filter-btn.active {
+    background-color: var(--primary);
+    border-color: var(--primary) !important;
+    color: var(--primary-foreground);
+    box-shadow: 0 4px 12px -2px rgba(var(--primary), 0.3);
+}
+
+.filter-btn.active i, .filter-btn.active span {
+    color: var(--primary-foreground) !important;
+}
+
+.filter-btn.active #count-all, 
+.filter-btn.active #count-wp, 
+.filter-btn.active #count-seo, 
+.filter-btn.active #count-woo {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.task-item {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border-color: var(--border);
+    background-color: oklch(0.25 0.006 285.885 / 0.3);
+}
+
+.task-item:hover {
+    background-color: oklch(0.25 0.006 285.885 / 0.6);
+    border-color: oklch(0.488 0.243 264.376 / 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.3);
+}
+
+/* Fix checkbox visibility and hover */
+.task-item .checkbox-btn {
+    border-color: var(--border);
+    background-color: var(--background);
+}
+
+.task-item:hover .checkbox-btn {
+    border-color: var(--primary);
+}
+
+.task-item .checkbox-btn.completed {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+html[lang="ar"] .task-item:hover {
+    transform: translateY(-1px);
+}
+
+.task-item p {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.toggle-btn {
+    cursor: pointer;
+}
+
+html[lang="ar"] .task-item i[data-lucide="check"] {
+    transform: scaleX(-1);
+}
+
+/* Custom site sidebar scrollbar if needed */
+#sites-list {
+    max-height: calc(100vh - 350px);
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+html[lang="ar"] #sites-list {
+    padding-right: 0;
+    padding-left: 4px;
 }

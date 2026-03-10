@@ -1,42 +1,71 @@
 [
     {
-        "href": "awesomestack.html",
-        "text": "nav_awesome_stack",
-        "icon": "layers"
+        "group": "nav_group_media",
+        "items": [
+            {
+                "href": "img2webp.html",
+                "text": "nav_img2webp",
+                "icon": "image",
+                "desc": "Optimize images for the web."
+            },
+            {
+                "href": "unify-aspect-ratio.html",
+                "text": "nav_unify_aspect_ratio",
+                "icon": "expand",
+                "desc": "Resize icons & assets cleanly."
+            },
+            {
+                "href": "clearfonts.html",
+                "text": "nav_font_cleaner",
+                "icon": "type",
+                "desc": "Clean up Google Font blobs."
+            }
+        ]
     },
     {
-        "href": "img2webp.html",
-        "text": "nav_img2webp",
-        "icon": "image"
+        "group": "nav_group_workflow",
+        "items": [
+            {
+                "href": "checklist.html",
+                "text": "nav_checklist",
+                "icon": "check-square",
+                "desc": "Pre-launch site verification."
+            },
+            {
+                "href": "demo-generator.html",
+                "text": "nav_demo_generator",
+                "icon": "sparkles",
+                "desc": "Generate realistic dummy sites."
+            },
+            {
+                "href": "awesomestack.html",
+                "text": "nav_awesome_stack",
+                "icon": "layers",
+                "desc": "Curated plugins & themes."
+            }
+        ]
     },
     {
-        "href": "unify-aspect-ratio.html",
-        "text": "nav_unify_aspect_ratio",
-        "icon": "expand"
-    },
-    {
-        "href": "tips.html",
-        "text": "nav_tips",
-        "icon": "lightbulb"
-    },
-    {
-        "href": "clearfonts.html",
-        "text": "nav_font_cleaner",
-        "icon": "type"
-    },
-    {
-        "href": "snippets.html",
-        "text": "nav_snippets",
-        "icon": "scissors"
-    },
-    {
-        "href": "wp-mapper.html",
-        "text": "nav_wp_mapper",
-        "icon": "map"
-    },
-    {
-        "href": "demo-generator.html",
-        "text": "nav_demo_generator",
-        "icon": "sparkles"
+        "group": "nav_group_dev",
+        "items": [
+            {
+                "href": "snippets.html",
+                "text": "nav_snippets",
+                "icon": "scissors",
+                "desc": "Pro PHP & CSS snippets."
+            },
+            {
+                "href": "wp-mapper.html",
+                "text": "nav_wp_mapper",
+                "icon": "map",
+                "desc": "XML to JSON/CSV data mapper."
+            },
+            {
+                "href": "tips.html",
+                "text": "nav_tips",
+                "icon": "lightbulb",
+                "desc": "WordPress performance facts."
+            }
+        ]
     }
 ]
