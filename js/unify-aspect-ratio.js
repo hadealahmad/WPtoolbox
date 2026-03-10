@@ -1,23 +1,28 @@
+let aspectR;
+
 const UnifyAspectRatio = {
     targetRatio: 1, // 1:1 default
     customWidth: 1000,
     customHeight: 1000,
     processedImages: [],
+    lastFiles: null,
 
     init: () => {
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
+        aspectR = App.registerTool('UnifyAspectRatio', {
+            multiple: true,
+            resultsId: 'results-section',
+            onFiles: (files) => UnifyAspectRatio.handleFiles(files),
+            onLanguageChange: () => {
+                if (UnifyAspectRatio.processedImages.length > 0) UnifyAspectRatio.renderResults();
+            }
+        });
+
         const ratioBtns = document.querySelectorAll('.ratio-btn');
         const zipBtn = document.getElementById('download-zip-btn');
         const zipWebpBtn = document.getElementById('download-zip-webp-btn');
         const customWidthInput = document.getElementById('custom-width');
         const customHeightInput = document.getElementById('custom-height');
         const customRatioInputs = document.getElementById('custom-ratio-inputs');
-
-        if (!dropZone || !fileInput) return;
-
-        dropZone.onclick = () => fileInput.click();
-        fileInput.onchange = (e) => UnifyAspectRatio.handleFiles(e.target.files);
 
         // Ratio button logic
         ratioBtns.forEach(btn => {
@@ -30,17 +35,14 @@ const UnifyAspectRatio = {
 
                 const ratio = btn.dataset.ratio;
                 if (ratio === 'custom') {
-                    customRatioInputs.classList.remove('hidden');
+                    if (customRatioInputs) customRatioInputs.classList.remove('hidden');
                     UnifyAspectRatio.updateTargetRatio();
                 } else {
-                    customRatioInputs.classList.add('hidden');
+                    if (customRatioInputs) customRatioInputs.classList.add('hidden');
                     const [w, h] = ratio.split(':').map(Number);
                     UnifyAspectRatio.targetRatio = w / h;
                 }
                 
-                // If we already have images, re-process them? 
-                // For simplicity and performance, maybe just warn or let user re-upload.
-                // Actually, let's re-process if we have files to make it feel premium.
                 if (UnifyAspectRatio.lastFiles) {
                     UnifyAspectRatio.handleFiles(UnifyAspectRatio.lastFiles);
                 }
@@ -49,42 +51,28 @@ const UnifyAspectRatio = {
 
         // Custom input logic
         [customWidthInput, customHeightInput].forEach(input => {
-            input.oninput = () => {
-                UnifyAspectRatio.updateTargetRatio();
-                if (UnifyAspectRatio.lastFiles) {
-                    UnifyAspectRatio.handleFiles(UnifyAspectRatio.lastFiles);
-                }
-            };
+            if (input) {
+                input.oninput = () => {
+                    UnifyAspectRatio.updateTargetRatio();
+                    if (UnifyAspectRatio.lastFiles) {
+                        UnifyAspectRatio.handleFiles(UnifyAspectRatio.lastFiles);
+                    }
+                };
+            }
         });
 
         if (zipBtn) zipBtn.onclick = () => UnifyAspectRatio.downloadZip(false);
         if (zipWebpBtn) zipWebpBtn.onclick = () => UnifyAspectRatio.downloadZip(true);
-
-        // Drag and drop listeners
-        dropZone.ondragover = (e) => {
-            e.preventDefault();
-            dropZone.classList.add('border-primary');
-        };
-        dropZone.ondragleave = () => dropZone.classList.remove('border-primary');
-        dropZone.ondrop = (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('border-primary');
-            UnifyAspectRatio.handleFiles(e.dataTransfer.files);
-        };
-
-        window.addEventListener('languageChanged', () => {
-            if (UnifyAspectRatio.processedImages.length > 0) {
-                UnifyAspectRatio.renderResults();
-            }
-        });
 
         // Clipboard listener
         document.addEventListener('paste', UnifyAspectRatio.handlePaste);
     },
 
     updateTargetRatio: () => {
-        const w = parseInt(document.getElementById('custom-width').value) || 1000;
-        const h = parseInt(document.getElementById('custom-height').value) || 1000;
+        const wInput = document.getElementById('custom-width');
+        const hInput = document.getElementById('custom-height');
+        const w = parseInt(wInput?.value) || 1000;
+        const h = parseInt(hInput?.value) || 1000;
         UnifyAspectRatio.targetRatio = w / h;
     },
 
@@ -104,16 +92,15 @@ const UnifyAspectRatio = {
 
     handleFiles: async (files) => {
         if (!files.length) return;
-        UnifyAspectRatio.lastFiles = files; // Save for re-processing on ratio change
+        UnifyAspectRatio.lastFiles = files;
 
-        document.getElementById('results-section').classList.remove('hidden');
         const progressBar = document.getElementById('processing-bar');
         UnifyAspectRatio.processedImages = [];
 
         let processed = 0;
         for (const file of files) {
             if (!file.type.startsWith('image/')) {
-                if (typeof App !== 'undefined') App.showToast(App.t('msg_upload_images'));
+                App.showToast(App.t('msg_upload_images'));
                 continue;
             }
 
@@ -149,11 +136,9 @@ const UnifyAspectRatio = {
                     let targetW, targetH;
 
                     if (imgRatio > UnifyAspectRatio.targetRatio) {
-                        // Image is wider than target ratio - expand height
                         targetW = imgW;
                         targetH = imgW / UnifyAspectRatio.targetRatio;
                     } else {
-                        // Image is taller than target ratio - expand width
                         targetH = imgH;
                         targetW = imgH * UnifyAspectRatio.targetRatio;
                     }
@@ -161,14 +146,12 @@ const UnifyAspectRatio = {
                     canvas.width = targetW;
                     canvas.height = targetH;
                     const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0, 0, targetW, targetH); // Ensure transparency
+                    ctx.clearRect(0, 0, targetW, targetH);
 
-                    // Center the image
                     const xOffset = (targetW - imgW) / 2;
                     const yOffset = (targetH - imgH) / 2;
                     ctx.drawImage(img, xOffset, yOffset, imgW, imgH);
 
-                    // We need to keep track of both original (usually PNG for transparency) and WebP
                     const baseName = name.split('.')[0];
                     
                     canvas.toBlob((webpBlob) => {
@@ -233,15 +216,13 @@ const UnifyAspectRatio = {
         const blob = format === 'webp' ? img.webpBlob : img.pngBlob;
         const ext = format === 'webp' ? 'webp' : 'png';
         const type = format === 'webp' ? 'image/webp' : 'image/png';
-        if (typeof App !== 'undefined') {
-            App.downloadFile(blob, `${img.name}.${ext}`, type);
-            App.fireConfetti();
-        }
+        App.downloadFile(blob, `${img.name}.${ext}`, type);
+        App.fireConfetti();
     },
 
     downloadZip: async (asWebp) => {
         if (typeof JSZip === 'undefined') {
-            if (typeof App !== 'undefined') App.showToast("JSZip not loaded");
+            App.showToast("JSZip not loaded");
             return;
         }
         const zip = new JSZip();
@@ -251,10 +232,8 @@ const UnifyAspectRatio = {
             zip.file(`${img.name}.${ext}`, blob);
         });
         const content = await zip.generateAsync({ type: 'blob' });
-        if (typeof App !== 'undefined') {
-            App.downloadFile(content, `unified-aspect-ratio-${asWebp ? 'webp' : 'png'}.zip`, 'application/zip');
-            App.fireConfetti();
-        }
+        App.downloadFile(content, `unified-aspect-ratio-${asWebp ? 'webp' : 'png'}.zip`, 'application/zip');
+        App.fireConfetti();
     }
 };
 

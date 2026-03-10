@@ -1,43 +1,31 @@
+let converter;
+
 const ImageConverter = {
     quality: 0.8,
     convertedImages: [],
 
     init: () => {
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
+        converter = App.registerTool('ImageConverter', {
+            multiple: true,
+            resultsId: 'results-section',
+            onFiles: (files) => ImageConverter.handleFiles(files),
+            onLanguageChange: () => {
+                if (ImageConverter.convertedImages.length > 0) ImageConverter.renderResults();
+            }
+        });
+
         const qualitySlider = document.getElementById('quality-slider');
         const qualityValue = document.getElementById('quality-value');
         const zipBtn = document.getElementById('download-zip-btn');
 
-        if (!dropZone || !fileInput) return;
-
-        dropZone.onclick = () => fileInput.click();
-        fileInput.onchange = (e) => ImageConverter.handleFiles(e.target.files);
-
-        qualitySlider.oninput = (e) => {
-            ImageConverter.quality = parseFloat(e.target.value);
-            qualityValue.textContent = `${Math.round(ImageConverter.quality * 100)}%`;
-        };
+        if (qualitySlider) {
+            qualitySlider.oninput = (e) => {
+                ImageConverter.quality = parseFloat(e.target.value);
+                if (qualityValue) qualityValue.textContent = `${Math.round(ImageConverter.quality * 100)}%`;
+            };
+        }
 
         if (zipBtn) zipBtn.onclick = () => ImageConverter.downloadZip();
-
-        // Drag and drop listeners
-        dropZone.ondragover = (e) => {
-            e.preventDefault();
-            dropZone.classList.add('border-primary');
-        };
-        dropZone.ondragleave = () => dropZone.classList.remove('border-primary');
-        dropZone.ondrop = (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('border-primary');
-            ImageConverter.handleFiles(e.dataTransfer.files);
-        };
-
-        window.addEventListener('languageChanged', () => {
-            if (ImageConverter.convertedImages.length > 0) {
-                ImageConverter.renderResults();
-            }
-        });
 
         // Add clipboard listener
         document.addEventListener('paste', ImageConverter.handlePaste);
@@ -63,11 +51,10 @@ const ImageConverter = {
         // Clear existing results
         ImageConverter.convertedImages = [];
 
-        // Show results section
-        document.getElementById('results-section').classList.remove('hidden');
-        const progressBar = document.getElementById('processing-bar');
-        ImageConverter.convertedImages = [];
+        // Show results section handled by BaseTool via resultsId
 
+        const progressBar = document.getElementById('processing-bar');
+        
         let processed = 0;
         for (const file of files) {
             if (!file.type.startsWith('image/')) {

@@ -4,6 +4,142 @@
  */
 
 // -----------------------------------------------------------------------------
+// 0. BASE TOOL CLASS
+// -----------------------------------------------------------------------------
+class BaseTool {
+    constructor(id, config) {
+        this.id = id;
+        this.config = {
+            dropZoneId: 'drop-zone',
+            fileInputId: 'file-input',
+            progressBarId: 'progress-bar',
+            progressStatusId: 'progress-status',
+            processedCountId: 'processed-count',
+            overlayId: 'processing-overlay',
+            cancelBtnId: 'cancel-btn',
+            resultsId: 'results-section',
+            multiple: false,
+            ...config
+        };
+        this.isCancelled = false;
+        this.init();
+    }
+
+    init() {
+        this.dropZone = document.getElementById(this.config.dropZoneId);
+        this.fileInput = document.getElementById(this.config.fileInputId);
+        this.overlay = document.getElementById(this.config.overlayId);
+        
+        if (this.dropZone && this.fileInput) {
+            this.dropZone.onclick = (e) => {
+                if (e.target.closest('button') || e.target.closest('a')) return;
+                this.fileInput.click();
+            };
+            this.fileInput.onchange = (e) => this.handleFiles(e.target.files);
+
+            this.dropZone.ondragover = (e) => {
+                e.preventDefault();
+                this.dropZone.classList.add('border-primary', 'bg-primary/5');
+            };
+            this.dropZone.ondragleave = () => this.dropZone.classList.remove('border-primary', 'bg-primary/5');
+            this.dropZone.ondrop = (e) => {
+                e.preventDefault();
+                this.dropZone.classList.remove('border-primary', 'bg-primary/5');
+                this.handleFiles(e.dataTransfer.files);
+            };
+        }
+
+        // Global language change listener
+        window.addEventListener('languageChanged', () => {
+            if (this.config.onLanguageChange) this.config.onLanguageChange(State.currentLang);
+        });
+
+        // Initialize Lucide icons if any were added dynamically
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    async handleFiles(files) {
+        if (!files || files.length === 0) return;
+        this.isCancelled = false;
+        
+        if (this.config.resultsId) {
+            const results = document.getElementById(this.config.resultsId);
+            if (results) results.classList.remove('hidden');
+        }
+
+        if (this.config.multiple) {
+            if (typeof this.config.onFiles === 'function') {
+                await this.config.onFiles(files);
+            }
+        } else {
+            if (typeof this.config.onFile === 'function') {
+                await this.config.onFile(files[0]);
+            }
+        }
+    }
+
+    showOverlay(title, desc) {
+        if (!this.overlay) return;
+        const bar = document.getElementById(this.config.progressBarId);
+        const status = document.getElementById(this.config.progressStatusId);
+        const count = document.getElementById(this.config.processedCountId);
+        const titleEl = this.overlay.querySelector('h3');
+        const descEl = this.overlay.querySelector('p');
+
+        if (titleEl) titleEl.textContent = title ? (App.t(title) || title) : App.t('processing_title');
+        if (descEl) descEl.textContent = desc ? (App.t(desc) || desc) : App.t('processing_desc');
+
+        this.overlay.classList.remove('hidden');
+        if (bar) bar.style.width = '0%';
+        if (status) status.textContent = '0%';
+        if (count) count.textContent = '...';
+        
+        this.isCancelled = false;
+    }
+
+    hideOverlay() {
+        if (this.overlay) this.overlay.classList.add('hidden');
+    }
+
+    updateProgress(percent, current, total) {
+        const bar = document.getElementById(this.config.progressBarId);
+        const status = document.getElementById(this.config.progressStatusId);
+        const count = document.getElementById(this.config.processedCountId);
+
+        if (bar) bar.style.width = `${percent}%`;
+        if (status) status.textContent = `${percent}%`;
+        if (count) count.textContent = total ? `${current} / ${total}` : `${current}`;
+    }
+
+    cancel() {
+        this.isCancelled = true;
+        this.hideOverlay();
+        App.showToast(App.t('msg_cancelled') || "Operation cancelled");
+    }
+
+    async processInChunks(items, processFn, chunkSize = 100) {
+        const total = items.length;
+        const results = [];
+        for (let i = 0; i < total; i += chunkSize) {
+            if (this.isCancelled) return null;
+            const chunk = items.slice(i, i + chunkSize);
+            const chunkResults = chunk.map((item, idx) => processFn(item, i + idx));
+            results.push(...chunkResults);
+            const progress = Math.min(100, Math.round(((i + chunk.length) / total) * 100));
+            this.updateProgress(progress, i + chunk.length, total);
+            // Yield to UI thread
+            await new Promise(resolve => setTimeout(resolve, 10));
+        }
+        return results;
+    }
+}
+
+/**
+ * WPToolbox Core Utilities
+ * Shared logic for all tools
+ */
+
+// -----------------------------------------------------------------------------
 // 1. STATE MANAGEMENT
 // -----------------------------------------------------------------------------
 const State = {
@@ -44,17 +180,32 @@ const I18n = {
         return State.translations[State.currentLang]?.[key] || key;
     },
 
-    translatePage() {
-        if (!State.translations[State.currentLang]) return;
+    initObserver() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === 1) { // Element node
+                        if (node.hasAttribute('data-i18n') || node.hasAttribute('data-i18n-html') || node.hasAttribute('data-i18n-placeholder')) {
+                            this.translateElement(node);
+                        }
+                        node.querySelectorAll('[data-i18n], [data-i18n-html], [data-i18n-placeholder]').forEach(el => this.translateElement(el));
+                    }
+                });
+            });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    },
 
+    translateElement(el) {
         const langData = State.translations[State.currentLang];
+        if (!langData) return;
 
-        // Translate text content
-        document.querySelectorAll('[data-i18n], [data-i18n-html]').forEach(el => {
-            const key = el.dataset.i18n || el.dataset.i18nHtml;
-            const isHtml = !!el.dataset.i18nHtml;
+        // Translate text content/HTML
+        const key = el.dataset.i18n || el.dataset.i18nHtml;
+        const isHtml = !!el.dataset.i18nHtml;
+        if (key) {
             const translation = langData[key];
-            if (translation) {
+            if (translation !== undefined) {
                 if (el.tagName === 'INPUT' && (el.type === 'button' || el.type === 'submit')) {
                     el.value = translation;
                 } else if (isHtml) {
@@ -63,12 +214,23 @@ const I18n = {
                     el.textContent = translation;
                 }
             }
-        });
+        }
 
         // Translate placeholders
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        if (el.dataset.i18nPlaceholder) {
             const translation = langData[el.dataset.i18nPlaceholder];
-            if (translation) el.placeholder = translation;
+            if (translation !== undefined) el.placeholder = translation;
+        }
+    },
+
+    translatePage() {
+        if (!State.translations[State.currentLang]) return;
+
+        const langData = State.translations[State.currentLang];
+
+        // Translate text content & placeholders
+        document.querySelectorAll('[data-i18n], [data-i18n-html], [data-i18n-placeholder]').forEach(el => {
+            this.translateElement(el);
         });
 
         // Translate document title and meta description
@@ -97,7 +259,6 @@ const UI = {
 
         const groups = State.nav;
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-        const isAr = State.currentLang === 'ar';
 
         const navHtml = `
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -130,7 +291,7 @@ const UI = {
                                 </button>
 
                                 <!-- Dropdown Menu -->
-                                <div class="absolute top-full ${isAr ? 'right-0' : 'left-0'} pt-2 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-50">
+                                <div class="absolute top-full start-0 pt-2 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-50">
                                     <div class="bg-zinc-950 border border-zinc-900 shadow-2xl rounded-2xl p-1.5 backdrop-blur-3xl w-72 ring-1 ring-white/5">
                                         <div class="flex flex-col gap-0.5">
                                             ${group.items.map(item => `
@@ -158,8 +319,8 @@ const UI = {
                                 <span class="text-[10px] font-mono tracking-widest opacity-60">CTRL+K</span>
                             </button>
 
-                            <button onclick="App.setLanguage('${isAr ? 'en' : 'ar'}')" class="h-8 w-8 flex items-center justify-center bg-zinc-900/50 border border-zinc-800 rounded-xl text-[10px] font-bold text-zinc-500 hover:text-white transition-all uppercase">
-                                ${isAr ? 'EN' : 'AR'}
+                            <button onclick="App.toggleLanguage()" class="h-8 w-8 flex items-center justify-center bg-zinc-900/50 border border-zinc-800 rounded-xl text-[10px] font-bold text-zinc-500 hover:text-white transition-all uppercase" data-i18n="toggle_lang">
+                                ${I18n.t('toggle_lang')}
                             </button>
                             
                             <a href="https://github.com/hadealahmad/WPtoolbox" target="_blank" class="h-8 w-8 flex items-center justify-center text-zinc-500 hover:text-white transition-all">
@@ -170,8 +331,8 @@ const UI = {
 
                     <!-- Mobile Menu Button -->
                     <div class="md:hidden flex items-center gap-3">
-                        <button onclick="App.setLanguage('${isAr ? 'en' : 'ar'}')" class="px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] font-bold text-zinc-500 uppercase">
-                            ${isAr ? 'EN' : 'AR'}
+                        <button onclick="App.toggleLanguage()" class="px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] font-bold text-zinc-500 uppercase" data-i18n="toggle_lang">
+                            ${I18n.t('toggle_lang')}
                         </button>
                         <button id="mobile-menu-btn" class="p-2 text-zinc-400 hover:text-white">
                             <i data-lucide="menu" class="w-6 h-6"></i>
@@ -213,8 +374,8 @@ const UI = {
                             <span class="text-[10px] uppercase tracking-widest font-black">GitHub</span>
                         </a>
                         <div class="h-3 w-px bg-zinc-800"></div>
-                        <button onclick="App.setLanguage('${State.currentLang === 'ar' ? 'en' : 'ar'}')" class="px-3 py-2 text-zinc-400 font-bold text-[10px] uppercase tracking-widest">
-                            ${State.currentLang === 'ar' ? 'English' : 'العربية'}
+                        <button onclick="App.toggleLanguage()" class="px-3 py-2 text-zinc-400 font-bold text-[10px] uppercase tracking-widest" data-i18n="toggle_lang_full">
+                            ${I18n.t('toggle_lang_full')}
                         </button>
                     </div>
                 </div>
@@ -267,7 +428,7 @@ const UI = {
                         <span class="text-sm font-bold tracking-tighter uppercase text-white">WPToolbox</span>
                     </div>
                     <p class="text-zinc-400 text-xs text-center md:text-start">
-                        WPToolbox. ${I18n.t('footer_tagline')}
+                        WPToolbox. <span data-i18n="footer_tagline">${I18n.t('footer_tagline')}</span>
                     </p>
                     <div class="flex items-center gap-6">
                         <a href="https://x.com/hadealahmad" target="_blank" class="text-zinc-400 hover:text-white transition-none"><i data-lucide="twitter" class="w-4 h-4"></i></a>
@@ -297,14 +458,16 @@ const UI = {
         const input = palette.querySelector('#cmd-search');
         const results = palette.querySelector('#cmd-results');
 
-        const tools = State.nav.map(link => ({
-            name: I18n.t(link.text),
-            href: link.href,
-            icon: link.icon
-        }));
+        const tools = State.nav.flatMap(group => 
+            group.items.map(item => ({
+                name: I18n.t(item.text),
+                href: item.href,
+                icon: item.icon
+            }))
+        );
 
         const renderTools = (filter = '') => {
-            const filtered = tools.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()));
+            const filtered = tools.filter(t => (t.name || '').toLowerCase().includes((filter || '').toLowerCase()));
             results.innerHTML = filtered.map((t, idx) => `
                 <a href="${t.href}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-800 group transition-none">
                     <div class="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-primary transition-none">
@@ -444,7 +607,14 @@ const App = {
     get currentLang() { return State.currentLang; },
     set currentLang(val) { State.currentLang = val; },
 
-    // 5.2 Expose Initialization
+    // 5.2 Tool Registry
+    tools: {},
+    registerTool(id, config) {
+        this.tools[id] = new BaseTool(id, config);
+        return this.tools[id];
+    },
+
+    // 5.3 Expose Initialization
     async init() {
         UI.initTheme(); // Must be first to prevent light flash
         await I18n.loadData();
@@ -452,6 +622,7 @@ const App = {
         UI.renderNavbar();
         UI.renderFooter();
         I18n.translatePage();
+        I18n.initObserver(); // Watch for dynamic content
         UI.initCommandPalette();
         Utils.initServiceWorker();
 
@@ -464,8 +635,6 @@ const App = {
     setLanguage(lang) {
         State.setLanguage(lang);
         I18n.updateDirection();
-        UI.renderNavbar();
-        UI.renderFooter();
         I18n.translatePage();
 
         const cmdSearch = document.getElementById('cmd-search');
@@ -476,6 +645,11 @@ const App = {
         }
 
         window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
+    },
+
+    toggleLanguage() {
+        const nextLang = State.currentLang === 'ar' ? 'en' : 'ar';
+        this.setLanguage(nextLang);
     },
 
     t: (key) => I18n.t(key),

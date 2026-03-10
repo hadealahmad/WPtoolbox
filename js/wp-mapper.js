@@ -1,3 +1,5 @@
+let mapper;
+
 const WPMapper = {
     sourceData: [],
     headers: [],
@@ -31,83 +33,17 @@ const WPMapper = {
         { id: 'parent_id', label: 'label_parent_id' },
         { id: 'menu_order', label: 'label_menu_order' }
     ],
-    isProcessingCancelled: false,
-
-    showOverlay: (title, desc) => {
-        const overlay = document.getElementById('processing-overlay');
-        const bar = document.getElementById('progress-bar');
-        const status = document.getElementById('progress-status');
-        const count = document.getElementById('processed-count');
-        const titleEl = overlay?.querySelector('h3');
-        const descEl = overlay?.querySelector('p');
-
-        if (titleEl) titleEl.textContent = title ? (App.t(title) || title) : App.t('processing_title');
-        if (descEl) descEl.textContent = desc ? (App.t(desc) || desc) : App.t('processing_desc');
-
-        if (overlay) overlay.classList.remove('hidden');
-        if (bar) bar.style.width = '0%';
-        if (status) status.textContent = '0%';
-        if (count) count.textContent = '...';
-
-        WPMapper.isProcessingCancelled = false;
-    },
-
-    hideOverlay: () => {
-        const overlay = document.getElementById('processing-overlay');
-        if (overlay) overlay.classList.add('hidden');
-    },
-
-    updateProgress: (percent, current, total) => {
-        const bar = document.getElementById('progress-bar');
-        const status = document.getElementById('progress-status');
-        const count = document.getElementById('processed-count');
-
-        if (bar) bar.style.width = `${percent}%`;
-        if (status) status.textContent = `${percent}%`;
-        if (count) count.textContent = `${current} / ${total}`;
-    },
-
-    cancelProcessing: () => {
-        WPMapper.isProcessingCancelled = true;
-        WPMapper.hideOverlay();
-        App.showToast("Operation cancelled");
-    },
-
-    processInChunks: async (items, processFn) => {
-        const chunkSize = 100;
-        const total = items.length;
-        const results = [];
-
-        for (let i = 0; i < total; i += chunkSize) {
-            if (WPMapper.isProcessingCancelled) return null;
-
-            const chunk = items.slice(i, i + chunkSize);
-            const chunkResults = chunk.map((item, idx) => processFn(item, i + idx));
-            results.push(...chunkResults);
-
-            const progress = Math.min(100, Math.round(((i + chunk.length) / total) * 100));
-            WPMapper.updateProgress(progress, i + chunk.length, total);
-
-            // Yield to UI
-            await new Promise(resolve => setTimeout(resolve, 10));
-        }
-        return results;
-    },
 
     init: () => {
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
+        mapper = App.registerTool('WPMapper', {
+            onFile: (file) => WPMapper.handleFile(file),
+            onLanguageChange: () => {
+                if (WPMapper.headers.length > 0) WPMapper.renderMappingTable();
+            }
+        });
+
         const generateBtn = document.getElementById('generate-btn');
         const downloadBtn = document.getElementById('download-btn');
-
-        if (!dropZone || !fileInput) return;
-
-        dropZone.onclick = () => fileInput.click();
-        fileInput.onchange = (e) => WPMapper.handleFile(e.target.files[0]);
-
-        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('border-primary'); };
-        dropZone.ondragleave = () => dropZone.classList.remove('border-primary');
-        dropZone.ondrop = (e) => { e.preventDefault(); WPMapper.handleFile(e.dataTransfer.files[0]); };
 
         if (generateBtn) generateBtn.onclick = () => WPMapper.generate();
         if (downloadBtn) downloadBtn.onclick = () => WPMapper.download();
@@ -128,9 +64,7 @@ const WPMapper = {
             }
         });
 
-        const wpSettings = document.getElementById('wp-settings');
         const markdownSettings = document.getElementById('markdown-settings');
-
         if (markdownSettings) {
             if (format === 'xml') markdownSettings.classList.add('hidden');
             else markdownSettings.classList.remove('hidden');
@@ -139,7 +73,6 @@ const WPMapper = {
         const genBtnText = document.getElementById('generate-btn-text');
         if (genBtnText) genBtnText.textContent = `${App.t('btn_generate')} ${format.toUpperCase()}`;
 
-        // Only render mapping table if we have data loaded
         if (WPMapper.headers.length > 0) {
             WPMapper.renderMappingTable();
         }
@@ -166,21 +99,6 @@ const WPMapper = {
         App.showToast(`Markdown conversion ${WPMapper.markdownMode ? 'enabled' : 'disabled'}`);
     },
 
-    htmlToMarkdown: (html) => {
-        if (!html) return "";
-        let text = html;
-        // Basic conversion logic from xml2csv.html
-        text = text.replace(/<(h[1-6])>(.*?)<\/\1>/gi, (m, g1, g2) => '#'.repeat(g1[1]) + ' ' + g2 + '\n\n');
-        text = text.replace(/<strong>(.*?)<\/strong>/gi, '**$1**');
-        text = text.replace(/<em>(.*?)<\/em>/gi, '*$1*');
-        text = text.replace(/<a href="(.*?)">(.*?)<\/a>/gi, '[$2]($1)');
-        text = text.replace(/<p>(.*?)<\/p>/gi, '$1\n\n');
-        text = text.replace(/<br\s*\/?>/gi, '\n');
-        text = text.replace(/<li>(.*?)<\/li>/gi, '- $1\n');
-        text = text.replace(/<\/?[^>]+(>|$)/g, ""); // Strip remaining tags
-        return text.trim();
-    },
-
     toggleFilter: (id) => {
         WPMapper.filters[id] = !WPMapper.filters[id];
         const btn = document.getElementById(`filter-${id}`);
@@ -200,7 +118,7 @@ const WPMapper = {
         const reader = new FileReader();
         const ext = file.name.split('.').pop().toLowerCase();
 
-        WPMapper.showOverlay("Processing File...", "Reading and parsing data structure.");
+        mapper.showOverlay("Processing File...", "Reading and parsing data structure.");
 
         reader.onload = async (e) => {
             const content = e.target.result;
@@ -213,7 +131,7 @@ const WPMapper = {
                 console.error(err);
                 App.showToast("Failed to parse file");
             } finally {
-                WPMapper.hideOverlay();
+                mapper.hideOverlay();
             }
         };
         reader.readAsText(file);
@@ -254,7 +172,7 @@ const WPMapper = {
         };
 
         const headers = parseLine(lines[0]);
-        const data = await WPMapper.processInChunks(lines.slice(1), (line) => {
+        const data = await mapper.processInChunks(lines.slice(1), (line) => {
             const values = parseLine(line);
             const obj = {};
             headers.forEach((h, i) => obj[h] = values[i] || "");
@@ -295,7 +213,7 @@ const WPMapper = {
         }
 
         const headersSet = new Set();
-        const data = await WPMapper.processInChunks(items, (item, i) => {
+        const data = await mapper.processInChunks(items, (item, i) => {
             const obj = {};
             const children = item.children;
             for (let j = 0; j < children.length; j++) {
@@ -441,9 +359,8 @@ const WPMapper = {
     },
 
     generate: async () => {
-        WPMapper.showOverlay();
+        mapper.showOverlay();
 
-        // Wait for overlay to render
         await new Promise(resolve => setTimeout(resolve, 50));
 
         try {
@@ -454,7 +371,7 @@ const WPMapper = {
             console.error(e);
             App.showToast("Generation failed");
         } finally {
-            WPMapper.hideOverlay();
+            mapper.hideOverlay();
         }
     },
 
@@ -485,16 +402,14 @@ const WPMapper = {
     },
 
     generateJSON: async () => {
-        const data = await WPMapper.processInChunks(WPMapper.sourceData, (row) => WPMapper.getMappedItem(row, 'json'));
-        if (!data) return; // Cancelled
+        const data = await mapper.processInChunks(WPMapper.sourceData, (row) => WPMapper.getMappedItem(row, 'json'));
+        if (!data) return;
 
-        // For very large JSON, we build it in chunks to avoid string length limits
         const jsonChunks = ['[\n'];
         for (let i = 0; i < data.length; i++) {
-            if (WPMapper.isProcessingCancelled) return;
+            if (mapper.isCancelled) return;
             jsonChunks.push(JSON.stringify(data[i], null, 2));
             if (i < data.length - 1) jsonChunks.push(',\n');
-
             if (i % 500 === 0) await new Promise(resolve => setTimeout(resolve, 0));
         }
         jsonChunks.push('\n]');
@@ -504,24 +419,20 @@ const WPMapper = {
     },
 
     generateCSV: async () => {
-        const data = await WPMapper.processInChunks(WPMapper.sourceData, (row) => WPMapper.getMappedItem(row, 'csv'));
+        const data = await mapper.processInChunks(WPMapper.sourceData, (row) => WPMapper.getMappedItem(row, 'csv'));
         if (!data || !data.length) return;
 
-        // Filter out the 'meta' array from the headers for CSV
         const headers = Object.keys(data[0]).filter(h => h !== 'meta');
         const csvRows = [headers.join(',')];
 
-        // Part 2: Build CSV string
         for (let i = 0; i < data.length; i++) {
-            if (WPMapper.isProcessingCancelled) return;
+            if (mapper.isCancelled) return;
             const row = data[i];
             const values = headers.map(h => {
                 const val = (row[h] || '').toString().replace(/"/g, '""');
                 return `"${val}"`;
             });
             csvRows.push(values.join(','));
-
-            // Yield occasionally during string building too if metadata is huge
             if (i % 500 === 0) await new Promise(resolve => setTimeout(resolve, 0));
         }
 
@@ -561,13 +472,9 @@ const WPMapper = {
         <wp:base_blog_url>https://wptoolbox.app</wp:base_blog_url>
         ${authorSection}`;
 
-
-
-        const mappedData = await WPMapper.processInChunks(WPMapper.sourceData, (row, idx) => {
-            // Use getMappedItem to get the processed data for the current row
+        const mappedData = await mapper.processInChunks(WPMapper.sourceData, (row, idx) => {
             const data = WPMapper.getMappedItem(row, 'xml');
 
-            // Set defaults for fields that might not be mapped
             data.title = data.title || '';
             data.content = data.content || '';
             data.excerpt = data.excerpt || '';
@@ -589,7 +496,7 @@ const WPMapper = {
             data.modified_gmt = data.modified_gmt || '';
             data.comment_status = data.comment_status || 'open';
             data.ping_status = data.ping_status || 'open';
-            data.meta = data.meta || []; // Ensure meta is an array
+            data.meta = data.meta || [];
 
             const itemDate = data.date || new Date().toISOString().slice(0, 19).replace('T', ' ');
             const itemSlug = (data.slug || data.title || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
@@ -635,7 +542,7 @@ const WPMapper = {
         </item>`;
         });
 
-        if (WPMapper.isProcessingCancelled || !mappedData) return;
+        if (mapper.isCancelled || !mappedData) return;
 
         WPMapper.currentOutput = [xmlHeader, ...mappedData, `</channel></rss>`];
         WPMapper.showPreview(WPMapper.currentOutput, 'XML');
@@ -665,11 +572,7 @@ const WPMapper = {
                     }
                 }
             } else {
-                if (content.length > 50000) {
-                    previewText = content.substring(0, 50000) + "\n\n... (Result truncated for preview, download for full file) ...";
-                } else {
-                    previewText = content;
-                }
+                previewText = content.length > 50000 ? content.substring(0, 50000) + "\n\n... (Result truncated for preview, download for full file) ..." : content;
             }
             previewArea.textContent = previewText;
         }
@@ -702,8 +605,8 @@ const WPMapper = {
             .replace(/<a href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
             .replace(/<img[^>]*src="([^"]*)"[^>]*>/gi, '![image]($1)')
             .replace(/<br[^>]*>/gi, '\n')
-            .replace(/<[^>]+>/g, '') // strip remaining tags
-            .replace(/\n\s*\n/g, '\n\n') // squash multiple newlines
+            .replace(/<[^>]+>/g, '')
+            .replace(/\n\s*\n/g, '\n\n')
             .trim();
         return md;
     }
