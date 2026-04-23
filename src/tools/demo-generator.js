@@ -268,7 +268,8 @@ export const DemoGenerator = {
                 date.setDate(date.getDate() - Math.floor(Math.random() * 365));
                 return date.toISOString().split('T')[0];
             case 'image':
-                return `https://images.unsplash.com/${random(unsplashIds)}?auto=format&fit=crop&w=1200&q=80`;
+                // 9:16 vertical ratio (e.g., 1080x1920)
+                return `https://images.unsplash.com/${random(unsplashIds)}?auto=format&fit=crop&w=1080&h=1920&q=80`;
             case 'boolean':
                 return Math.random() > 0.5 ? 'true' : 'false';
             case 'color':
@@ -304,22 +305,25 @@ export const DemoGenerator = {
             const now = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
             const title = item.post_title || `Demo Post ${index + 1}`;
             const content = item.post_content || 'Demo Content';
+            const postId = 1000 + index;
+            const attachmentId = 2000 + index;
+            let featuredImageUrl = '';
 
             xml += `
 	<item>
 		<title><![CDATA[${title}]]></title>
-		<link>http://wptoolbox.local/?p=${1000 + index}</link>
+		<link>http://wptoolbox.local/?p=${postId}</link>
 		<pubDate>${new Date().toUTCString()}</pubDate>
 		<dc:creator><![CDATA[admin]]></dc:creator>
 		<description></description>
 		<content:encoded><![CDATA[${content}]]></content:encoded>
 		<excerpt:encoded><![CDATA[${item.excerpt || ''}]]></excerpt:encoded>
-		<wp:post_id>${1000 + index}</wp:post_id>
+		<wp:post_id>${postId}</wp:post_id>
 		<wp:post_date><![CDATA[${now}]]></wp:post_date>
 		<wp:post_date_gmt><![CDATA[${now}]]></wp:post_date_gmt>
 		<wp:comment_status><![CDATA[closed]]></wp:comment_status>
 		<wp:ping_status><![CDATA[closed]]></wp:ping_status>
-		<wp:post_name><![CDATA[post-${1000 + index}]]></wp:post_name>
+		<wp:post_name><![CDATA[post-${postId}]]></wp:post_name>
 		<wp:status><![CDATA[publish]]></wp:status>
 		<wp:post_parent>0</wp:post_parent>
 		<wp:menu_order>0</wp:menu_order>
@@ -346,10 +350,11 @@ export const DemoGenerator = {
                         xml += `
         <category domain="post_tag" nicename="${value.toLowerCase().replace(/\s+/g, '-')}"><![CDATA[${value}]]></category>`;
                     } else if (mapping === 'featured_image') {
+                        featuredImageUrl = value;
                         xml += `
 		<wp:postmeta>
 			<wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
-			<wp:meta_value><![CDATA[1000${index}]]></wp:meta_value>
+			<wp:meta_value><![CDATA[${attachmentId}]]></wp:meta_value>
 		</wp:postmeta>`;
                     }
                 }
@@ -357,6 +362,34 @@ export const DemoGenerator = {
 
             xml += `
 	</item>`;
+
+            // Add attachment item if featured image exists
+            if (featuredImageUrl) {
+                xml += `
+	<item>
+		<title><![CDATA[Featured Image for Post ${postId}]]></title>
+		<link>http://wptoolbox.local/?attachment_id=${attachmentId}</link>
+		<pubDate>${new Date().toUTCString()}</pubDate>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<guid isPermaLink="false">${featuredImageUrl}</guid>
+		<description></description>
+		<content:encoded><![CDATA[]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>${attachmentId}</wp:post_id>
+		<wp:post_date><![CDATA[${now}]]></wp:post_date>
+		<wp:post_date_gmt><![CDATA[${now}]]></wp:post_date_gmt>
+		<wp:comment_status><![CDATA[open]]></wp:comment_status>
+		<wp:ping_status><![CDATA[closed]]></wp:ping_status>
+		<wp:post_name><![CDATA[featured-image-${postId}]]></wp:post_name>
+		<wp:status><![CDATA[inherit]]></wp:status>
+		<wp:post_parent>${postId}</wp:post_parent>
+		<wp:menu_order>0</wp:menu_order>
+		<wp:post_type><![CDATA[attachment]]></wp:post_type>
+		<wp:post_password><![CDATA[]]></wp:post_password>
+		<wp:is_sticky>0</wp:is_sticky>
+		<wp:attachment_url><![CDATA[${featuredImageUrl}]]></wp:attachment_url>
+	</item>`;
+            }
         });
 
         xml += `
