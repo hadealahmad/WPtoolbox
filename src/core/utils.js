@@ -7,11 +7,7 @@ import JSZip from 'jszip';
 
 export const Utils = {
     initServiceWorker() {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').catch(err => {
-                console.warn('SW registration failed:', err);
-            });
-        }
+        // Handled by VitePWA via injectRegister: 'script'
     },
 
     escapeCSV(val) {
@@ -55,15 +51,27 @@ export const Utils = {
     },
 
     downloadFile(content, filename, type = 'text/plain;charset=utf-8') {
-        const blob = content instanceof Blob ? content : new Blob([content], { type });
-        const url = URL.createObjectURL(blob);
+        let url;
+        let isBlob = false;
+
+        if (typeof content === 'string' && content.startsWith('data:')) {
+            url = content;
+        } else {
+            const blob = content instanceof Blob ? content : new Blob([content], { type });
+            url = URL.createObjectURL(blob);
+            isBlob = true;
+        }
+
         const a = document.createElement('a');
         a.href = url;
         a.download = filename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+
+        if (isBlob) {
+            URL.revokeObjectURL(url);
+        }
     },
 
     async downloadZip(files, zipFilename = 'download.zip') {
@@ -122,5 +130,18 @@ export const Utils = {
                 UI.showToast("Failed to copy", 2000);
             }
         }
+    },
+
+    formatSize(bytes) {
+        if (bytes === 0) return '0 ' + I18n.t('unit_bytes');
+        const k = 1024;
+        const sizes = [
+            I18n.t('unit_bytes'),
+            I18n.t('unit_kb'),
+            I18n.t('unit_mb'),
+            I18n.t('unit_gb')
+        ];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 };

@@ -1,4 +1,5 @@
 :root {
+    --font-main: 'Inter', sans-serif;
     --radius: 0.65rem;
     --background: oklch(0.141 0.005 285.823);
     --foreground: oklch(0.985 0 0);
@@ -25,16 +26,16 @@
     --chart-5: oklch(0.424 0.199 265.638);
 }
 
+html[lang="ar"] {
+    --font-main: 'IBM Plex Sans Arabic', sans-serif;
+}
+
 /* Enforcing dark mode as the base */
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-main);
     background-color: var(--background);
     color: var(--foreground);
     line-height: 1.5;
-}
-
-html[lang="ar"] body {
-    font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 
 .glass-header {

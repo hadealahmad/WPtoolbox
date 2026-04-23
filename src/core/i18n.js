@@ -2,32 +2,20 @@
  * WPToolbox Internationalization (I18n)
  */
 import { State } from './state.js';
+import translations from '../data/translations.json';
+import nav from '../data/nav.json';
 
 export const I18n = {
     async loadData() {
-        try {
-            const [transRes, navRes] = await Promise.all([
-                fetch('./js/data/translations.json'),
-                fetch('./js/data/nav.json')
-            ]);
-            State.translations = await transRes.json();
-            State.nav = await navRes.json();
-        } catch (err) {
-            console.error('Failed to load core data:', err);
-        }
+        // Direct assignment since they are imported
+        State.translations = translations;
+        State.nav = nav;
     },
 
     updateDirection() {
         const lang = State.currentLang;
         document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
         document.documentElement.lang = lang;
-        
-        // Update font for Arabic
-        if (lang === 'ar') {
-            document.body.style.fontFamily = "'IBM Plex Sans Arabic', sans-serif";
-        } else {
-            document.body.style.fontFamily = "'Inter', sans-serif";
-        }
     },
 
     t(key) {

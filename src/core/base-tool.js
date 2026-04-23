@@ -19,8 +19,19 @@ export class BaseTool {
             multiple: false,
             ...config
         };
+
+        // Mixin config properties to the tool instance
+        Object.keys(config).forEach(key => {
+            if (typeof config[key] === 'function') {
+                this[key] = config[key].bind(this);
+            } else {
+                this[key] = config[key];
+            }
+        });
+
         this.isCancelled = false;
         this.init();
+        if (this.onInit) this.onInit();
     }
 
     init() {

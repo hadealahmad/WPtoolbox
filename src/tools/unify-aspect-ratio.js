@@ -3,26 +3,18 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
+import JSZip from 'jszip';
 
-let aspectR;
-
-export const UnifyAspectRatio = {
+export const UnifyAspectRatio = App.registerTool('UnifyAspectRatio', {
     targetRatio: 1, // 1:1 default
     customWidth: 1000,
     customHeight: 1000,
     processedImages: [],
     lastFiles: null,
+    multiple: true,
+    resultsId: 'results-section',
 
-    init: () => {
-        aspectR = App.registerTool('UnifyAspectRatio', {
-            multiple: true,
-            resultsId: 'results-section',
-            onFiles: (files) => UnifyAspectRatio.handleFiles(files),
-            onLanguageChange: () => {
-                if (UnifyAspectRatio.processedImages.length > 0) UnifyAspectRatio.renderResults();
-            }
-        });
-
+    onInit: function() {
         const ratioBtns = document.querySelectorAll('.ratio-btn');
         const zipBtn = document.getElementById('download-zip-btn');
         const zipWebpBtn = document.getElementById('download-zip-webp-btn');
@@ -42,15 +34,15 @@ export const UnifyAspectRatio = {
                 const ratio = btn.dataset.ratio;
                 if (ratio === 'custom') {
                     if (customRatioInputs) customRatioInputs.classList.remove('hidden');
-                    UnifyAspectRatio.updateTargetRatio();
+                    this.updateTargetRatio();
                 } else {
                     if (customRatioInputs) customRatioInputs.classList.add('hidden');
                     const [w, h] = ratio.split(':').map(Number);
-                    UnifyAspectRatio.targetRatio = w / h;
+                    this.targetRatio = w / h;
                 }
                 
-                if (UnifyAspectRatio.lastFiles) {
-                    UnifyAspectRatio.handleFiles(UnifyAspectRatio.lastFiles);
+                if (this.lastFiles) {
+                    this.handleFiles(this.lastFiles);
                 }
             };
         });
@@ -59,30 +51,38 @@ export const UnifyAspectRatio = {
         [customWidthInput, customHeightInput].forEach(input => {
             if (input) {
                 input.oninput = () => {
-                    UnifyAspectRatio.updateTargetRatio();
-                    if (UnifyAspectRatio.lastFiles) {
-                        UnifyAspectRatio.handleFiles(UnifyAspectRatio.lastFiles);
+                    this.updateTargetRatio();
+                    if (this.lastFiles) {
+                        this.handleFiles(this.lastFiles);
                     }
                 };
             }
         });
 
-        if (zipBtn) zipBtn.onclick = () => UnifyAspectRatio.downloadZip(false);
-        if (zipWebpBtn) zipWebpBtn.onclick = () => UnifyAspectRatio.downloadZip(true);
+        if (zipBtn) zipBtn.onclick = () => this.downloadZip(false);
+        if (zipWebpBtn) zipWebpBtn.onclick = () => this.downloadZip(true);
 
         // Clipboard listener
-        document.addEventListener('paste', UnifyAspectRatio.handlePaste);
+        document.addEventListener('paste', (e) => this.handlePaste(e));
     },
 
-    updateTargetRatio: () => {
+    onLanguageChange: function() {
+        if (this.processedImages.length > 0) this.renderResults();
+    },
+
+    onFiles: function(files) {
+        this.handleFiles(files);
+    },
+
+    updateTargetRatio: function() {
         const wInput = document.getElementById('custom-width');
         const hInput = document.getElementById('custom-height');
         const w = parseInt(wInput?.value) || 1000;
         const h = parseInt(hInput?.value) || 1000;
-        UnifyAspectRatio.targetRatio = w / h;
+        this.targetRatio = w / h;
     },
 
-    handlePaste: async (e) => {
+    handlePaste: async function(e) {
         const items = e.clipboardData?.items;
         if (!items) return;
 
@@ -90,34 +90,29 @@ export const UnifyAspectRatio = {
             if (item.type.indexOf('image') !== -1) {
                 const file = item.getAsFile();
                 if (file) {
-                    await UnifyAspectRatio.handleFiles([file]);
+                    await this.handleFiles([file]);
                 }
             }
         }
     },
 
-    handleFiles: async (files) => {
+    handleFiles: async function(files) {
         if (!files || !files.length) return;
-        UnifyAspectRatio.lastFiles = files;
+        this.lastFiles = files;
+
+        // Clear existing results
+        this.processedImages = [];
 
         const progressBar = document.getElementById('processing-bar');
-        UnifyAspectRatio.processedImages = [];
-
+        
         let processed = 0;
         for (const file of files) {
             if (!file.type.startsWith('image/')) {
-                App.showToast(App.t('msg_upload_images'));
+                App.showToast(App.t('msg_upload_images') || 'Please upload only images.');
                 continue;
             }
 
-            let tempName = file.name;
-            if (!tempName || tempName === 'image.png') {
-                const timestamp = new Date().getTime();
-                const ext = file.type.split('/')[1] || 'png';
-                tempName = `pasted-image-${timestamp}.${ext}`;
-            }
-
-            await UnifyAspectRatio.processImage(file, tempName);
+            await this.processImage(file);
             processed++;
             if (progressBar) progressBar.style.width = `${(processed / files.length) * 100}%`;
         }
@@ -127,52 +122,43 @@ export const UnifyAspectRatio = {
         }, 1000);
     },
 
-    processImage: (file, outputName) => {
+    processImage: function(file) {
         return new Promise((resolve) => {
-            const name = outputName || file.name;
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const imgW = img.width;
-                    const imgH = img.height;
-                    const imgRatio = imgW / imgH;
+                    const ctx = canvas.getContext('2d');
 
-                    let targetW, targetH;
+                    let targetWidth, targetHeight;
+                    const imgRatio = img.width / img.height;
 
-                    if (imgRatio > UnifyAspectRatio.targetRatio) {
-                        targetW = imgW;
-                        targetH = imgW / UnifyAspectRatio.targetRatio;
+                    if (imgRatio > this.targetRatio) {
+                        targetHeight = img.height;
+                        targetWidth = img.height * this.targetRatio;
                     } else {
-                        targetH = imgH;
-                        targetW = imgH * UnifyAspectRatio.targetRatio;
+                        targetWidth = img.width;
+                        targetHeight = img.width / this.targetRatio;
                     }
 
-                    canvas.width = targetW;
-                    canvas.height = targetH;
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0, 0, targetW, targetH);
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
 
-                    const xOffset = (targetW - imgW) / 2;
-                    const yOffset = (targetH - imgH) / 2;
-                    ctx.drawImage(img, xOffset, yOffset, imgW, imgH);
+                    const offsetX = (img.width - targetWidth) / 2;
+                    const offsetY = (img.height - targetHeight) / 2;
 
-                    const baseName = name.split('.')[0];
-                    
-                    canvas.toBlob((webpBlob) => {
-                        canvas.toBlob((pngBlob) => {
-                            UnifyAspectRatio.processedImages.push({
-                                name: baseName,
-                                webpBlob: webpBlob,
-                                pngBlob: pngBlob,
-                                originalExt: file.type.split('/')[1] || 'png',
-                                previewUrl: URL.createObjectURL(webpBlob)
-                            });
-                            UnifyAspectRatio.renderResults();
-                            resolve();
-                        }, 'image/png', 1.0);
-                    }, 'image/webp', 0.9);
+                    ctx.drawImage(img, offsetX, offsetY, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight);
+
+                    this.processedImages.push({
+                        name: `unified-${file.name}`,
+                        png: canvas.toDataURL('image/png'),
+                        webp: canvas.toDataURL('image/webp', 0.8),
+                        originalName: file.name
+                    });
+
+                    this.renderResults();
+                    resolve();
                 };
                 img.src = e.target.result;
             };
@@ -180,65 +166,57 @@ export const UnifyAspectRatio = {
         });
     },
 
-    renderResults: () => {
-        const container = document.getElementById('images-container');
-        if (!container) return;
-        container.innerHTML = '';
+    renderResults: function() {
+        const container = document.getElementById('results-section');
+        const grid = document.getElementById('results-grid');
+        if (!container || !grid) return;
 
-        UnifyAspectRatio.processedImages.forEach((img, idx) => {
+        container.classList.remove('hidden');
+        grid.innerHTML = '';
+
+        this.processedImages.forEach((img, index) => {
             const card = document.createElement('div');
-            card.className = 'shadcn-card p-4 flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300';
+            card.className = 'shadcn-card p-4 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-300';
             card.innerHTML = `
-                <div class="flex items-center gap-4 w-full">
-                    <div class="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center overflow-hidden">
-                        <img src="${img.previewUrl}" class="w-full h-full object-contain bg-grid-small">
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-bold text-white truncate">${img.name}</p>
-                        <div class="flex gap-3 mt-1">
-                            <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-tighter">${(img.pngBlob.size / 1024).toFixed(1)} KB (PNG)</span>
-                            <span class="text-[10px] text-primary font-bold uppercase tracking-tighter">${(img.webpBlob.size / 1024).toFixed(1)} KB (WebP)</span>
-                        </div>
+                <div class="aspect-square rounded-lg overflow-hidden bg-zinc-950 border border-zinc-900 flex items-center justify-center relative group">
+                    <img src="${img.png}" class="max-w-full max-h-full object-contain">
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                         <button class="btn-dl-png shadcn-button shadcn-button-primary h-8 px-3 text-[10px] gap-2">
+                            <i data-lucide="download" class="w-3 h-3"></i>
+                            <span>PNG</span>
+                        </button>
+                        <button class="btn-dl-webp shadcn-button shadcn-button-outline h-8 px-3 text-[10px] gap-2">
+                            <i data-lucide="download" class="w-3 h-3"></i>
+                            <span>WebP</span>
+                        </button>
                     </div>
                 </div>
-                <div class="flex gap-2 w-full md:w-auto">
-                    <button onclick="UnifyAspectRatio.downloadOne(${idx}, 'png')" class="shadcn-button border-zinc-800 bg-zinc-900 hover:bg-zinc-800 h-9 px-4 text-[10px] font-bold uppercase gap-2 flex-1 md:flex-none">
-                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                        PNG
-                    </button>
-                    <button onclick="UnifyAspectRatio.downloadOne(${idx}, 'webp')" class="shadcn-button shadcn-button-primary h-9 px-4 text-[10px] font-bold uppercase gap-2 flex-1 md:flex-none">
-                        <i data-lucide="zap" class="w-3.5 h-3.5"></i>
-                        WebP
-                    </button>
+                <div class="space-y-1">
+                    <p class="text-[10px] font-bold text-white truncate">${img.originalName}</p>
                 </div>
             `;
-            container.appendChild(card);
+            card.querySelector('.btn-dl-png').onclick = () => App.downloadFile(img.png, `unified-${img.originalName}.png`, 'image/png');
+            card.querySelector('.btn-dl-webp').onclick = () => App.downloadFile(img.webp, `unified-${img.originalName}.webp`, 'image/webp');
+            grid.appendChild(card);
         });
+
         if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        App.translatePage();
     },
 
-    downloadOne: (idx, format) => {
-        const img = UnifyAspectRatio.processedImages[idx];
-        const blob = format === 'webp' ? img.webpBlob : img.pngBlob;
-        const ext = format === 'webp' ? 'webp' : 'png';
-        const type = format === 'webp' ? 'image/webp' : 'image/png';
-        App.downloadFile(blob, `${img.name}.${ext}`, type);
+    downloadZip: async function(asWebp = false) {
+        if (!this.processedImages.length) return;
+        
+        const zip = new JSZip();
+        this.processedImages.forEach(img => {
+            const dataUrl = asWebp ? img.webp : img.png;
+            const ext = asWebp ? 'webp' : 'png';
+            const base64Data = dataUrl.split(',')[1];
+            zip.file(`unified-${img.originalName.split('.')[0]}.${ext}`, base64Data, { base64: true });
+        });
+
+        const content = await zip.generateAsync({ type: "blob" });
+        App.downloadFile(content, `unified-images-${asWebp ? 'webp' : 'png'}.zip`, 'application/zip');
         App.fireConfetti();
-    },
-
-    downloadZip: async (asWebp) => {
-        const files = UnifyAspectRatio.processedImages.map(img => ({
-            name: `${img.name}.${asWebp ? 'webp' : 'png'}`,
-            blob: asWebp ? img.webpBlob : img.pngBlob
-        }));
-        App.downloadZip(files, `unified-aspect-ratio-${asWebp ? 'webp' : 'png'}.zip`);
     }
-};
-
-// Expose globally for inline event handlers and auto-init
-window.UnifyAspectRatio = UnifyAspectRatio;
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', UnifyAspectRatio.init);
-} else {
-    UnifyAspectRatio.init();
-}
+});

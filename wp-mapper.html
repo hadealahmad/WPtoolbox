@@ -87,11 +87,11 @@
                                 data-i18n="label_output_format">Output
                                 Format</label>
                             <div class="grid grid-cols-3 gap-2 p-1 bg-zinc-950 border border-zinc-900 rounded-xl">
-                                <button onclick="WPMapper.setTargetFormat('xml')" id="target-xml-btn"
+                                <button id="target-xml-btn"
                                     class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">XML</button>
-                                <button onclick="WPMapper.setTargetFormat('csv')" id="target-csv-btn"
+                                <button id="target-csv-btn"
                                     class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">CSV</button>
-                                <button onclick="WPMapper.setTargetFormat('json')" id="target-json-btn"
+                                <button id="target-json-btn"
                                     class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">JSON</button>
                             </div>
                             <p class="text-[9px] text-zinc-600 leading-relaxed italic" data-i18n="label_wxr_desc">WXR
@@ -124,7 +124,7 @@
                                                 data-i18n="desc_markdown_transformation">Clean HTML blocks into pure
                                                 Markdown syntax</p>
                                         </div>
-                                        <button onclick="WPMapper.toggleMarkdown()" id="markdown-toggle"
+                                        <button id="markdown-toggle"
                                             class="shrink-0 w-11 h-6 rounded-full bg-zinc-800 relative transition-colors duration-200 group border border-zinc-700">
                                             <div id="markdown-toggle-knob"
                                                 class="absolute top-1 left-1 rtl:left-auto rtl:right-1 w-3.5 h-3.5 rounded-full bg-zinc-500 transition-all duration-200 shadow-sm">
@@ -155,10 +155,10 @@
                         </div>
                         <div
                             class="flex flex-wrap items-center gap-2 p-1 bg-zinc-950 border border-zinc-900 rounded-lg">
-                            <button onclick="WPMapper.toggleFilter('unmapped')" id="filter-unmapped"
+                            <button id="filter-unmapped"
                                 class="px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider text-zinc-500 hover:text-white transition-all"
                                 data-i18n="filter_unmapped">Unmapped</button>
-                            <button onclick="WPMapper.toggleFilter('wp')" id="filter-wp"
+                            <button id="filter-wp"
                                 class="px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider text-zinc-500 hover:text-white transition-all"
                                 data-i18n="filter_wp">WP
                                 Tags</button>
@@ -201,11 +201,11 @@
             <!-- Preview Section (Hidden until generated) -->
             <section id="preview-section" class="hidden space-y-4 animate-in fade-in zoom-in-95 duration-300">
                 <div class="flex justify-between items-center">
-                    <h3 id="preview-title" class="text-xs font-bold uppercase tracking-widest text-zinc-500">Preview
+                    <h3 id="preview-title" class="text-xs font-bold uppercase tracking-widest text-zinc-500" data-i18n="label_preview">Preview
                     </h3>
                     <button id="download-btn" class="shadcn-button shadcn-button-outline h-10 px-8 text-xs gap-2">
                         <i data-lucide="download" class="w-4 h-4"></i>
-                        <span id="download-text">Download File</span>
+                        <span id="download-text" data-i18n="btn_download_file">Download File</span>
                     </button>
                 </div>
                 <div class="shadcn-card bg-zinc-950 border-zinc-800 p-0 overflow-hidden">
@@ -245,7 +245,7 @@
                 </div>
             </div>
 
-            <button onclick="WPMapper.cancelProcessing()"
+            <button id="cancel-processing-btn"
                 class="shadcn-button shadcn-button-outline w-full h-11 text-xs gap-2 border-red-900/30 text-red-400 hover:bg-red-900/10">
                 <i data-lucide="x-circle" class="w-4 h-4"></i>
                 <span data-i18n="btn_cancel">Cancel</span>

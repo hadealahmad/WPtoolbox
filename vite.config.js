@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { readdirSync } from 'fs';
 import tailwindcss from '@tailwindcss/vite';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { VitePWA } from 'vite-plugin-pwa';
 
 // Helper to get all HTML files for multi-page build
 const pages = readdirSync(__dirname)
@@ -18,13 +18,28 @@ export default defineConfig({
   base: './', // Ensures assets are linked relatively for easy deployment
   plugins: [
     tailwindcss(),
-    viteStaticCopy({
-      targets: [
-        {
-          src: 'js/data/*',
-          dest: 'js/data'
-        }
-      ]
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'script',
+      includeAssets: ['favicon.svg', 'assets/*'],
+      manifest: {
+        name: 'WPToolbox',
+        short_name: 'WPToolbox',
+        description: 'Premium WordPress utilities hub',
+        theme_color: '#09090b',
+        icons: [
+          {
+            src: 'favicon.svg',
+            sizes: '192x192',
+            type: 'image/svg+xml'
+          },
+          {
+            src: 'favicon.svg',
+            sizes: '512x512',
+            type: 'image/svg+xml'
+          }
+        ]
+      }
     })
   ],
   build: {

@@ -58,6 +58,7 @@ export const App = {
     escapeCSV: (val) => Utils.escapeCSV(val),
     escapeHtml: (val) => Utils.escapeHtml(val),
     htmlToMarkdown: (val) => Utils.htmlToMarkdown(val),
+    formatSize: (bytes) => Utils.formatSize(bytes),
     downloadFile: (content, filename, type) => Utils.downloadFile(content, filename, type),
     downloadZip: (files, filename) => Utils.downloadZip(files, filename),
     copyToClipboard: (text, btnElement, feedbackText) => Utils.copyToClipboard(text, btnElement, feedbackText),

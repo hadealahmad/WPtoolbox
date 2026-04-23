@@ -50,11 +50,11 @@
                     <div>
                         <label class="text-xs font-semibold text-zinc-400 mb-2 block" data-i18n="label_mode">Mode</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <button id="mode-light" onclick="BlocksyPalette.setMode('light')" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all border-zinc-800 text-zinc-500 hover:border-zinc-600">
+                            <button id="mode-light" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all border-zinc-800 text-zinc-500 hover:border-zinc-600">
                                 <i data-lucide="sun" class="w-4 h-4"></i>
                                 <span data-i18n="mode_light">Light</span>
                             </button>
-                            <button id="mode-dark" onclick="BlocksyPalette.setMode('dark')" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all border-primary bg-primary/10 text-primary">
+                            <button id="mode-dark" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all border-primary bg-primary/10 text-primary">
                                 <i data-lucide="moon" class="w-4 h-4"></i>
                                 <span data-i18n="mode_dark">Dark</span>
                             </button>
@@ -63,17 +63,16 @@
 
                     <!-- Quick Color Seed Actions -->
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="BlocksyPalette.randomColors()"
+                        <button id="random-colors-btn"
                                 class="flex items-center justify-center gap-2 h-9 rounded-lg border border-zinc-800 bg-zinc-900 text-xs font-semibold text-zinc-400 hover:text-primary hover:border-primary/40 transition-all">
                             <i data-lucide="shuffle" class="w-3.5 h-3.5"></i>
                             <span data-i18n="btn_random">Random</span>
                         </button>
                         <label class="flex items-center justify-center gap-2 h-9 rounded-lg border border-zinc-800 bg-zinc-900 text-xs font-semibold text-zinc-400 hover:text-primary hover:border-primary/40 transition-all cursor-pointer"
-                               id="from-logo-label">
+                                id="from-logo-label">
                             <i data-lucide="image-plus" class="w-3.5 h-3.5"></i>
                             <span id="from-logo-text" data-i18n="btn_from_image">From Logo</span>
-                            <input type="file" id="logo-upload" accept="image/*" class="hidden"
-                                   onchange="BlocksyPalette.extractFromImage(event)">
+                            <input type="file" id="logo-upload" accept="image/*" class="hidden">
                         </label>
                     </div>
 
@@ -82,8 +81,8 @@
                         <label class="text-xs font-semibold text-zinc-400 mb-1.5 block" data-i18n="label_color1">Color 1 — Primary</label>
                         <p class="text-[10px] text-zinc-600 mb-2" data-i18n="desc_color1">Main brand accent. Used for buttons, links, and highlights.</p>
                         <div class="flex items-center gap-3">
-                            <input id="color1" type="color" value="#2872fa" oninput="BlocksyPalette.onColorInput()" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
-                            <input id="color1-hex" type="text" value="#2872FA" oninput="BlocksyPalette.onTextInput(1)"
+                            <input id="color1" type="color" value="#2872fa" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
+                            <input id="color1-hex" type="text" value="#2872FA"
                                    placeholder="#hex / rgb() / hsl()"
                                    class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-primary">
                         </div>
@@ -94,8 +93,8 @@
                         <label class="text-xs font-semibold text-zinc-400 mb-1.5 block" data-i18n="label_color2">Color 2 — Secondary</label>
                         <p class="text-[10px] text-zinc-600 mb-2" data-i18n="desc_color2">Darker variant of primary. Hover states and active elements.</p>
                         <div class="flex items-center gap-3">
-                            <input id="color2" type="color" value="#1559ed" oninput="BlocksyPalette.onColorInput()" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
-                            <input id="color2-hex" type="text" value="#1559ED" oninput="BlocksyPalette.onTextInput(2)"
+                            <input id="color2" type="color" value="#1559ed" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
+                            <input id="color2-hex" type="text" value="#1559ED"
                                    placeholder="#hex / rgb() / hsl()"
                                    class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-primary">
                         </div>
@@ -117,44 +116,44 @@
                     <div id="manual-colors" class="space-y-3 hidden">
                         <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mt-1" data-i18n="label_manual_colors">Manual Neutral Colors</p>
                         <div id="color3-row" class="flex items-center gap-3">
-                            <input id="color3" type="color" value="#3a4f66" oninput="BlocksyPalette.onColorInput()" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
+                            <input id="color3" type="color" value="#3a4f66" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
                             <span class="text-[10px] text-zinc-500 w-16" data-i18n="label_color3_short">Color 3</span>
-                            <input id="color3-hex" type="text" value="#3a4f66" oninput="BlocksyPalette.onTextInput(3)"
+                            <input id="color3-hex" type="text" value="#3a4f66"
                                    placeholder="#hex / rgb() / hsl()"
                                    class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
                         </div>
                         <div class="flex items-center gap-3">
-                            <input id="color4" type="color" value="#192a3d" oninput="BlocksyPalette.onColorInput()" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
+                            <input id="color4" type="color" value="#192a3d" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
                             <span class="text-[10px] text-zinc-500 w-16" data-i18n="label_color4_short">Color 4</span>
-                            <input id="color4-hex" type="text" value="#192a3d" oninput="BlocksyPalette.onTextInput(4)"
+                            <input id="color4-hex" type="text" value="#192a3d"
                                    placeholder="#hex / rgb() / hsl()"
                                    class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
                         </div>
                         <div class="flex items-center gap-3">
-                            <input id="color5" type="color" value="#e1e8ed" oninput="BlocksyPalette.onColorInput()" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
+                            <input id="color5" type="color" value="#e1e8ed" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
                             <span class="text-[10px] text-zinc-500 w-16" data-i18n="label_color5_short">Color 5</span>
-                            <input id="color5-hex" type="text" value="#e1e8ed" oninput="BlocksyPalette.onTextInput(5)"
+                            <input id="color5-hex" type="text" value="#e1e8ed"
                                    placeholder="#hex / rgb() / hsl()"
                                    class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
                         </div>
                         <div class="flex items-center gap-3">
-                            <input id="color6" type="color" value="#f2f5f7" oninput="BlocksyPalette.onColorInput()" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
+                            <input id="color6" type="color" value="#f2f5f7" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
                             <span class="text-[10px] text-zinc-500 w-16" data-i18n="label_color6_short">Color 6</span>
-                            <input id="color6-hex" type="text" value="#f2f5f7" oninput="BlocksyPalette.onTextInput(6)"
+                            <input id="color6-hex" type="text" value="#f2f5f7"
                                    placeholder="#hex / rgb() / hsl()"
                                    class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
                         </div>
                         <div class="flex items-center gap-3">
-                            <input id="color7" type="color" value="#fafbfc" oninput="BlocksyPalette.onColorInput()" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
+                            <input id="color7" type="color" value="#fafbfc" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
                             <span class="text-[10px] text-zinc-500 w-16" data-i18n="label_color7_short">Color 7</span>
-                            <input id="color7-hex" type="text" value="#fafbfc" oninput="BlocksyPalette.onTextInput(7)"
+                            <input id="color7-hex" type="text" value="#fafbfc"
                                    placeholder="#hex / rgb() / hsl()"
                                    class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
                         </div>
                         <div class="flex items-center gap-3">
-                            <input id="color8" type="color" value="#ffffff" oninput="BlocksyPalette.onColorInput()" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
+                            <input id="color8" type="color" value="#ffffff" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
                             <span class="text-[10px] text-zinc-500 w-16" data-i18n="label_color8_short">Color 8</span>
-                            <input id="color8-hex" type="text" value="#ffffff" oninput="BlocksyPalette.onTextInput(8)"
+                            <input id="color8-hex" type="text" value="#ffffff"
                                    placeholder="#hex / rgb() / hsl()"
                                    class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
                         </div>
@@ -162,11 +161,11 @@
 
                     <!-- Action buttons -->
                     <div class="flex gap-3 pt-1">
-                        <button onclick="BlocksyPalette.savePalette()" class="shadcn-button shadcn-button-primary flex-1 h-10 gap-2">
+                        <button id="save-palette-btn" class="shadcn-button shadcn-button-primary flex-1 h-10 gap-2">
                             <i data-lucide="save" class="w-4 h-4"></i>
                             <span data-i18n="btn_save_palette">Save Palette</span>
                         </button>
-                        <button onclick="BlocksyPalette.copyCSS()" class="shadcn-button shadcn-button-outline h-10 px-4 gap-2 border-zinc-800 bg-zinc-900">
+                        <button id="copy-css-btn" class="shadcn-button shadcn-button-outline h-10 px-4 gap-2 border-zinc-800 bg-zinc-900">
                             <i data-lucide="code-2" class="w-4 h-4"></i>
                             <span data-i18n="btn_copy_css">CSS</span>
                         </button>
@@ -250,7 +249,7 @@
         <div class="shadcn-card w-full max-w-md p-6 space-y-5">
             <div class="flex items-center justify-between">
                 <h2 class="text-lg font-bold text-white" data-i18n="modal_edit_palette">Edit Palette</h2>
-                <button onclick="BlocksyPalette.closeEditModal()" class="text-zinc-500 hover:text-white">
+                <button id="close-edit-modal-btn" class="text-zinc-500 hover:text-white">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -262,11 +261,11 @@
                 <!-- injected by JS -->
             </div>
             <div class="flex gap-3 pt-1">
-                <button onclick="BlocksyPalette.saveEditModal()" class="shadcn-button shadcn-button-primary flex-1 h-10 gap-2">
+                <button id="save-edit-btn" class="shadcn-button shadcn-button-primary flex-1 h-10 gap-2">
                     <i data-lucide="save" class="w-4 h-4"></i>
                     <span data-i18n="btn_save_changes">Save Changes</span>
                 </button>
-                <button onclick="BlocksyPalette.closeEditModal()" class="shadcn-button shadcn-button-outline h-10 px-4 border-zinc-800 bg-zinc-900" data-i18n="btn_cancel">Cancel</button>
+                <button id="cancel-edit-btn" class="shadcn-button shadcn-button-outline h-10 px-4 border-zinc-800 bg-zinc-900" data-i18n="btn_cancel">Cancel</button>
             </div>
         </div>
     </div>

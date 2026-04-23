@@ -3,9 +3,8 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
+import JSZip from 'jszip';
 import QRCode from 'qrcode';
-
-let aspectR;
 
 function getValidFilename(urlStr) {
     try {
@@ -22,31 +21,24 @@ function getValidFilename(urlStr) {
     }
 }
 
-async function fetchBlobFromDataURL(dataUrl) {
-    const response = await fetch(dataUrl);
-    return await response.blob();
-}
-
-export const QRGenerator = {
+export const QRGenerator = App.registerTool('QRGenerator', {
     processedQRs: [],
+    multiple: false,
+    resultsId: 'results-section',
 
-    init: () => {
-        aspectR = App.registerTool('QRGenerator', {
-            multiple: false,
-            resultsId: 'results-section',
-            onLanguageChange: () => {
-                if (QRGenerator.processedQRs.length > 0) QRGenerator.renderResults();
-            }
-        });
-
+    onInit: function() {
         const generateBtn = document.getElementById('generate-btn');
         const downloadAllBtn = document.getElementById('download-all-btn');
 
-        if (generateBtn) generateBtn.onclick = QRGenerator.handleGenerate;
-        if (downloadAllBtn) downloadAllBtn.onclick = QRGenerator.downloadZip;
+        if (generateBtn) generateBtn.onclick = () => this.handleGenerate();
+        if (downloadAllBtn) downloadAllBtn.onclick = () => this.downloadZip();
     },
 
-    handleGenerate: async () => {
+    onLanguageChange: function() {
+        if (this.processedQRs.length > 0) this.renderResults();
+    },
+
+    handleGenerate: async function() {
         const linksInput = document.getElementById('links-input');
         const transparentBg = document.getElementById('transparent-bg');
         if (!linksInput) return;
@@ -62,8 +54,6 @@ export const QRGenerator = {
 
         const isTransparent = transparentBg && transparentBg.checked;
         const bgOption = isTransparent ? '#00000000' : '#ffffff';
-        // JPG cannot use transparent background, fallback to white
-        const jpgBgOption = '#ffffff';
 
         // UI Setup
         document.getElementById('empty-state')?.classList.add('hidden');
@@ -75,7 +65,7 @@ export const QRGenerator = {
         if (progressContainer) progressContainer.classList.remove('hidden');
         if (progressBar) progressBar.style.width = '0%';
 
-        QRGenerator.processedQRs = [];
+        this.processedQRs = [];
         let processed = 0;
 
         for (const line of lines) {
@@ -97,110 +87,82 @@ export const QRGenerator = {
                     width: 512
                 });
                 
-                // JPG Data URL
-                const jpgDataUrl = await QRCode.toDataURL(line, {
-                    type: 'image/jpeg',
-                    color: { light: jpgBgOption, dark: '#000000' },
-                    margin: 1,
-                    width: 512
-                });
-                
-                const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
-                const pngBlob = await fetchBlobFromDataURL(pngDataUrl);
-                const jpgBlob = await fetchBlobFromDataURL(jpgDataUrl);
-
-                QRGenerator.processedQRs.push({
-                    url: line,
+                this.processedQRs.push({
+                    content: line,
                     name: name,
-                    svg: svgBlob,
-                    png: pngBlob,
-                    jpg: jpgBlob,
-                    previewUrl: pngDataUrl
+                    svg: svgString,
+                    png: pngDataUrl
                 });
 
-            } catch (error) {
-                console.error('Error generating QR for', line, error);
+                processed++;
+                if (progressBar) progressBar.style.width = `${(processed / lines.length) * 100}%`;
+                
+                await new Promise(r => setTimeout(r, 0));
+            } catch (err) {
+                console.error(err);
             }
-            processed++;
-            if (progressBar) progressBar.style.width = `${(processed / lines.length) * 100}%`;
         }
 
+        this.renderResults();
+        
         setTimeout(() => {
             if (progressContainer) progressContainer.classList.add('hidden');
-            if (progressBar) progressBar.style.width = '0';
-        }, 1000);
+        }, 500);
 
-        QRGenerator.renderResults();
-    },
-
-    renderResults: () => {
-        const container = document.getElementById('qrs-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        QRGenerator.processedQRs.forEach((qr, idx) => {
-            const card = document.createElement('div');
-            card.className = 'shadcn-card p-4 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300';
-            card.innerHTML = `
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-center p-2">
-                        <img src="${qr.previewUrl}" class="w-full h-full object-contain ${qr.previewUrl.includes('#00000000') || idx > -1 ? 'bg-grid-small' : ''}" alt="${qr.name}">
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-xs font-bold text-white truncate" title="${qr.name}">${qr.name}</p>
-                        <p class="text-[10px] text-zinc-500 truncate mt-1" title="${qr.url}">${qr.url}</p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="QRGenerator.downloadOne(${idx}, 'svg')" class="shadcn-button border-zinc-800 bg-zinc-900 hover:bg-zinc-800 h-8 px-2 text-[10px] font-bold uppercase">
-                        SVG
-                    </button>
-                    <button onclick="QRGenerator.downloadOne(${idx}, 'png')" class="shadcn-button border-zinc-800 bg-zinc-900 hover:bg-zinc-800 h-8 px-2 text-[10px] font-bold uppercase">
-                        PNG
-                    </button>
-                    <button onclick="QRGenerator.downloadOne(${idx}, 'jpg')" class="shadcn-button border-zinc-800 bg-zinc-900 hover:bg-zinc-800 h-8 px-2 text-[10px] font-bold uppercase">
-                        JPG
-                    </button>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
-    },
-
-    downloadOne: (idx, format) => {
-        const qr = QRGenerator.processedQRs[idx];
-        const blob = qr[format];
-        const typeMap = {
-            svg: 'image/svg+xml',
-            png: 'image/png',
-            jpg: 'image/jpeg'
-        };
-        App.downloadFile(blob, `${qr.name}.${format}`, typeMap[format]);
         App.fireConfetti();
     },
 
-    downloadZip: async () => {
-        if (QRGenerator.processedQRs.length === 0) return;
-        
-        // When downloading all, we could just include PNGs or maybe let them choose.
-        // For simplicity, download a zip of PNGs if multiple, or all formats inside folders?
-        // Let's download all formats per QR if we want, or just PNGs.
-        // Let's create a flat zip with PNGs, or maybe SVG/PNG/JPG for each based on URL.
-        const files = [];
-        QRGenerator.processedQRs.forEach(qr => {
-            files.push({ name: `${qr.name}.png`, blob: qr.png });
-            files.push({ name: `${qr.name}.svg`, blob: qr.svg });
-        });
-        
-        App.downloadZip(files, `qr-codes.zip`);
-    }
-};
+    renderResults: function() {
+        const grid = document.getElementById('results-grid');
+        if (!grid) return;
 
-// Expose globally for inline event handlers and auto-init
-window.QRGenerator = QRGenerator;
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', QRGenerator.init);
-} else {
-    QRGenerator.init();
-}
+        grid.innerHTML = '';
+        this.processedQRs.forEach((qr, index) => {
+            const card = document.createElement('div');
+            card.className = 'shadcn-card p-6 flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-300';
+            card.style.animationDelay = `${index * 50}ms`;
+            
+            card.innerHTML = `
+                <div class="aspect-square rounded-xl bg-white p-4 flex items-center justify-center shadow-inner group relative overflow-hidden">
+                    <img src="${qr.png}" class="w-full h-full object-contain">
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-3">
+                         <button class="btn-dl-png shadcn-button shadcn-button-primary h-8 px-4 text-[10px] gap-2 w-32 justify-center">
+                            <i data-lucide="image" class="w-3 h-3"></i>
+                            <span>PNG (512px)</span>
+                        </button>
+                        <button class="btn-dl-svg shadcn-button shadcn-button-outline h-8 px-4 text-[10px] gap-2 w-32 justify-center bg-white/10 text-white border-white/20">
+                            <i data-lucide="file-code" class="w-3 h-3"></i>
+                            <span>SVG (Vector)</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="space-y-1 text-center">
+                    <p class="text-[10px] font-bold text-white truncate max-w-full">${qr.name}</p>
+                    <p class="text-[8px] text-zinc-600 truncate">${qr.content}</p>
+                </div>
+            `;
+
+            card.querySelector('.btn-dl-png').onclick = () => App.downloadFile(qr.png, `${qr.name}.png`, 'image/png');
+            card.querySelector('.btn-dl-svg').onclick = () => App.downloadFile(qr.svg, `${qr.name}.svg`, 'image/svg+xml');
+            grid.appendChild(card);
+        });
+
+        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        App.translatePage();
+    },
+
+    downloadZip: async function() {
+        if (!this.processedQRs.length) return;
+        
+        const zip = new JSZip();
+        this.processedQRs.forEach(qr => {
+            const pngBase64 = qr.png.split(',')[1];
+            zip.file(`${qr.name}.png`, pngBase64, { base64: true });
+            zip.file(`${qr.name}.svg`, qr.svg);
+        });
+
+        const content = await zip.generateAsync({ type: "blob" });
+        App.downloadFile(content, 'qr-codes.zip', 'application/zip');
+        App.fireConfetti();
+    }
+});

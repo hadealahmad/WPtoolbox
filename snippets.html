@@ -62,22 +62,21 @@
                 </div>
 
                 <div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-                    <button onclick="Snippets.showAddModal()"
+                    <button id="add-snippet-btn"
                         class="shadcn-button h-14 px-6 bg-zinc-100 text-zinc-950 hover:bg-white transition-none whitespace-nowrap">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <span data-i18n="add_snippet_btn">Add Snippet</span>
                     </button>
-                    <button onclick="Snippets.exportUserSnippets()"
+                    <button id="export-snippets-btn"
                         class="shadcn-button shadcn-button-outline h-14 w-14 p-0 flex items-center justify-center"
                         title="Export">
                         <i data-lucide="download" class="w-5 h-5"></i>
                     </button>
-                    <button onclick="document.getElementById('import-input').click()"
+                    <button id="import-snippets-trigger"
                         class="shadcn-button shadcn-button-outline h-14 w-14 p-0 flex items-center justify-center"
                         title="Import">
                         <i data-lucide="upload" class="w-5 h-5"></i>
-                        <input type="file" id="import-input" class="hidden" accept=".json"
-                            onchange="Snippets.importUserSnippets(event)">
+                        <input type="file" id="import-input" class="hidden" accept=".json">
                     </button>
                 </div>
             </div>
@@ -93,7 +92,7 @@
             <div class="col-span-full py-20 text-center">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-zinc-800 border-t-primary">
                 </div>
-                <p class="mt-4 text-zinc-500 font-medium">Loading snippets library...</p>
+                <p class="mt-4 text-zinc-500 font-medium" data-i18n="loading_snippets">Loading snippets library...</p>
             </div>
         </div>
 
@@ -117,11 +116,11 @@
             class="w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div class="px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
                 <h2 class="text-xl font-bold text-white" data-i18n="modal_add_title">Add New Snippet</h2>
-                <button onclick="Snippets.hideAddModal()" class="text-zinc-500 hover:text-white transition-none">
+                <button id="close-modal-btn" class="text-zinc-500 hover:text-white transition-none">
                     <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
-            <form id="add-snippet-form" onsubmit="Snippets.handleAddSnippet(event)" class="p-6 space-y-4">
+            <form id="add-snippet-form" class="p-6 space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-zinc-500 uppercase tracking-widest"
@@ -134,6 +133,7 @@
                             data-i18n="label_category">Category</label>
                         <input type="text" name="category" required
                             class="w-full h-12 bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-white focus:outline-none focus:border-primary transition-none"
+                            data-i18n-placeholder="placeholder_category"
                             placeholder="e.g. Header, Security">
                     </div>
                 </div>
@@ -154,12 +154,13 @@
                         data-i18n="label_language">Language</label>
                     <input type="text" name="language" required
                         class="w-full h-12 bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-white focus:outline-none focus:border-primary transition-none"
+                        data-i18n-placeholder="placeholder_languages"
                         placeholder="PHP, CSS, JS, SQL, HTML...">
                 </div>
                 <div class="flex gap-4 pt-4">
                     <button type="submit" class="flex-1 shadcn-button bg-zinc-100 text-zinc-950 hover:bg-white h-12"
                         data-i18n="btn_save">Save Snippet</button>
-                    <button type="button" onclick="Snippets.hideAddModal()"
+                    <button type="button" id="cancel-modal-btn"
                         class="flex-1 shadcn-button shadcn-button-outline h-12" data-i18n="btn_cancel">Cancel</button>
                 </div>
             </form>

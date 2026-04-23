@@ -55,9 +55,9 @@
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
                                     data-i18n="label_generation_lang">Content Language</label>
                                 <div class="grid grid-cols-2 gap-2 p-1 bg-zinc-950 border border-zinc-800 rounded-xl">
-                                    <button onclick="DemoGenerator.updateGenLang('en')" id="lang-en-btn"
+                                    <button id="lang-en-btn"
                                         class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">English</button>
-                                    <button onclick="DemoGenerator.updateGenLang('ar')" id="lang-ar-btn"
+                                    <button id="lang-ar-btn"
                                         class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">العربية</button>
                                 </div>
                             </div>
@@ -66,11 +66,11 @@
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
                                     data-i18n="label_output_format">Output Format</label>
                                 <div class="grid grid-cols-3 gap-2 p-1 bg-zinc-950 border border-zinc-800 rounded-xl">
-                                    <button onclick="DemoGenerator.updateFormat('xml')" id="format-xml-btn"
+                                    <button id="format-xml-btn"
                                         class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">XML</button>
-                                    <button onclick="DemoGenerator.updateFormat('csv')" id="format-csv-btn"
+                                    <button id="format-csv-btn"
                                         class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">CSV</button>
-                                    <button onclick="DemoGenerator.updateFormat('json')" id="format-json-btn"
+                                    <button id="format-json-btn"
                                         class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">JSON</button>
                                 </div>
                             </div>
@@ -83,8 +83,7 @@
                                 <span id="record-count-display" class="text-xs font-mono text-primary">10</span>
                             </div>
                             <input type="range" id="record-count" value="10" min="1" max="20"
-                                class="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-primary"
-                                oninput="document.getElementById('record-count-display').textContent = this.value">
+                                class="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-primary">
                         </div>
                     </div>
                 </section>
@@ -106,12 +105,12 @@
                             <span data-i18n="label_fields_configuration">Fields Configuration</span>
                         </h2>
                         <div class="flex items-center gap-3">
-                            <button onclick="DemoGenerator.resetFields()"
+                            <button id="reset-fields-btn"
                                 class="shadcn-button shadcn-button-outline h-9 px-4 text-[10px] gap-2 border-zinc-800 hover:bg-zinc-900">
                                 <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                                 <span data-i18n="btn_reset_defaults">Reset Defaults</span>
                             </button>
-                            <button onclick="DemoGenerator.addField()"
+                            <button id="add-field-btn"
                                 class="shadcn-button shadcn-button-outline h-9 px-4 text-[10px] gap-2">
                                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                                 <span data-i18n="btn_add_field">Add Field</span>
@@ -139,7 +138,7 @@
                                     <td class="px-6 py-4 text-xs text-zinc-500" data-i18n="type_sentence">Sentence</td>
                                     <td class="px-6 py-4">
                                         <span
-                                            class="px-2 py-1 rounded bg-zinc-800 text-[10px] text-zinc-400 font-mono">Title</span>
+                                            class="px-2 py-1 rounded bg-zinc-800 text-[10px] text-zinc-400 font-mono" data-i18n="label_title">Title</span>
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <i data-lucide="lock" class="w-3.5 h-3.5 text-zinc-800 ml-auto"></i>
@@ -151,7 +150,7 @@
                                     </td>
                                     <td class="px-6 py-4">
                                         <span
-                                            class="px-2 py-1 rounded bg-zinc-800 text-[10px] text-zinc-400 font-mono">Content</span>
+                                            class="px-2 py-1 rounded bg-zinc-800 text-[10px] text-zinc-400 font-mono" data-i18n="label_content">Content</span>
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <i data-lucide="lock" class="w-3.5 h-3.5 text-zinc-800 ml-auto"></i>
@@ -162,7 +161,7 @@
                     </div>
 
                     <div class="p-6 border-t border-zinc-900 bg-zinc-900/30 flex justify-end">
-                        <button id="generate-btn" onclick="DemoGenerator.generate()"
+                        <button id="generate-btn"
                             class="shadcn-button shadcn-button-primary h-12 px-10 text-xs gap-2">
                             <i data-lucide="zap" class="w-4 h-4"></i>
                             <span data-i18n="btn_generate_content">Generate Content</span>
@@ -177,12 +176,12 @@
                         <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-500" data-i18n="label_preview">
                             Preview</h3>
                         <div class="flex items-center gap-3">
-                            <button onclick="DemoGenerator.copyPreview()"
+                            <button id="copy-preview-btn"
                                 class="shadcn-button shadcn-button-outline h-10 px-6 text-xs gap-2">
                                 <i data-lucide="copy" class="w-4 h-4"></i>
                                 <span data-i18n="btn_copy">Copy</span>
                             </button>
-                            <button onclick="DemoGenerator.download()"
+                            <button id="download-btn"
                                 class="shadcn-button shadcn-button-primary h-10 px-8 text-xs gap-2">
                                 <i data-lucide="download" class="w-4 h-4"></i>
                                 <span data-i18n="btn_download">Download</span>
@@ -209,7 +208,7 @@
             <div class="p-6 border-b border-zinc-900 bg-zinc-900/30 flex items-center justify-between">
                 <h3 class="text-lg font-bold text-white tracking-tight" data-i18n="modal_add_field_title">Add Custom
                     Field</h3>
-                <button onclick="DemoGenerator.closeModal()" class="text-zinc-500 hover:text-white transition-colors">
+                <button id="modal-close-btn" class="text-zinc-500 hover:text-white transition-colors">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -229,17 +228,17 @@
                         <div class="relative">
                             <select id="modal-field-type"
                                 class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-primary transition-all appearance-none cursor-pointer pr-10">
-                                <option value="name">Full Name</option>
-                                <option value="email">Email Address</option>
-                                <option value="sentence">Sentence</option>
-                                <option value="paragraphs">Paragraphs</option>
-                                <option value="number">Random Number</option>
-                                <option value="date">Random Date</option>
-                                <option value="image">Image URL (Unsplash)</option>
-                                <option value="category">Category</option>
-                                <option value="tag">Tag</option>
-                                <option value="boolean">Boolean (True/False)</option>
-                                <option value="color">Hex Color</option>
+                                <option value="name" data-i18n="opt_full_name">Full Name</option>
+                                <option value="email" data-i18n="opt_email">Email Address</option>
+                                <option value="sentence" data-i18n="type_sentence">Sentence</option>
+                                <option value="paragraphs" data-i18n="type_paragraphs">Paragraphs</option>
+                                <option value="number" data-i18n="opt_number">Random Number</option>
+                                <option value="date" data-i18n="opt_date">Random Date</option>
+                                <option value="image" data-i18n="type_image">Image URL (Unsplash)</option>
+                                <option value="category" data-i18n="type_category">Category</option>
+                                <option value="tag" data-i18n="type_tag">Tag</option>
+                                <option value="boolean" data-i18n="opt_boolean">Boolean (True/False)</option>
+                                <option value="color" data-i18n="opt_color">Hex Color</option>
                             </select>
                             <div
                                 class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-zinc-500">
@@ -253,12 +252,12 @@
                         <div class="relative">
                             <select id="modal-wp-mapping"
                                 class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-primary transition-all appearance-none cursor-pointer pr-10">
-                                <option value="meta">Custom Meta</option>
-                                <option value="featured_image">Featured Image</option>
-                                <option value="excerpt">Excerpt</option>
-                                <option value="category">Category</option>
-                                <option value="tag">Tag</option>
-                                <option value="slug">Slug</option>
+                                <option value="meta" data-i18n="opt_custom_meta">Custom Meta</option>
+                                <option value="featured_image" data-i18n="opt_featured_image">Featured Image</option>
+                                <option value="excerpt" data-i18n="opt_excerpt">Excerpt</option>
+                                <option value="category" data-i18n="type_category">Category</option>
+                                <option value="tag" data-i18n="type_tag">Tag</option>
+                                <option value="slug" data-i18n="opt_slug">Slug</option>
                             </select>
                             <div
                                 class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-zinc-500">
@@ -270,9 +269,9 @@
             </div>
 
             <div class="p-6 border-t border-zinc-900 bg-zinc-900/30 flex justify-end gap-3">
-                <button onclick="DemoGenerator.closeModal()" class="shadcn-button shadcn-button-outline px-6 text-xs"
+                <button id="modal-cancel-btn" class="shadcn-button shadcn-button-outline px-6 text-xs"
                     data-i18n="btn_cancel">Cancel</button>
-                <button onclick="DemoGenerator.confirmAddField()"
+                <button id="modal-confirm-btn"
                     class="shadcn-button shadcn-button-primary px-8 text-xs" data-i18n="btn_save_field">Save
                     Field</button>
             </div>
@@ -304,7 +303,7 @@
                 </div>
             </div>
 
-            <button onclick="DemoGenerator.cancelProcessing()"
+            <button id="cancel-processing-btn"
                 class="shadcn-button shadcn-button-outline w-full h-11 text-xs gap-2 border-red-900/30 text-red-400 hover:bg-red-900/10">
                 <i data-lucide="x-circle" class="w-4 h-4"></i>
                 <span data-i18n="btn_cancel">Cancel</span>

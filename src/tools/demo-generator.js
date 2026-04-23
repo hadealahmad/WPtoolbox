@@ -5,7 +5,7 @@
 import '../main.js';
 import { App } from '../core/app.js';
 
-export const DemoGenerator = {
+export const DemoGenerator = App.registerTool('demo-generator', {
     fields: [
         { id: 'post_title', type: 'sentence', mapping: 'title', locked: false },
         { id: 'post_content', type: 'paragraphs', mapping: 'content', locked: false },
@@ -18,7 +18,7 @@ export const DemoGenerator = {
     outputFormat: 'xml',
     isProcessing: false,
 
-    init() {
+    onInit() {
         this.renderFields();
         this.setupEventListeners();
         this.updateGenLang('en');
@@ -26,12 +26,46 @@ export const DemoGenerator = {
     },
 
     setupEventListeners() {
+        // Modal Backdrop
         const modal = document.getElementById('field-modal');
         if (modal) {
             modal.onclick = (e) => {
                 if (e.target === modal) this.closeModal();
             };
         }
+
+        // Action Buttons
+        const buttons = {
+            'lang-en-btn': () => this.updateGenLang('en'),
+            'lang-ar-btn': () => this.updateGenLang('ar'),
+            'format-xml-btn': () => this.updateFormat('xml'),
+            'format-csv-btn': () => this.updateFormat('csv'),
+            'format-json-btn': () => this.updateFormat('json'),
+            'record-count': (e) => {
+                const display = document.getElementById('record-count-display');
+                if (display) display.textContent = e.target.value;
+            },
+            'reset-fields-btn': () => this.resetFields(),
+            'add-field-btn': () => this.addField(),
+            'generate-btn': () => this.generate(),
+            'copy-preview-btn': (e) => this.copyPreview(e),
+            'download-btn': () => this.download(),
+            'modal-close-btn': () => this.closeModal(),
+            'modal-cancel-btn': () => this.closeModal(),
+            'modal-confirm-btn': () => this.confirmAddField(),
+            'cancel-processing-btn': () => this.cancelProcessing()
+        };
+
+        Object.entries(buttons).forEach(([id, handler]) => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (el.tagName === 'INPUT' && el.type === 'range') {
+                    el.oninput = handler;
+                } else {
+                    el.onclick = handler;
+                }
+            }
+        });
     },
 
     updateGenLang(lang) {
@@ -62,8 +96,11 @@ export const DemoGenerator = {
         const tbody = document.getElementById('fields-body');
         if (!tbody) return;
 
-        tbody.innerHTML = this.fields.map((field, index) => `
-            <tr class="group hover:bg-zinc-900/30 transition-all border-b border-zinc-900/50">
+        tbody.innerHTML = '';
+        this.fields.forEach((field, index) => {
+            const tr = document.createElement('tr');
+            tr.className = 'group hover:bg-zinc-900/30 transition-all border-b border-zinc-900/50';
+            tr.innerHTML = `
                 <td class="px-6 py-4 text-xs font-medium text-white">${field.id}</td>
                 <td class="px-6 py-4 text-xs text-zinc-500">${this.getTypeLabel(field.type)}</td>
                 <td class="px-6 py-4">
@@ -72,13 +109,20 @@ export const DemoGenerator = {
                 <td class="px-6 py-4 text-right">
                     ${field.locked ?
                 `<i data-lucide="lock" class="w-3.5 h-3.5 text-zinc-800 ml-auto"></i>` :
-                `<button onclick="DemoGenerator.removeField(${index})" class="text-zinc-700 hover:text-red-400 transition-colors">
+                `<button class="delete-field-btn text-zinc-700 hover:text-red-400 transition-colors" data-index="${index}">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>`
             }
                 </td>
-            </tr>
-        `).join('');
+            `;
+            
+            const deleteBtn = tr.querySelector('.delete-field-btn');
+            if (deleteBtn) {
+                deleteBtn.onclick = () => this.removeField(index);
+            }
+            
+            tbody.appendChild(tr);
+        });
 
         if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
     },
@@ -101,11 +145,13 @@ export const DemoGenerator = {
     },
 
     addField() {
-        document.getElementById('field-modal').classList.remove('hidden');
+        const modal = document.getElementById('field-modal');
+        if (modal) modal.classList.remove('hidden');
     },
 
     closeModal() {
-        document.getElementById('field-modal').classList.add('hidden');
+        const modal = document.getElementById('field-modal');
+        if (modal) modal.classList.add('hidden');
     },
 
     confirmAddField() {
@@ -157,13 +203,16 @@ export const DemoGenerator = {
 
     cancelProcessing() {
         this.isProcessing = false;
-        document.getElementById('processing-overlay').classList.add('hidden');
+        const overlay = document.getElementById('processing-overlay');
+        if (overlay) overlay.classList.add('hidden');
     },
 
     async generate() {
-        const count = parseInt(document.getElementById('record-count').value) || 10;
+        const countInput = document.getElementById('record-count');
+        const postTypeInput = document.getElementById('post-type');
+        const count = countInput ? parseInt(countInput.value) || 10 : 10;
         const format = this.outputFormat;
-        const postType = document.getElementById('post-type').value || 'post';
+        const postType = postTypeInput ? postTypeInput.value || 'post' : 'post';
 
         this.isProcessing = true;
         const overlay = document.getElementById('processing-overlay');
@@ -171,10 +220,10 @@ export const DemoGenerator = {
         const progressStatus = document.getElementById('progress-status');
         const processedCount = document.getElementById('processed-count');
 
-        overlay.classList.remove('hidden');
-        progressBar.style.width = '0%';
-        progressStatus.textContent = '0%';
-        processedCount.textContent = `0 / ${count}`;
+        if (overlay) overlay.classList.remove('hidden');
+        if (progressBar) progressBar.style.width = '0%';
+        if (progressStatus) progressStatus.textContent = '0%';
+        if (processedCount) processedCount.textContent = `0 / ${count}`;
 
         const records = [];
 
@@ -191,9 +240,9 @@ export const DemoGenerator = {
 
             // Update progress
             const percent = Math.round(((i + 1) / count) * 100);
-            progressBar.style.width = `${percent}%`;
-            progressStatus.textContent = `${percent}%`;
-            processedCount.textContent = `${i + 1} / ${count}`;
+            if (progressBar) progressBar.style.width = `${percent}%`;
+            if (progressStatus) progressStatus.textContent = `${percent}%`;
+            if (processedCount) processedCount.textContent = `${i + 1} / ${count}`;
 
             // Small delay for visual effect and UI thread breathing
             await new Promise(r => setTimeout(r, 50));
@@ -207,10 +256,12 @@ export const DemoGenerator = {
             this.generatedContent = JSON.stringify(records, null, 4);
         }
 
-        document.getElementById('content-preview').textContent = this.generatedContent;
-        document.getElementById('preview-section').classList.remove('hidden');
+        const preview = document.getElementById('content-preview');
+        const previewSection = document.getElementById('preview-section');
+        if (preview) preview.textContent = this.generatedContent;
+        if (previewSection) previewSection.classList.remove('hidden');
 
-        overlay.classList.add('hidden');
+        if (overlay) overlay.classList.add('hidden');
         this.isProcessing = false;
         App.fireConfetti();
         App.showToast(App.t("msg_gen_success") || "Content generated successfully");
@@ -421,9 +472,11 @@ export const DemoGenerator = {
         return csvRows.join('\n');
     },
 
-    copyPreview() {
-        const pre = document.getElementById('content-preview');
-        App.copyToClipboard(pre.textContent, event.currentTarget, "Copied!");
+    copyPreview(e) {
+        const preview = document.getElementById('content-preview');
+        if (preview) {
+            App.copyToClipboard(preview.textContent, e.target);
+        }
     },
 
     download() {
@@ -432,12 +485,4 @@ export const DemoGenerator = {
         const mimeType = format === 'xml' ? 'text/xml' : format === 'csv' ? 'text/csv' : 'application/json';
         App.downloadFile(this.generatedContent, filename, mimeType);
     }
-};
-
-// Expose globally
-window.DemoGenerator = DemoGenerator;
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => DemoGenerator.init());
-} else {
-    DemoGenerator.init();
-}
+});

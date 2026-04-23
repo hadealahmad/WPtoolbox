@@ -1,0 +1,80 @@
+[
+  {
+    "id": "wp-core-1",
+    "category": { "en": "WordPress Core", "ar": "أساسيات ووردبريس" },
+    "title": { "en": "Site Title & Tagline", "ar": "عنوان الموقع ووصفه" },
+    "description": { "en": "Ensure the site title and tagline reflect the brand correctly in Settings > General.", "ar": "تأكد من أن عنوان الموقع ووصفه يعبران عن العلامة التجارية بشكل صحيح في الإعدادات > عام." }
+  },
+  {
+    "id": "wp-core-2",
+    "category": { "en": "WordPress Core", "ar": "أساسيات ووردبريس" },
+    "title": { "en": "Permalink Structure", "ar": "هيكلية الروابط الدائمة" },
+    "description": { "en": "Set permalinks to 'Post Name' for SEO in Settings > Permalinks.", "ar": "قم بتعيين الروابط الدائمة إلى 'Post Name' لتحسين محركات البحث." }
+  },
+  {
+    "id": "wp-core-3",
+    "category": { "en": "WordPress Core", "ar": "أساسيات ووردبريس" },
+    "title": { "en": "Timezone & Language", "ar": "المنطقة الزمنية واللغة" },
+    "description": { "en": "Set correct timezone, date format, and site language.", "ar": "قم بضبط المنطقة الزمنية وتنسيق التاريخ ولغة الموقع بشكل صحيح." }
+  },
+  {
+    "id": "wp-core-4",
+    "category": { "en": "WordPress Core", "ar": "أساسيات ووردبريس" },
+    "title": { "en": "Search Engine Visibility", "ar": "ظهور محركات البحث" },
+    "description": { "en": "Make sure 'Discourage search engines from indexing this site' is UNCHECKED for production.", "ar": "تأكد من إلغاء تحديد خيار 'منع محركات البحث من أرشفة هذا الموقع' عند الإطلاق." }
+  },
+  {
+    "id": "security-1",
+    "category": { "en": "Security", "ar": "الأمان" },
+    "title": { "en": "Admin Username", "ar": "اسم مستخدم المسؤول" },
+    "description": { "en": "Avoid using 'admin' as a username. Create a unique administrator account.", "ar": "تجنب استخدام 'admin' كاسم مستخدم. قم بإنشاء حساب مسؤول فريد." }
+  },
+  {
+    "id": "security-2",
+    "category": { "en": "Security", "ar": "الأمان" },
+    "title": { "en": "Update Check", "ar": "فحص التحديثات" },
+    "description": { "en": "Ensure WordPress core, plugins, and themes are all up to date.", "ar": "تأكد من تحديث ووردبريس والإضافات والقوالب إلى أحدث إصدار." }
+  },
+  {
+    "id": "security-3",
+    "category": { "en": "Security", "ar": "الأمان" },
+    "title": { "en": "Security Plugin", "ar": "إضافة أمان" },
+    "description": { "en": "Install and configure a security plugin like Wordfence or Solid Security.", "ar": "قم بتثبيت وتكوين إضافة أمان مثل Wordfence أو Solid Security." }
+  },
+  {
+    "id": "performance-1",
+    "category": { "en": "Performance", "ar": "الأداء" },
+    "title": { "en": "Caching Setup", "ar": "إعداد التخزين المؤقت (Caching)" },
+    "description": { "en": "Enable page caching (WP Rocket, LiteSpeed Cache, or similar).", "ar": "قم بتفعيل التخزين المؤقت للصفحات (مثل WP Rocket أو LiteSpeed Cache)." }
+  },
+  {
+    "id": "performance-2",
+    "category": { "en": "Performance", "ar": "الأداء" },
+    "title": { "en": "Image Optimization", "ar": "تحسين الصور" },
+    "description": { "en": "Compress images and use WebP format where possible.", "ar": "قم بضغط الصور واستخدام صيغة WebP قدر الإمكان." }
+  },
+  {
+    "id": "seo-1",
+    "category": { "en": "SEO", "ar": "تحسين محركات البحث" },
+    "title": { "en": "SEO Plugin", "ar": "إضافة SEO" },
+    "description": { "en": "Install Rank Math, Yoast SEO, or SEOPress and run the setup wizard.", "ar": "قم بتثبيت Rank Math أو Yoast SEO أو SEOPress وتشغيل معالج الإعداد." }
+  },
+  {
+    "id": "seo-2",
+    "category": { "en": "SEO", "ar": "تحسين محركات البحث" },
+    "title": { "en": "XML Sitemap", "ar": "خريطة الموقع XML" },
+    "description": { "en": "Verify that your XML sitemap is working and submit it to Search Console.", "ar": "تحقق من عمل خريطة الموقع وقم بتقديمها إلى Google Search Console." }
+  },
+  {
+    "id": "qa-1",
+    "category": { "en": "QA & Launch", "ar": "الجودة والإطلاق" },
+    "title": { "en": "Forms Test", "ar": "اختبار النماذج" },
+    "description": { "en": "Test all contact forms and lead capture points to ensure they send emails.", "ar": "اختبر جميع نماذج الاتصال ونقاط التقاط البيانات للتأكد من أنها ترسل رسائل البريد الإلكتروني." }
+  },
+  {
+    "id": "qa-2",
+    "category": { "en": "QA & Launch", "ar": "الجودة والإطلاق" },
+    "title": { "en": "404 Check", "ar": "فحص روابط 404" },
+    "description": { "en": "Run a broken link checker to ensure no dead links exist on the site.", "ar": "قم بتشغيل فاحص الروابط المعطلة للتأكد من عدم وجود روابط لا تعمل." }
+  }
+]

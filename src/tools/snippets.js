@@ -3,49 +3,62 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
+import snippetsData from '../data/snippets.json';
 
-export const Snippets = {
+export const Snippets = App.registerTool('Snippets', {
     data: [], // Library snippets
     userSnippets: [], // Custom user snippets
     favorites: [],
     currentCategory: 'all',
 
-    init: async () => {
+    onInit: async function() {
         const container = document.getElementById('snippets-container');
         const searchInput = document.getElementById('snippet-search');
         if (!container) return;
 
-        try {
-            const response = await fetch('js/data/snippets.json');
-            if (!response.ok) throw new Error('Failed to load snippets');
-            Snippets.data = await response.json();
+        this.data = snippetsData;
 
-            // Load user snippets
-            Snippets.userSnippets = JSON.parse(localStorage.getItem('wptoolbox_user_snippets') || '[]');
+        // Load user snippets
+        this.userSnippets = JSON.parse(localStorage.getItem('wptoolbox_user_snippets') || '[]');
 
-            // Load favorites
-            Snippets.favorites = JSON.parse(localStorage.getItem('wptoolbox_favs') || '[]');
+        // Load favorites
+        this.favorites = JSON.parse(localStorage.getItem('wptoolbox_favs') || '[]');
 
+        if (searchInput) {
             searchInput.addEventListener('input', (e) => {
-                Snippets.render(Snippets.currentCategory, e.target.value);
+                this.render(this.currentCategory, e.target.value);
             });
-
-            // Re-render when language changes
-            window.addEventListener('languageChanged', () => {
-                Snippets.renderCategories();
-                Snippets.render(Snippets.currentCategory, searchInput.value);
-            });
-
-            Snippets.renderCategories();
-            Snippets.render();
-        } catch (err) {
-            console.error('Error loading snippets:', err);
-            container.innerHTML = `<div class="p-8 text-center text-red-400">Error loading snippets. Make sure you are running a local server.</div>`;
         }
+
+        // Re-render when language changes
+        window.addEventListener('languageChanged', () => {
+            this.renderCategories();
+            this.render(this.currentCategory, searchInput ? searchInput.value : '');
+        });
+
+        // Bind buttons
+        const addBtn = document.getElementById('add-snippet-btn');
+        const exportBtn = document.getElementById('export-snippets-btn');
+        const importTrigger = document.getElementById('import-snippets-trigger');
+        const importInput = document.getElementById('import-input');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const cancelModalBtn = document.getElementById('cancel-modal-btn');
+        const addForm = document.getElementById('add-snippet-form');
+
+        if (addBtn) addBtn.onclick = () => this.showAddModal();
+        if (exportBtn) exportBtn.onclick = () => this.exportUserSnippets();
+        if (importTrigger && importInput) importTrigger.onclick = () => importInput.click();
+        if (importInput) importInput.onchange = (e) => this.importUserSnippets(e);
+        if (closeModalBtn) closeModalBtn.onclick = () => this.hideAddModal();
+        if (cancelModalBtn) cancelModalBtn.onclick = () => this.hideAddModal();
+        if (addForm) addForm.onsubmit = (e) => this.handleAddSnippet(e);
+
+        this.renderCategories();
+        this.render();
     },
 
     // --- Modal Management ---
-    showAddModal: () => {
+    showAddModal: function() {
         const modal = document.getElementById('snippet-modal');
         if (modal) {
             modal.classList.remove('hidden');
@@ -54,13 +67,14 @@ export const Snippets = {
         }
     },
 
-    hideAddModal: () => {
+    hideAddModal: function() {
         const modal = document.getElementById('snippet-modal');
         if (modal) modal.classList.add('hidden');
-        document.getElementById('add-snippet-form').reset();
+        const form = document.getElementById('add-snippet-form');
+        if (form) form.reset();
     },
 
-    handleAddSnippet: (e) => {
+    handleAddSnippet: function(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
         const newSnippet = {
@@ -73,230 +87,216 @@ export const Snippets = {
             isUser: true
         };
 
-        Snippets.userSnippets.push(newSnippet);
-        Snippets.saveToStorage();
-        Snippets.hideAddModal();
-        Snippets.renderCategories();
-        Snippets.render(Snippets.currentCategory, document.getElementById('snippet-search').value);
-        App.showToast(App.t('msg_snippet_saved'));
-    },
-
-    deleteSnippet: (id) => {
-        Snippets.userSnippets = Snippets.userSnippets.filter(s => s.id !== id);
-        Snippets.saveToStorage();
-        Snippets.renderCategories();
-        Snippets.render(Snippets.currentCategory, document.getElementById('snippet-search').value);
-        App.showToast(App.t('msg_snippet_deleted'));
-    },
-
-    saveToStorage: () => {
-        localStorage.setItem('wptoolbox_user_snippets', JSON.stringify(Snippets.userSnippets));
-    },
-
-    // --- Import / Export ---
-    exportUserSnippets: () => {
-        if (Snippets.userSnippets.length === 0) {
-            App.showToast("No user snippets to export");
-            return;
-        }
-        const data = JSON.stringify(Snippets.userSnippets, null, 2);
-        App.downloadFile(data, 'wptoolbox-snippets.json', 'application/json');
-    },
-
-    importUserSnippets: (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const imported = JSON.parse(e.target.result);
-                if (Array.isArray(imported)) {
-                    // Basic validation: ensure items have necessary fields
-                    const valid = imported.every(s => s.title && s.code && s.id);
-                    if (valid) {
-                        Snippets.userSnippets = [...Snippets.userSnippets, ...imported];
-                        // Deduplicate by ID if needed, but here we just append
-                        Snippets.saveToStorage();
-                        Snippets.renderCategories();
-                        Snippets.render(Snippets.currentCategory, document.getElementById('snippet-search').value);
-                        App.showToast(App.t('msg_import_success'));
-                    } else {
-                        throw new Error('Invalid format');
-                    }
-                }
-            } catch (err) {
-                App.showToast(App.t('msg_import_fail'));
-            }
-            event.target.value = ''; // Reset input
-        };
-        reader.readAsText(file);
-    },
-
-    toggleFavorite: (id) => {
-        const idx = Snippets.favorites.indexOf(id);
-        if (idx > -1) {
-            Snippets.favorites.splice(idx, 1);
-        } else {
-            Snippets.favorites.push(id);
-        }
-        localStorage.setItem('wptoolbox_favs', JSON.stringify(Snippets.favorites));
-
+        this.userSnippets.push(newSnippet);
+        this.saveToStorage();
+        this.hideAddModal();
+        this.renderCategories();
         const searchInput = document.getElementById('snippet-search');
-        Snippets.render(Snippets.currentCategory, searchInput ? searchInput.value : '');
+        this.render(this.currentCategory, searchInput ? searchInput.value : '');
+        App.showToast(App.t('msg_snippet_added') || 'Snippet added!');
+        App.fireConfetti();
     },
 
-    /**
-     * Helper to get translated string from object or return string
-     */
-    t: (field) => {
-        if (typeof field === 'object' && field !== null) {
-            return field[App.currentLang] || field['en'] || '';
-        }
-        return field;
+    saveToStorage: function() {
+        localStorage.setItem('wptoolbox_user_snippets', JSON.stringify(this.userSnippets));
+        localStorage.setItem('wptoolbox_favs', JSON.stringify(this.favorites));
     },
 
-    renderCategories: () => {
-        const catContainer = document.getElementById('categories');
+    renderCategories: function() {
+        const catContainer = document.getElementById('categories-list');
         if (!catContainer) return;
 
-        const allData = [...Snippets.data, ...Snippets.userSnippets];
-
-        // Get unique English category names for internal filtering
-        const uniqueCats = [...new Set(allData.map(s => (typeof s.category === 'object' ? s.category.en : s.category)))];
-
-        const btnClass = "px-6 py-2 text-xs font-bold uppercase tracking-widest rounded-md transition-none cursor-pointer";
-        const activeClass = "bg-zinc-800 text-white shadow-sm";
-        const inactiveClass = "text-zinc-500 hover:text-zinc-300";
-
-        catContainer.className = "inline-flex flex-wrap p-1 bg-zinc-900 border border-zinc-800 rounded-xl mb-8";
+        const allSnippets = [...this.data, ...this.userSnippets];
+        const categories = {};
+        
+        allSnippets.forEach(s => {
+            const cat = s.category[App.currentLang] || s.category['en'];
+            categories[cat] = (categories[cat] || 0) + 1;
+        });
 
         let html = `
-            <button onclick="Snippets.filter('all', this)" 
-                class="cat-btn ${btnClass} ${Snippets.currentCategory === 'all' ? activeClass : inactiveClass}" 
-                data-i18n="cat_all">All Snippets</button>
+            <button class="cat-btn w-full text-start px-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex justify-between items-center group ${this.currentCategory === 'all' ? 'active bg-zinc-800 border-primary/50 text-white' : 'text-zinc-400'}" data-category="all">
+                <span class="text-xs font-medium" data-i18n="cat_all">All Snippets</span>
+                <span class="text-[10px] font-bold bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800">${allSnippets.length}</span>
+            </button>
+            <button class="cat-btn w-full text-start px-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex justify-between items-center group ${this.currentCategory === 'favs' ? 'active bg-zinc-800 border-primary/50 text-white' : 'text-zinc-400'}" data-category="favs">
+                <span class="text-xs font-medium" data-i18n="cat_favs">Favorites</span>
+                <span class="text-[10px] font-bold bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800">${this.favorites.length}</span>
+            </button>
+            <div class="my-4 border-t border-zinc-900"></div>
         `;
 
-        uniqueCats.forEach(catEn => {
-            // Find the translated name for display
-            const item = allData.find(s => (typeof s.category === 'object' ? s.category.en === catEn : s.category === catEn));
-            const catDisplay = Snippets.t(item.category);
+        Object.entries(categories).sort().forEach(([name, count]) => {
             html += `
-                <button onclick="Snippets.filter('${catEn}', this)" 
-                    class="cat-btn ${btnClass} ${Snippets.currentCategory === catEn ? activeClass : inactiveClass}">${catDisplay}</button>
+                <button class="cat-btn w-full text-start px-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex justify-between items-center group ${this.currentCategory === name ? 'active bg-zinc-800 border-primary/50 text-white' : 'text-zinc-400'}" data-category="${name}">
+                    <span class="text-xs font-medium truncate">${name}</span>
+                    <span class="text-[10px] font-bold bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800">${count}</span>
+                </button>
             `;
         });
 
         catContainer.innerHTML = html;
+        
+        catContainer.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.onclick = () => {
+                this.currentCategory = btn.dataset.category;
+                const searchInput = document.getElementById('snippet-search');
+                this.render(this.currentCategory, searchInput ? searchInput.value : '');
+                this.renderCategories();
+            };
+        });
+
         App.translatePage();
     },
 
-    render: (filter = 'all', searchQuery = '') => {
+    render: function(category = 'all', searchQuery = '') {
         const container = document.getElementById('snippets-container');
         if (!container) return;
 
-        container.innerHTML = '';
+        let filtered = [...this.data, ...this.userSnippets];
 
-        const allData = [...Snippets.data, ...Snippets.userSnippets];
-
-        let filtered = filter === 'all'
-            ? allData
-            : allData.filter(s => (typeof s.category === 'object' ? s.category.en === filter : s.category === filter));
+        if (category === 'favs') {
+            filtered = filtered.filter(s => this.favorites.includes(s.id));
+        } else if (category !== 'all') {
+            filtered = filtered.filter(s => (s.category[App.currentLang] || s.category['en']) === category);
+        }
 
         if (searchQuery) {
-            const q = searchQuery.toLowerCase();
-            filtered = filtered.filter(s =>
-                Snippets.t(s.title).toLowerCase().includes(q) ||
-                Snippets.t(s.description).toLowerCase().includes(q) ||
-                s.code.toLowerCase().includes(q)
+            const query = searchQuery.toLowerCase();
+            filtered = filtered.filter(s => 
+                (s.title[App.currentLang] || s.title['en']).toLowerCase().includes(query) ||
+                (s.description[App.currentLang] || s.description['en']).toLowerCase().includes(query) ||
+                s.code.toLowerCase().includes(query)
             );
         }
 
-        // Sort: Favorites first, then User items
-        const sorted = [...filtered].sort((a, b) => {
-            const aFav = Snippets.favorites.includes(a.id);
-            const bFav = Snippets.favorites.includes(b.id);
-            if (aFav !== bFav) return aFav ? -1 : 1;
-
-            if (a.isUser !== b.isUser) return a.isUser ? -1 : 1;
-            return 0;
-        });
-
-        sorted.forEach((item, index) => {
-            const isFav = Snippets.favorites.includes(item.id);
-            const card = document.createElement('div');
-            card.className = 'snippet-card shadcn-card p-6 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300';
-
-            // Generate a safe ID for the code block to reference
-            const codeId = `code-block-${index}`;
-
-            card.innerHTML = `
-                <div class="flex justify-between items-start">
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">${Snippets.t(item.category)}</span>
-                            ${isFav ? '<i data-lucide="star" class="w-4 h-4 text-amber-400 fill-amber-400"></i>' : ''}
-                            ${item.isUser ? `<span class="px-1.5 py-0.5 bg-zinc-800 text-zinc-400 text-[8px] font-bold rounded" data-i18n="user_category">${App.t('user_category')}</span>` : ''}
-                        </div>
-                        <h3 class="text-lg font-bold text-white mt-1">${Snippets.t(item.title)}</h3>
-                    </div>
-                    <div class="flex gap-2">
-                        ${item.isUser ? `
-                            <button onclick="Snippets.deleteSnippet('${item.id}')" class="shadcn-button shadcn-button-outline w-12 h-12 p-0 flex items-center justify-center border-red-900/50 hover:bg-red-900/20 text-red-500 transition-none" title="Delete">
-                                <i data-lucide="trash-2" class="w-5 h-5"></i>
-                            </button>
-                        ` : ''}
-                        <button onclick="Snippets.toggleFavorite('${item.id}')" class="shadcn-button shadcn-button-outline w-12 h-12 p-0 flex items-center justify-center transition-none" title="Favorite">
-                            <i data-lucide="star" class="w-5 h-5 ${isFav ? 'text-amber-400 fill-amber-400' : 'text-zinc-500'}"></i>
-                        </button>
-                        <button onclick="Snippets.copyCode('${codeId}', this)" class="shadcn-button shadcn-button-outline h-12 px-4 text-[10px] gap-2 transition-none">
-                            <i data-lucide="copy" class="w-3 h-3"></i>
-                            <span data-i18n="copy_btn">${App.t('copy_btn')}</span>
-                        </button>
-                    </div>
-                </div>
-                <p class="text-zinc-400 text-sm leading-relaxed">${Snippets.t(item.description)}</p>
-                <div class="mt-2 rounded-lg bg-zinc-950 border border-zinc-900 overflow-hidden">
-                    <div class="px-4 py-2 bg-zinc-900/50 border-b border-zinc-900 flex justify-between items-center text-[10px] text-zinc-500 font-mono">
-                        <span>${item.language}</span>
-                    </div>
-                    <pre class="p-4 overflow-x-auto text-xs font-mono text-zinc-300 leading-relaxed"><code id="${codeId}">${App.escapeHtml(item.code)}</code></pre>
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="py-20 text-center text-zinc-600 border-2 border-dashed border-zinc-900 rounded-3xl">
+                    <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-4 opacity-20"></i>
+                    <p data-i18n="msg_no_snippets">No snippets found matching your criteria</p>
                 </div>
             `;
-            container.appendChild(card);
-        });
+        } else {
+            container.innerHTML = '';
+            filtered.forEach(s => {
+                const card = this.createSnippetCard(s);
+                container.appendChild(card);
+            });
+        }
 
         if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        App.translatePage();
     },
 
-    copyCode: (elementId, btn) => {
-        const codeElement = document.getElementById(elementId);
-        if (codeElement) {
-            App.copyToClipboard(codeElement.textContent, btn);
+    createSnippetCard: function(s) {
+        const card = document.createElement('div');
+        const isFav = this.favorites.includes(s.id);
+        const title = s.title[App.currentLang] || s.title['en'];
+        const desc = s.description[App.currentLang] || s.description['en'];
+        const cat = s.category[App.currentLang] || s.category['en'];
+
+        card.className = 'snippet-card group shadcn-card p-6 bg-zinc-900/20 hover:bg-zinc-900/40 border-zinc-900 transition-all';
+        card.innerHTML = `
+            <div class="flex justify-between items-start mb-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-sm font-bold text-white group-hover:text-primary transition-colors">${title}</h3>
+                        ${s.isUser ? '<span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[8px] font-bold uppercase tracking-widest border border-amber-500/20">Custom</span>' : ''}
+                    </div>
+                    <p class="text-[10px] font-bold text-zinc-600 uppercase tracking-widest flex items-center gap-1.5">
+                        <i data-lucide="tag" class="w-3 h-3"></i>
+                        ${cat}
+                    </p>
+                </div>
+                <div class="flex gap-1.5">
+                    <button class="btn-fav w-8 h-8 rounded-lg flex items-center justify-center transition-all ${isFav ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-zinc-950 border border-zinc-800 text-zinc-600 hover:text-rose-500'}">
+                        <i data-lucide="heart" class="w-3.5 h-3.5" ${isFav ? 'fill="currentColor"' : ''}></i>
+                    </button>
+                    ${s.isUser ? `
+                        <button class="btn-delete w-8 h-8 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-600 hover:text-red-500 flex items-center justify-center transition-all">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <p class="text-xs text-zinc-500 leading-relaxed mb-6 line-clamp-2">${desc}</p>
+            
+            <div class="relative group/code">
+                <div class="absolute top-3 end-3 flex gap-2 opacity-0 group-hover/code:opacity-100 transition-all translate-y-1 group-hover/code:translate-y-0">
+                    <button class="btn-copy h-8 px-3 rounded-lg bg-zinc-900 border border-zinc-700 text-white text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-primary hover:border-primary transition-all">
+                        <i data-lucide="copy" class="w-3 h-3"></i>
+                        <span data-i18n="copy_btn">Copy</span>
+                    </button>
+                </div>
+                <pre class="p-4 rounded-xl bg-zinc-950 border border-zinc-900 text-[11px] font-mono text-zinc-400 overflow-x-auto max-h-[120px] scrollbar-thin"><code>${s.code}</code></pre>
+            </div>
+        `;
+
+        card.querySelector('.btn-copy').onclick = (e) => App.copyToClipboard(s.code, e.currentTarget);
+        card.querySelector('.btn-fav').onclick = () => this.toggleFavorite(s.id);
+        if (s.isUser) {
+            card.querySelector('.btn-delete').onclick = () => this.deleteUserSnippet(s.id);
         }
+
+        return card;
     },
 
-    filter: (categoryEn, btn) => {
-        Snippets.currentCategory = categoryEn;
-
-        document.querySelectorAll('.cat-btn').forEach(b => {
-            b.classList.remove('bg-zinc-800', 'text-white', 'shadow-sm');
-            b.classList.add('text-zinc-500', 'hover:text-zinc-300');
-        });
-
-        if (btn) {
-            btn.classList.add('bg-zinc-800', 'text-white', 'shadow-sm');
-            btn.classList.remove('text-zinc-500', 'hover:text-zinc-300');
+    toggleFavorite: function(id) {
+        if (this.favorites.includes(id)) {
+            this.favorites = this.favorites.filter(fid => fid !== id);
+        } else {
+            this.favorites.push(id);
         }
+        this.saveToStorage();
+        this.renderCategories();
+        const searchInput = document.getElementById('snippet-search');
+        this.render(this.currentCategory, searchInput ? searchInput.value : '');
+    },
 
-        Snippets.render(categoryEn, document.getElementById('snippet-search').value);
+    deleteUserSnippet: function(id) {
+        if (!confirm(App.t('msg_confirm_delete_snippet') || 'Delete this snippet?')) return;
+        this.userSnippets = this.userSnippets.filter(s => s.id !== id);
+        this.favorites = this.favorites.filter(fid => fid !== id);
+        this.saveToStorage();
+        this.renderCategories();
+        const searchInput = document.getElementById('snippet-search');
+        this.render(this.currentCategory, searchInput ? searchInput.value : '');
+        App.showToast(App.t('msg_snippet_deleted') || 'Snippet deleted.');
+    },
+
+    exportUserSnippets: function() {
+        if (this.userSnippets.length === 0) {
+            App.showToast(App.t('msg_nothing_to_export') || 'No custom snippets to export.');
+            return;
+        }
+        const data = JSON.stringify(this.userSnippets, null, 2);
+        App.downloadFile(data, 'my-snippets.json', 'application/json');
+    },
+
+    importUserSnippets: function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const imported = JSON.parse(event.target.result);
+                if (Array.isArray(imported)) {
+                    const existingIds = this.userSnippets.map(s => s.id);
+                    const newSnippets = imported.filter(s => !existingIds.includes(s.id));
+                    this.userSnippets = [...this.userSnippets, ...newSnippets];
+                    this.saveToStorage();
+                    this.renderCategories();
+                    this.render();
+                    App.showToast(App.t('msg_import_success') || 'Snippets imported!');
+                }
+            } catch (err) {
+                App.showToast(App.t('msg_import_fail') || 'Invalid file format.');
+            }
+            e.target.value = '';
+        };
+        reader.readAsText(file);
     }
-};
-
-// Expose globally for inline event handlers and auto-init
-window.Snippets = Snippets;
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', Snippets.init);
-} else {
-    Snippets.init();
-}
+});

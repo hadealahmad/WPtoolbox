@@ -3,41 +3,43 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
+import JSZip from 'jszip';
 
-let converter;
-
-export const ImageConverter = {
+export const ImageConverter = App.registerTool('ImageConverter', {
     quality: 0.8,
     convertedImages: [],
+    multiple: true,
+    resultsId: 'results-section',
 
-    init: () => {
-        converter = App.registerTool('ImageConverter', {
-            multiple: true,
-            resultsId: 'results-section',
-            onFiles: (files) => ImageConverter.handleFiles(files),
-            onLanguageChange: () => {
-                if (ImageConverter.convertedImages.length > 0) ImageConverter.renderResults();
-            }
-        });
-
+    onInit: function() {
         const qualitySlider = document.getElementById('quality-slider');
         const qualityValue = document.getElementById('quality-value');
         const zipBtn = document.getElementById('download-zip-btn');
 
         if (qualitySlider) {
             qualitySlider.oninput = (e) => {
-                ImageConverter.quality = parseFloat(e.target.value);
-                if (qualityValue) qualityValue.textContent = `${Math.round(ImageConverter.quality * 100)}%`;
+                this.quality = parseFloat(e.target.value);
+                if (qualityValue) qualityValue.textContent = `${Math.round(this.quality * 100)}%`;
             };
         }
 
-        if (zipBtn) zipBtn.onclick = () => ImageConverter.downloadZip();
+        if (zipBtn) {
+            zipBtn.onclick = () => this.downloadZip();
+        }
 
         // Add clipboard listener
-        document.addEventListener('paste', ImageConverter.handlePaste);
+        document.addEventListener('paste', (e) => this.handlePaste(e));
     },
 
-    handlePaste: async (e) => {
+    onLanguageChange: function() {
+        if (this.convertedImages.length > 0) this.renderResults();
+    },
+
+    onFiles: function(files) {
+        this.handleFiles(files);
+    },
+
+    handlePaste: async function(e) {
         const items = e.clipboardData?.items;
         if (!items) return;
 
@@ -45,24 +47,24 @@ export const ImageConverter = {
             if (item.type.indexOf('image') !== -1) {
                 const file = item.getAsFile();
                 if (file) {
-                    await ImageConverter.handleFiles([file]);
+                    await this.handleFiles([file]);
                 }
             }
         }
     },
 
-    handleFiles: async (files) => {
+    handleFiles: async function(files) {
         if (!files || !files.length) return;
 
         // Clear existing results
-        ImageConverter.convertedImages = [];
+        this.convertedImages = [];
 
         const progressBar = document.getElementById('processing-bar');
         
         let processed = 0;
         for (const file of files) {
             if (!file.type.startsWith('image/')) {
-                App.showToast(App.t('msg_upload_images'));
+                App.showToast(App.t('msg_upload_images') || 'Please upload only images.');
                 continue;
             }
 
@@ -73,7 +75,7 @@ export const ImageConverter = {
                 tempName = `pasted-image-${timestamp}.${ext}`;
             }
 
-            await ImageConverter.processImage(file, tempName);
+            await this.processImage(file, tempName);
             processed++;
             if (progressBar) progressBar.style.width = `${(processed / files.length) * 100}%`;
         }
@@ -83,7 +85,7 @@ export const ImageConverter = {
         }, 1000);
     },
 
-    processImage: (file, outputName) => {
+    processImage: function(file, outputName) {
         return new Promise((resolve) => {
             const name = outputName || file.name;
             const reader = new FileReader();
@@ -96,13 +98,17 @@ export const ImageConverter = {
 
                     // Smart Resizing
                     const resizeToggle = document.getElementById('resize-toggle');
-                    const shouldResize = resizeToggle ? resizeToggle.checked : false;
-                    const formatToggle = document.getElementById('format-toggle');
-                    const keepOriginal = formatToggle ? formatToggle.checked : false;
-
-                    if (shouldResize && width > 1920) {
-                        height = (1920 / width) * height;
-                        width = 1920;
+                    if (resizeToggle && resizeToggle.checked) {
+                        const maxDim = 2000;
+                        if (width > maxDim || height > maxDim) {
+                            if (width > height) {
+                                height = Math.round((height * maxDim) / width);
+                                width = maxDim;
+                            } else {
+                                width = Math.round((width * maxDim) / height);
+                                height = maxDim;
+                            }
+                        }
                     }
 
                     canvas.width = width;
@@ -110,21 +116,18 @@ export const ImageConverter = {
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    const finalFormat = keepOriginal ? file.type : 'image/webp';
-                    const finalExt = keepOriginal ? name.split('.').pop() : 'webp';
-                    const finalQuality = keepOriginal ? 1.0 : ImageConverter.quality;
+                    const dataURL = canvas.toDataURL('image/webp', this.quality);
+                    const baseName = name.substring(0, name.lastIndexOf('.')) || name;
+                    
+                    this.convertedImages.push({
+                        name: `${baseName}.webp`,
+                        dataURL: dataURL,
+                        originalSize: file.size,
+                        newSize: Math.round((dataURL.length - 22) * 3 / 4)
+                    });
 
-                    canvas.toBlob((blob) => {
-                        ImageConverter.convertedImages.push({
-                            name: name.split('.')[0] + '.' + finalExt,
-                            blob: blob,
-                            originalSize: file.size,
-                            webpSize: blob.size,
-                            previewUrl: URL.createObjectURL(blob)
-                        });
-                        ImageConverter.renderResults();
-                        resolve();
-                    }, finalFormat, finalQuality);
+                    this.renderResults();
+                    resolve();
                 };
                 img.src = e.target.result;
             };
@@ -132,58 +135,55 @@ export const ImageConverter = {
         });
     },
 
-    renderResults: () => {
-        const container = document.getElementById('images-container');
-        if (!container) return;
-        container.innerHTML = '';
+    renderResults: function() {
+        const container = document.getElementById('results-section');
+        const grid = document.getElementById('results-grid');
+        if (!container || !grid) return;
 
-        ImageConverter.convertedImages.forEach((img, idx) => {
-            const savedPercent = Math.round((1 - img.webpSize / img.originalSize) * 100);
-            const isSaving = savedPercent > 0;
+        container.classList.remove('hidden');
+        grid.innerHTML = '';
+
+        this.convertedImages.forEach((img, index) => {
+            const savings = Math.round((1 - (img.newSize / img.originalSize)) * 100);
             const card = document.createElement('div');
-            card.className = 'shadcn-card p-4 flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300';
+            card.className = 'shadcn-card p-4 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-300';
             card.innerHTML = `
-                <div class="flex items-center gap-4 w-full">
-                    <div class="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center overflow-hidden">
-                        ${img.previewUrl ? `<img src="${img.previewUrl}" class="w-full h-full object-cover">` : `<i data-lucide="image" class="w-6 h-6 text-zinc-600"></i>`}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-bold text-white truncate">${img.name}</p>
-                        <div class="flex gap-3 mt-1">
-                            <span class="text-[10px] text-zinc-500 font-medium uppercase tracking-tighter">${App.t('label_original')}: ${(img.originalSize / 1024).toFixed(1)} KB</span>
-                            <span class="text-[10px] text-primary font-bold uppercase tracking-tighter">${img.name.endsWith('.webp') ? App.t('label_webp') : 'FILE'}: ${(img.webpSize / 1024).toFixed(1)} KB</span>
-                        </div>
-                    </div>
-                    <div class="hidden sm:flex flex-col items-end">
-                        <span class="text-[10px] font-bold ${isSaving ? 'text-emerald-500 bg-emerald-500/10' : 'text-zinc-500 bg-zinc-500/10'} px-2 py-0.5 rounded uppercase">${isSaving ? App.t('label_saved') + ' ' : ''}${savedPercent}%</span>
+                <div class="aspect-square rounded-lg overflow-hidden bg-zinc-950 border border-zinc-900 flex items-center justify-center relative group">
+                    <img src="${img.dataURL}" class="max-w-full max-h-full object-contain">
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                         <button class="btn-download-single shadcn-button shadcn-button-primary h-8 px-3 text-[10px] gap-2">
+                            <i data-lucide="download" class="w-3 h-3"></i>
+                            <span data-i18n="btn_download">Download</span>
+                        </button>
                     </div>
                 </div>
-                <button onclick="ImageConverter.downloadOne(${idx})" class="shadcn-button shadcn-button-outline h-10 w-full md:w-auto px-6 text-xs gap-2 shrink-0">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                    ${App.t('download_btn')}
-                </button>
+                <div class="space-y-1">
+                    <p class="text-[10px] font-bold text-white truncate">${img.name}</p>
+                    <div class="flex justify-between items-center text-[9px]">
+                        <span class="text-zinc-500">${App.formatSize(img.newSize)}</span>
+                        <span class="text-emerald-500 font-bold">-${savings}%</span>
+                    </div>
+                </div>
             `;
-            container.appendChild(card);
+            card.querySelector('.btn-download-single').onclick = () => App.downloadFile(img.dataURL, img.name, 'image/webp');
+            grid.appendChild(card);
         });
+
         if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        App.translatePage();
     },
 
-    downloadOne: (idx) => {
-        const img = ImageConverter.convertedImages[idx];
-        App.downloadFile(img.blob, img.name, img.name.endsWith('.webp') ? 'image/webp' : 'image/png');
+    downloadZip: async function() {
+        if (!this.convertedImages.length) return;
+        
+        const zip = new JSZip();
+        this.convertedImages.forEach(img => {
+            const base64Data = img.dataURL.split(',')[1];
+            zip.file(img.name, base64Data, { base64: true });
+        });
+
+        const content = await zip.generateAsync({ type: "blob" });
+        App.downloadFile(content, 'converted-images.zip', 'application/zip');
         App.fireConfetti();
-    },
-
-    downloadZip: async () => {
-        const files = ImageConverter.convertedImages.map(img => ({ name: img.name, blob: img.blob }));
-        App.downloadZip(files, 'wptoolbox-images.zip');
     }
-};
-
-// Expose globally for inline event handlers and auto-init
-window.ImageConverter = ImageConverter;
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', ImageConverter.init);
-} else {
-    ImageConverter.init();
-}
+});

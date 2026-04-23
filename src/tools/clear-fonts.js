@@ -4,10 +4,13 @@
 import '../main.js';
 import { App } from '../core/app.js';
 
-export const ClearFonts = {
-    init: () => {
+export const ClearFonts = App.registerTool('ClearFonts', {
+    onInit: function() {
         const input = document.getElementById('input');
         const output = document.getElementById('output');
+        const clearBtn = document.querySelector('[data-i18n="btn_clear"]');
+        const copyBtn = document.querySelector('[data-i18n="btn_copy_result"]');
+        
         if (!input || !output) return;
 
         input.oninput = () => {
@@ -19,14 +22,18 @@ export const ClearFonts = {
             val = val.replace(/,}/g, '}');
             output.value = val;
         };
-    }
-};
 
-// Auto-init
-// Expose globally
-window.ClearFonts = ClearFonts;
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', ClearFonts.init);
-} else {
-    ClearFonts.init();
-}
+        if (clearBtn) {
+            clearBtn.onclick = () => {
+                input.value = '';
+                output.value = '';
+            };
+        }
+
+        if (copyBtn) {
+            copyBtn.onclick = () => {
+                App.copyToClipboard(output.value, copyBtn);
+            };
+        }
+    }
+});

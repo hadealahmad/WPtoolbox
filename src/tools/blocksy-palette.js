@@ -261,55 +261,91 @@ export const BlocksyPalette = {
     currentColors: [],
     _gradientData: {},
 
-    init: () => {
-        BlocksyPalette.onColorInput();
-        BlocksyPalette.renderSaved();
+    onInit: function() {
+        this.onColorInput();
+        this.renderSaved();
 
-        document.getElementById('auto-generate')?.addEventListener('change', e => {
-            document.getElementById('manual-colors').classList.toggle('hidden', e.target.checked);
-            BlocksyPalette.onColorInput();
-        });
+        const autoGen = document.getElementById('auto-generate');
+        const colorFormat = document.getElementById('color-format');
+        const modeLight = document.getElementById('mode-light');
+        const modeDark = document.getElementById('mode-dark');
+        const randomBtn = document.getElementById('random-colors-btn');
+        const logoUpload = document.getElementById('logo-upload');
+        const savePaletteBtn = document.getElementById('save-palette-btn');
+        const copyCssBtn = document.getElementById('copy-css-btn');
+        const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        const saveEditBtn = document.getElementById('save-edit-btn');
 
-        document.getElementById('color-format')?.addEventListener('change', e => {
-            BlocksyPalette.colorFormat = e.target.value;
-            BlocksyPalette.renderPreview(BlocksyPalette.currentColors);
-        });
+        if (autoGen) {
+            autoGen.addEventListener('change', e => {
+                const manualColors = document.getElementById('manual-colors');
+                if (manualColors) manualColors.classList.toggle('hidden', e.target.checked);
+                this.onColorInput();
+            });
+        }
+
+        if (colorFormat) {
+            colorFormat.addEventListener('change', e => {
+                this.colorFormat = e.target.value;
+                this.renderPreview(this.currentColors);
+            });
+        }
+
+        if (modeLight) modeLight.onclick = () => this.setMode('light');
+        if (modeDark) modeDark.onclick = () => this.setMode('dark');
+        if (randomBtn) randomBtn.onclick = () => this.randomColors();
+        if (logoUpload) logoUpload.onchange = (e) => this.extractFromImage(e);
+        if (savePaletteBtn) savePaletteBtn.onclick = () => this.savePalette();
+        if (copyCssBtn) copyCssBtn.onclick = () => this.copyCSS();
+        if (closeEditModalBtn) closeEditModalBtn.onclick = () => this.closeEditModal();
+        if (cancelEditBtn) cancelEditBtn.onclick = () => this.closeEditModal();
+        if (saveEditBtn) saveEditBtn.onclick = () => this.saveEditModal();
+
+        for (let i = 1; i <= 8; i++) {
+            const pk = document.getElementById(`color${i}`);
+            const hx = document.getElementById(`color${i}-hex`);
+            if (pk) pk.oninput = () => this.onColorInput();
+            if (hx) hx.oninput = () => this.onTextInput(i);
+        }
 
         window.addEventListener('languageChanged', () => {
-            BlocksyPalette.renderSaved();
-            BlocksyPalette.renderPreview(BlocksyPalette.currentColors);
+            this.renderSaved();
+            this.renderPreview(this.currentColors);
         });
 
-        // Re-render once translations are ready (race condition fix)
         window.addEventListener('appReady', () => {
-            BlocksyPalette.renderPreview(BlocksyPalette.currentColors);
-            BlocksyPalette.renderSaved();
+            this.renderPreview(this.currentColors);
+            this.renderSaved();
         }, { once: true });
     },
 
-    setMode: (mode) => {
-        BlocksyPalette.mode = mode;
+    setMode: function(mode) {
+        this.mode = mode;
         const a = 'flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all border-primary bg-primary/10 text-primary';
         const i = 'flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all border-zinc-800 text-zinc-500 hover:border-zinc-600';
-        document.getElementById('mode-light').className = mode === 'light' ? a : i;
-        document.getElementById('mode-dark').className  = mode === 'dark'  ? a : i;
+        const ml = document.getElementById('mode-light');
+        const md = document.getElementById('mode-dark');
+        if (ml) ml.className = mode === 'light' ? a : i;
+        if (md) md.className  = mode === 'dark'  ? a : i;
         const badge = document.getElementById('preview-mode-badge');
         if (badge) { badge.textContent = I18n.t(`mode_${mode}`); badge.dataset.i18n = `mode_${mode}`; }
-        BlocksyPalette.onColorInput();
+        this.onColorInput();
     },
 
-    onColorInput: () => {
+    onColorInput: function() {
         const c1 = document.getElementById('color1')?.value || '#2872fa';
         const c2 = document.getElementById('color2')?.value || '#1559ed';
-        document.getElementById('color1-hex').value = c1.toUpperCase();
-        document.getElementById('color2-hex').value = c2.toUpperCase();
+        const h1 = document.getElementById('color1-hex');
+        const h2 = document.getElementById('color2-hex');
+        if (h1) h1.value = c1.toUpperCase();
+        if (h2) h2.value = c2.toUpperCase();
 
         const auto = document.getElementById('auto-generate');
         let colors;
         if (auto?.checked) {
-            colors = generatePalette(c1, c2, BlocksyPalette.mode);
+            colors = generatePalette(c1, c2, this.mode);
             for (let i = 3; i <= 8; i++) {
-                document.getElementById(`color${i}`)?.setValue?.(colors[i-1]);
                 const px = document.getElementById(`color${i}`); if (px) px.value = colors[i-1];
                 const hx = document.getElementById(`color${i}-hex`); if (hx) hx.value = colors[i-1].toUpperCase();
             }
@@ -317,45 +353,38 @@ export const BlocksyPalette = {
             const g = (id, fb) => document.getElementById(id)?.value || fb;
             colors = [c1, c2, g('color3','#3a4f66'), g('color4','#192a3d'), g('color5','#e1e8ed'), g('color6','#f2f5f7'), g('color7','#fafbfc'), g('color8','#ffffff')];
         }
-        BlocksyPalette.currentColors = colors;
-        BlocksyPalette.renderPreview(colors);
+        this.currentColors = colors;
+        this.renderPreview(colors);
     },
 
-    onTextInput: (index) => {
+    onTextInput: function(index) {
         const field = document.getElementById(`color${index}-hex`);
         if (!field) return;
         const parsed = parseColorInput(field.value);
         if (parsed) { const p = document.getElementById(`color${index}`); if (p) p.value = parsed; }
-        BlocksyPalette.onColorInput();
+        this.onColorInput();
     },
 
-    // ── Random Colors ──────────────────────────────────────────────────────────
-
-    randomColors: () => {
+    randomColors: function() {
         const h1 = Math.floor(Math.random() * 360);
-        const s1 = Math.floor(Math.random() * 25 + 65);  // 65–90% sat
-        const l1 = Math.floor(Math.random() * 18 + 40);  // 40–57% lightness
+        const s1 = Math.floor(Math.random() * 25 + 65);
+        const l1 = Math.floor(Math.random() * 18 + 40);
         const c1 = hslToHex(h1, s1, l1);
         const l2 = clamp(l1 - Math.floor(Math.random() * 10 + 10), 18, 50);
         const c2 = hslToHex(h1, Math.min(100, s1 + 5), l2);
-        BlocksyPalette._applyPrimaryColors(c1, c2);
+        this._applyPrimaryColors(c1, c2);
         App.showToast(App.t('msg_colors_randomized'));
     },
 
-    // ── From Logo ──────────────────────────────────────────────────────────────
-
-    extractFromImage: (event) => {
+    extractFromImage: function(event) {
         const file = event.target.files?.[0];
         if (!file) return;
-
         const span  = document.getElementById('from-logo-text');
         const label = document.getElementById('from-logo-label');
         if (span)  span.textContent = '…';
         if (label) label.style.opacity = '0.6';
-
         const img = new Image();
         const url = URL.createObjectURL(file);
-
         img.onload = () => {
             URL.revokeObjectURL(url);
             const canvas = document.createElement('canvas');
@@ -363,15 +392,14 @@ export const BlocksyPalette = {
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, 96, 96);
             const px = ctx.getImageData(0, 0, 96, 96).data;
-            const colors = BlocksyPalette._extractDominantColors(px);
-
+            const colors = this._extractDominantColors(px);
             if (colors.length >= 2) {
-                BlocksyPalette._applyPrimaryColors(colors[0], colors[1]);
+                this._applyPrimaryColors(colors[0], colors[1]);
                 App.showToast(App.t('msg_colors_extracted'));
             } else if (colors.length === 1) {
                 const { h, s, l } = hexToHsl(colors[0]);
                 const c2 = hslToHex(h, Math.min(100, s + 5), clamp(l - 17, 15, 50));
-                BlocksyPalette._applyPrimaryColors(colors[0], c2);
+                this._applyPrimaryColors(colors[0], c2);
                 App.showToast(App.t('msg_colors_extracted'));
             } else {
                 App.showToast(App.t('msg_extract_error'));
@@ -380,7 +408,6 @@ export const BlocksyPalette = {
             if (label) label.style.opacity = '';
             event.target.value = '';
         };
-
         img.onerror = () => {
             URL.revokeObjectURL(url);
             if (span) { span.textContent = App.t('btn_from_image'); span.setAttribute('data-i18n', 'btn_from_image'); }
@@ -388,104 +415,47 @@ export const BlocksyPalette = {
             App.showToast(App.t('msg_extract_error'));
             event.target.value = '';
         };
-
         img.src = url;
     },
 
-    /**
-     * Extract up to 2 dominant brand colors from raw 96×96 RGBA pixel data.
-     *
-     * Background detection strategy (the user's idea):
-     *   Sample small patches (PATCH×PATCH px) from the 4 corners and 4 edge
-     *   midpoints of the image. If the majority of those anchor regions share a
-     *   similar color (within an Euclidean distance threshold), that is the
-     *   background. Every pixel close to that background color is then silently
-     *   excluded before the histogram is built — so a JPG with a black, white,
-     *   cream, gray or any solid-ish background will not pollute the result.
-     *
-     *   For PNGs with a transparent background the anchor patches are opaque-only;
-     *   if corners are mostly transparent the detector returns null gracefully.
-     *
-     *   After background exclusion a saturation-weighted bucket histogram is built
-     *   (step=24, ≈10% tolerance) so vivid brand colors outrank large muted areas.
-     */
-    _extractDominantColors: (data) => {
+    _extractDominantColors: function(data) {
         const W = 96, H = 96, STEP = 24, PATCH = 5;
-
-        // ── Stage 1: Corner/edge background detection ─────────────────────────
         const bgColor = (() => {
-            // 8 anchor positions: 4 corners + midpoint of each edge
-            const anchors = [
-                [0,          0         ],   // top-left
-                [W - PATCH,  0         ],   // top-right
-                [0,          H - PATCH ],   // bottom-left
-                [W - PATCH,  H - PATCH ],   // bottom-right
-                [Math.floor((W - PATCH) / 2), 0         ],   // top-mid
-                [Math.floor((W - PATCH) / 2), H - PATCH ],   // bottom-mid
-                [0,          Math.floor((H - PATCH) / 2)],   // left-mid
-                [W - PATCH,  Math.floor((H - PATCH) / 2)],   // right-mid
-            ];
-
-            // Average opaque pixel color inside each anchor patch
+            const anchors = [[0,0],[W-PATCH,0],[0,H-PATCH],[W-PATCH,H-PATCH],[Math.floor((W-PATCH)/2),0],[Math.floor((W-PATCH)/2),H-PATCH],[0,Math.floor((H-PATCH)/2)],[W-PATCH,Math.floor((H-PATCH)/2)]];
             const samples = anchors.map(([ax, ay]) => {
                 let sr = 0, sg = 0, sb = 0, n = 0;
                 for (let dy = 0; dy < PATCH; dy++) {
                     for (let dx = 0; dx < PATCH; dx++) {
                         const idx = ((ay + dy) * W + (ax + dx)) * 4;
-                        if (data[idx + 3] >= 128) {
-                            sr += data[idx]; sg += data[idx + 1]; sb += data[idx + 2]; n++;
-                        }
+                        if (data[idx + 3] >= 128) { sr += data[idx]; sg += data[idx + 1]; sb += data[idx + 2]; n++; }
                     }
                 }
                 return n > 0 ? { r: sr / n, g: sg / n, b: sb / n } : null;
             }).filter(Boolean);
-
-            // Need at least 3 opaque anchor patches to make a decision
             if (samples.length < 3) return null;
-
-            // Vote: find the reference color that the most samples agree with
-            const AGREE = 40;  // Euclidean RGB distance for "same background"
+            const AGREE = 40;
             const dist  = (a, b) => Math.sqrt((a.r-b.r)**2 + (a.g-b.g)**2 + (a.b-b.b)**2);
             let best = null, bestN = 0;
-
             for (const ref of samples) {
                 const agreeing = samples.filter(s => dist(s, ref) < AGREE);
                 if (agreeing.length > bestN) {
                     bestN = agreeing.length;
-                    // Average the agreeing patches for a more accurate background color
-                    best = {
-                        r: agreeing.reduce((s, x) => s + x.r, 0) / agreeing.length,
-                        g: agreeing.reduce((s, x) => s + x.g, 0) / agreeing.length,
-                        b: agreeing.reduce((s, x) => s + x.b, 0) / agreeing.length,
-                    };
+                    best = { r: agreeing.reduce((s, x) => s + x.r, 0) / agreeing.length, g: agreeing.reduce((s, x) => s + x.g, 0) / agreeing.length, b: agreeing.reduce((s, x) => s + x.b, 0) / agreeing.length };
                 }
             }
-
-            // Only trust the result if ≥50% of anchor patches agree
             return bestN >= Math.ceil(samples.length * 0.5) ? best : null;
         })();
-
-        // Euclidean distance from a pixel to the detected background
-        const BG_EXCL = 50;  // exclusion radius — slightly wider than detection threshold
-
-        // ── Stage 2: Build saturation-weighted color histogram ────────────────
+        const BG_EXCL = 50;
         const buckets = new Map();
-
         for (let i = 0; i < data.length; i += 4) {
             const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-            if (a < 128) continue;  // transparent
-
-            // Static luminance guards (catch extreme near-white/black even without BG detection)
+            if (a < 128) continue;
             const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-            if (lum > 0.93) continue;  // definitely near-white
-            if (lum < 0.04) continue;  // definitely near-black
-
-            // Dynamic background exclusion — works for ANY background color
+            if (lum > 0.93 || lum < 0.04) continue;
             if (bgColor) {
                 const dr = r - bgColor.r, dg = g - bgColor.g, db = b - bgColor.b;
                 if (Math.sqrt(dr * dr + dg * dg + db * db) < BG_EXCL) continue;
             }
-
             const qr = Math.round(r / STEP) * STEP;
             const qg = Math.round(g / STEP) * STEP;
             const qb = Math.round(b / STEP) * STEP;
@@ -494,265 +464,166 @@ export const BlocksyPalette = {
             if (bk) { bk.n++; bk.sr += r; bk.sg += g; bk.sb += b; }
             else     { buckets.set(key, { n: 1, sr: r, sg: g, sb: b }); }
         }
-
         if (buckets.size === 0) return [];
-
-        // ── Stage 3: Score (vivid colors rank higher) & pick top 2 ───────────
         const candidates = Array.from(buckets.values()).map(bk => {
-            const r   = Math.round(bk.sr / bk.n);
-            const g   = Math.round(bk.sg / bk.n);
-            const b   = Math.round(bk.sb / bk.n);
+            const r = Math.round(bk.sr / bk.n), g = Math.round(bk.sg / bk.n), b = Math.round(bk.sb / bk.n);
             const hex = rgbToHex(r, g, b);
             const { s } = hexToHsl(hex);
-            // score = pixel_count × saturation_weight (0.3 – 1.0)
             return { hex, n: bk.n, score: bk.n * (0.3 + (s / 100) * 0.7) };
         });
-
         candidates.sort((a, b) => b.score - a.score);
-
         const result = [candidates[0].hex];
         const { h: h1, l: l1 } = hexToHsl(result[0]);
-
-        // C2 = highest-ranked candidate with enough hue or lightness separation
         for (let i = 1; i < candidates.length; i++) {
             const { h: h2, l: l2, s: s2 } = hexToHsl(candidates[i].hex);
             const hd = Math.min(Math.abs(h1 - h2), 360 - Math.abs(h1 - h2));
-            if (hd > 25 || (s2 < 20 && Math.abs(l1 - l2) > 30)) {
-                result.push(candidates[i].hex);
-                break;
-            }
+            if (hd > 25 || (s2 < 20 && Math.abs(l1 - l2) > 30)) { result.push(candidates[i].hex); break; }
         }
-
-        // Fallback: derive C2 as a darker variant of C1
         if (result.length < 2) {
             const { h, s, l } = hexToHsl(result[0]);
             result.push(hslToHex(h, Math.min(100, s + 5), clamp(l - 18, 15, 50)));
         }
-
         return result;
     },
 
-    /** Push two hex colors into both pickers + text inputs and re-render */
-    _applyPrimaryColors: (c1, c2) => {
+    _applyPrimaryColors: function(c1, c2) {
         const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
         set('color1',     c1);
         set('color1-hex', c1.toUpperCase());
         set('color2',     c2);
         set('color2-hex', c2.toUpperCase());
-        BlocksyPalette.onColorInput();
+        this.onColorInput();
     },
 
-    renderPreview: (colors) => {
+    renderPreview: function(colors) {
         const strip = document.getElementById('color-strip');
         const details = document.getElementById('color-details');
         if (!strip || !details) return;
-        const fmt = BlocksyPalette.colorFormat;
-
-        const roles = [
-            App.t('role_primary'),
-            App.t('role_secondary'),
-            App.t('role_text'),
-            App.t('role_text_deep'),
-            App.t('role_bg_muted'),
-            App.t('role_bg_soft'),
-            App.t('role_bg_light'),
-            App.t('role_bg_base'),
-        ];
-
+        const fmt = this.colorFormat;
+        const roles = [App.t('role_primary'), App.t('role_secondary'), App.t('role_text'), App.t('role_text_deep'), App.t('role_bg_muted'), App.t('role_bg_soft'), App.t('role_bg_light'), App.t('role_bg_base')];
         const c3cr = contrastRatio(colors[2], colors[4]).toFixed(1);
         const c4cr = contrastRatio(colors[3], colors[7]).toFixed(1);
 
-        strip.innerHTML = colors.map((hex, i) => {
+        strip.innerHTML = '';
+        colors.forEach((hex, i) => {
             const tc = isLightColor(hex) ? '#000' : '#fff';
-            return `<div class="relative flex-1 flex flex-col items-center justify-end pb-1.5 cursor-pointer select-none overflow-hidden"
-                         style="background:${hex}" onclick="BlocksyPalette.copyColor('${hex}', this)">
-                        <span class="text-[9px] font-black pointer-events-none" style="color:${tc}">${i+1}</span>
-                        <div class="copy-flash absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 pointer-events-none" style="background:rgba(0,0,0,0.42)">
-                            <span class="text-base font-black text-white leading-none">✓</span>
-                        </div>
-                    </div>`;
-        }).join('');
+            const div = document.createElement('div');
+            div.className = "relative flex-1 flex flex-col items-center justify-end pb-1.5 cursor-pointer select-none overflow-hidden";
+            div.style.background = hex;
+            div.innerHTML = `<span class="text-[9px] font-black pointer-events-none" style="color:${tc}">${i+1}</span><div class="copy-flash absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 pointer-events-none" style="background:rgba(0,0,0,0.42)"><span class="text-base font-black text-white leading-none">✓</span></div>`;
+            div.onclick = () => this.copyColor(hex, div);
+            strip.appendChild(div);
+        });
 
-        details.innerHTML = colors.map((hex, i) => {
+        details.innerHTML = '';
+        colors.forEach((hex, i) => {
             const displayed = formatColor(hex, fmt);
             const role = roles[i];
             let badge = '';
             if (i === 2) { const cr = parseFloat(c3cr); badge = `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full ${cr >= 4.5 ? 'bg-emerald-900/60 text-emerald-400' : 'bg-amber-900/60 text-amber-400'}">${c3cr}:1</span>`; }
             if (i === 3) { const cr = parseFloat(c4cr); badge = `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full ${cr >= 7 ? 'bg-emerald-900/60 text-emerald-400' : 'bg-amber-900/60 text-amber-400'}">${c4cr}:1</span>`; }
-
-            return `<div class="rounded-xl overflow-hidden border border-zinc-800/60 group cursor-pointer hover:scale-105 transition-transform"
-                         onclick="BlocksyPalette.copyColor('${hex}', this)">
-                        <div style="background:${hex}" class="h-12 flex items-center justify-center relative overflow-hidden">
-                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style="background:rgba(0,0,0,0.38)">
-                                <i data-lucide="copy" class="w-3.5 h-3.5 text-white"></i>
-                            </div>
-                            <div class="copy-flash absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 pointer-events-none" style="background:rgba(0,0,0,0.45)">
-                                <span class="text-sm font-black text-white">✓</span>
-                            </div>
-                        </div>
-                        <div class="bg-zinc-950 px-2 py-1.5">
-                            <div class="flex items-center justify-between gap-1 mb-0.5">
-                                <span class="text-[9px] font-bold text-zinc-600 uppercase">${App.t('label_color') || 'Color'} ${i+1}</span>
-                                ${badge}
-                            </div>
-                            <p class="text-[9px] font-mono text-zinc-400 truncate">${displayed}</p>
-                            <p class="text-[9px] text-zinc-600 truncate mt-0.5">${role}</p>
-                        </div>
-                    </div>`;
-        }).join('');
+            const card = document.createElement('div');
+            card.className = "rounded-xl overflow-hidden border border-zinc-800/60 group cursor-pointer hover:scale-105 transition-transform";
+            card.innerHTML = `<div style="background:${hex}" class="h-12 flex items-center justify-center relative overflow-hidden"><div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style="background:rgba(0,0,0,0.38)"><i data-lucide="copy" class="w-3.5 h-3.5 text-white"></i></div><div class="copy-flash absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 pointer-events-none" style="background:rgba(0,0,0,0.45)"><span class="text-sm font-black text-white">✓</span></div></div><div class="bg-zinc-950 px-2 py-1.5"><div class="flex items-center justify-between gap-1 mb-0.5"><span class="text-[9px] font-bold text-zinc-600 uppercase">${App.t('label_color') || 'Color'} ${i+1}</span>${badge}</div><p class="text-[9px] font-mono text-zinc-400 truncate">${displayed}</p><p class="text-[9px] text-zinc-600 truncate mt-0.5">${role}</p></div>`;
+            card.onclick = () => this.copyColor(hex, card);
+            details.appendChild(card);
+        });
 
         if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
-
-        // Render gradients after palette updates
-        BlocksyPalette.renderGradients(colors);
+        this.renderGradients(colors);
     },
 
-    copyColor: (hex, el) => {
-        const text = formatColor(hex, BlocksyPalette.colorFormat);
+    copyColor: function(hex, el) {
+        const text = formatColor(hex, this.colorFormat);
         navigator.clipboard?.writeText(text).catch(() => {});
         const flash = el?.querySelector?.('.copy-flash');
         if (flash) { flash.style.opacity = '1'; setTimeout(() => flash.style.opacity = '0', 700); }
         App.showToast(text);
     },
 
-    copyCSS: () => {
-        const colors = BlocksyPalette.currentColors;
+    copyCSS: function() {
+        const colors = this.currentColors;
         const name = document.getElementById('palette-name')?.value.trim() || 'My Palette';
         const css = `/* ${name} — Blocksy Color Palette */\n:root {\n${colors.map((c, i) => `  --theme-palette-color-${i+1}: ${c};`).join('\n')}\n}`;
         navigator.clipboard?.writeText(css).catch(() => {});
         App.showToast(App.t('msg_css_copied') || 'CSS copied!');
     },
 
-    // ── Gradients ──────────────────────────────────────────────────────────────
-
-    renderGradients: (colors) => {
+    renderGradients: function(colors) {
         const container = document.getElementById('gradients-container');
         if (!container) return;
         const gradients = buildGradients(colors);
-        BlocksyPalette._gradientData = {};
-
-        container.innerHTML = gradients.map((g) => {
-            BlocksyPalette._gradientData[g.id] = { css: g.css, oklch: g.oklch };
-            const enhancedDots = g.enhanced.map(h =>
-                `<span class="inline-block w-3 h-3 rounded-full border border-zinc-700/80 shrink-0" style="background:${h}" title="${h}"></span>`
-            ).join('');
-
-            return `
-            <div class="shadcn-card overflow-hidden group flex flex-col">
-                <!-- Gradient strip — click copies CSS -->
-                <div class="h-24 w-full cursor-pointer relative overflow-hidden flex-shrink-0"
-                     style="background:${g.preview}"
-                     onclick="BlocksyPalette.copyGradient('${g.id}', null, this)">
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all bg-black/30">
-                        <div class="flex items-center gap-2 bg-black/60 text-white text-[10px] font-bold px-3 py-1.5 rounded-full">
-                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                            <span data-i18n="btn_copy_css">${App.t('btn_copy_css')}</span>
-                        </div>
-                    </div>
-                    <div class="copy-flash absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 pointer-events-none bg-black/40">
-                        <span class="text-lg font-black text-white">✓</span>
-                    </div>
+        this._gradientData = {};
+        container.innerHTML = '';
+        gradients.forEach((g) => {
+            this._gradientData[g.id] = { css: g.css, oklch: g.oklch };
+            const dots = g.enhanced.map(h => `<span class="inline-block w-3 h-3 rounded-full border border-zinc-700/80 shrink-0" style="background:${h}" title="${h}"></span>`).join('');
+            const card = document.createElement('div');
+            card.className = "shadcn-card overflow-hidden group flex flex-col";
+            card.innerHTML = `
+                <div class="grad-preview h-24 w-full cursor-pointer relative overflow-hidden flex-shrink-0" style="background:${g.preview}">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all bg-black/30"><div class="flex items-center gap-2 bg-black/60 text-white text-[10px] font-bold px-3 py-1.5 rounded-full"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>${App.t('btn_copy_css')}</span></div></div>
+                    <div class="copy-flash absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 pointer-events-none bg-black/40"><span class="text-lg font-black text-white">✓</span></div>
                 </div>
-
-                <!-- Card body -->
                 <div class="p-4 flex flex-col gap-3 flex-1">
                     <div class="flex items-start justify-between gap-2">
-                        <div class="min-w-0">
-                            <p class="text-sm font-bold text-white truncate">${g.name}</p>
-                            ${g.enhanced.length ? `<div class="flex items-center gap-1.5 mt-1.5">
-                                <span class="text-[9px] text-zinc-600 font-semibold" data-i18n="label_extra_colors">${App.t('label_extra_colors')}</span><span class="text-[9px] text-zinc-600 font-semibold">:</span>
-                                ${enhancedDots}
-                            </div>` : ''}
-                        </div>
-                        <!-- Format tabs -->
-                        <div class="flex gap-1 shrink-0">
-                            <button class="grad-tab-btn text-[10px] font-bold px-2 py-1 rounded-md transition-all border border-primary/30 bg-primary/20 text-primary"
-                                    data-gid="${g.id}" data-fmt="css"
-                                    onclick="BlocksyPalette.switchGradientTab('${g.id}', 'css', this)">CSS</button>
-                            <button class="grad-tab-btn text-[10px] font-bold px-2 py-1 rounded-md transition-all text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
-                                    data-gid="${g.id}" data-fmt="oklch"
-                                    onclick="BlocksyPalette.switchGradientTab('${g.id}', 'oklch', this)">OKLCH</button>
-                        </div>
+                        <div class="min-w-0"><p class="text-sm font-bold text-white truncate">${g.name}</p>${g.enhanced.length ? `<div class="flex items-center gap-1.5 mt-1.5"><span class="text-[9px] text-zinc-600 font-semibold">${App.t('label_extra_colors')}:</span>${dots}</div>` : ''}</div>
+                        <div class="flex gap-1 shrink-0"><button class="tab-css text-[10px] font-bold px-2 py-1 rounded-md transition-all border border-primary/30 bg-primary/20 text-primary">CSS</button><button class="tab-oklch text-[10px] font-bold px-2 py-1 rounded-md transition-all text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800">OKLCH</button></div>
                     </div>
-
-                    <!-- Code panels -->
-                    <div id="panel-${g.id}-css" class="grad-panel">
-                        <div class="flex items-start gap-2 p-2.5 bg-zinc-950 rounded-lg border border-zinc-800">
-                            <code class="text-[10px] font-mono text-zinc-400 break-all leading-relaxed flex-1">${g.css}</code>
-                            <button onclick="BlocksyPalette.copyGradient('${g.id}', 'css', this)"
-                                    class="shrink-0 p-1.5 text-zinc-600 hover:text-primary transition-colors rounded hover:bg-zinc-800">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="panel-${g.id}-oklch" class="grad-panel hidden">
-                        <div class="flex items-start gap-2 p-2.5 bg-zinc-950 rounded-lg border border-zinc-800">
-                            <code class="text-[10px] font-mono text-zinc-400 break-all leading-relaxed flex-1">${g.oklch}</code>
-                            <button onclick="BlocksyPalette.copyGradient('${g.id}', 'oklch', this)"
-                                    class="shrink-0 p-1.5 text-zinc-600 hover:text-primary transition-colors rounded hover:bg-zinc-800">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                            </button>
-                        </div>
-                        ${g.oklchNote ? `<p class="text-[9px] text-zinc-600 mt-1.5 px-1 italic">${g.oklchNote}</p>` : ''}
-                        <p class="text-[9px] text-zinc-700 mt-1.5 px-1" data-i18n="label_oklch_support">${App.t('label_oklch_support')}</p>
-                    </div>
-                </div>
-            </div>`;
-        }).join('');
-
+                    <div class="panel-css flex items-start gap-2 p-2.5 bg-zinc-950 rounded-lg border border-zinc-800"><code class="text-[10px] font-mono text-zinc-400 break-all flex-1">${g.css}</code><button class="btn-copy-css shrink-0 p-1.5 text-zinc-600 hover:text-primary rounded hover:bg-zinc-800"><i data-lucide="copy" class="w-3 h-3"></i></button></div>
+                    <div class="panel-oklch hidden flex flex-col gap-1.5"><div class="flex items-start gap-2 p-2.5 bg-zinc-950 rounded-lg border border-zinc-800"><code class="text-[10px] font-mono text-zinc-400 break-all flex-1">${g.oklch}</code><button class="btn-copy-oklch shrink-0 p-1.5 text-zinc-600 hover:text-primary rounded hover:bg-zinc-800"><i data-lucide="copy" class="w-3 h-3"></i></button></div>${g.oklchNote ? `<p class="text-[9px] text-zinc-600 italic">${g.oklchNote}</p>` : ''}<p class="text-[9px] text-zinc-700">${App.t('label_oklch_support')}</p></div>
+                </div>`;
+            
+            card.querySelector('.grad-preview').onclick = () => {
+                const isOklch = !card.querySelector('.panel-oklch').classList.contains('hidden');
+                this.copyGradient(g.id, isOklch ? 'oklch' : 'css', card);
+            };
+            card.querySelector('.tab-css').onclick = (e) => this.switchGradientTab(g.id, 'css', e.target, card);
+            card.querySelector('.tab-oklch').onclick = (e) => this.switchGradientTab(g.id, 'oklch', e.target, card);
+            card.querySelector('.btn-copy-css').onclick = () => this.copyGradient(g.id, 'css', card);
+            card.querySelector('.btn-copy-oklch').onclick = () => this.copyGradient(g.id, 'oklch', card);
+            container.appendChild(card);
+        });
         if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
     },
 
-    switchGradientTab: (gid, fmt, btn) => {
-        document.querySelectorAll(`[data-gid="${gid}"]`).forEach(b => {
-            b.className = 'grad-tab-btn text-[10px] font-bold px-2 py-1 rounded-md transition-all text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800';
-        });
-        btn.className = 'grad-tab-btn text-[10px] font-bold px-2 py-1 rounded-md transition-all border border-primary/30 bg-primary/20 text-primary';
-        const gid_ = gid;
-        document.querySelectorAll(`[id^="panel-${gid_}-"]`).forEach(p => p.classList.add('hidden'));
-        document.getElementById(`panel-${gid_}-${fmt}`)?.classList.remove('hidden');
+    switchGradientTab: function(gid, fmt, btn, card) {
+        card.querySelectorAll('button[class*="tab-"]').forEach(b => b.className = 'text-[10px] font-bold px-2 py-1 rounded-md transition-all text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800');
+        btn.className = 'text-[10px] font-bold px-2 py-1 rounded-md transition-all border border-primary/30 bg-primary/20 text-primary';
+        card.querySelector('.panel-css').classList.toggle('hidden', fmt !== 'css');
+        card.querySelector('.panel-oklch').classList.toggle('hidden', fmt !== 'oklch');
     },
 
-    copyGradient: (gid, fmt, el) => {
-        const data = BlocksyPalette._gradientData[gid];
-        if (!data) return;
-        // If format is null (clicking the preview bar), determine from active tab
-        if (!fmt) {
-            const activeTab = document.querySelector(`[data-gid="${gid}"].text-primary`);
-            fmt = activeTab?.dataset?.fmt || 'css';
-        }
-        const text = data[fmt] || data.css;
+    copyGradient: function(gid, fmt, card) {
+        const text = this._gradientData[gid][fmt];
         navigator.clipboard?.writeText(text).catch(() => {});
-        const flash = el?.closest?.('.shadcn-card')?.querySelector('.copy-flash') || el?.querySelector('.copy-flash');
+        const flash = card.querySelector('.copy-flash');
         if (flash) { flash.style.opacity = '1'; setTimeout(() => flash.style.opacity = '0', 700); }
         App.showToast(`${fmt.toUpperCase()} ${App.t('msg_gradient_copied') || 'gradient copied!'}`);
     },
 
-    // ── Palette Save / Load ────────────────────────────────────────────────────
-
-    savePalette: () => {
+    savePalette: function() {
         const name = document.getElementById('palette-name')?.value.trim();
-        if (!name) { App.showToast(App.t('msg_enter_palette_name') || 'Please enter a palette name.'); document.getElementById('palette-name')?.focus(); return; }
-        const palettes = BlocksyPalette.getSaved();
-        palettes.push({ id: 'palette_' + Date.now(), name, mode: BlocksyPalette.mode, colors: [...BlocksyPalette.currentColors], createdAt: Date.now() });
-        BlocksyPalette.setSaved(palettes);
-        BlocksyPalette.renderSaved();
-        App.showToast(App.t('msg_palette_saved') || 'Palette saved!');
+        if (!name) { App.showToast(App.t('msg_enter_palette_name')); document.getElementById('palette-name')?.focus(); return; }
+        const p = this.getSaved();
+        p.push({ id: 'palette_' + Date.now(), name, mode: this.mode, colors: [...this.currentColors], createdAt: Date.now() });
+        this.setSaved(p);
+        this.renderSaved();
+        App.showToast(App.t('msg_palette_saved'));
         App.fireConfetti();
     },
 
-    deletePalette: (id, e) => {
+    deletePalette: function(id, e) {
         if (e) e.stopPropagation();
-        BlocksyPalette.setSaved(BlocksyPalette.getSaved().filter(p => p.id !== id));
-        BlocksyPalette.renderSaved();
-        App.showToast(App.t('msg_palette_deleted') || 'Palette deleted.');
+        this.setSaved(this.getSaved().filter(p => p.id !== id));
+        this.renderSaved();
+        App.showToast(App.t('msg_palette_deleted'));
     },
 
-    loadPalette: (id) => {
-        const p = BlocksyPalette.getSaved().find(p => p.id === id);
+    loadPalette: function(id) {
+        const p = this.getSaved().find(p => p.id === id);
         if (!p) return;
-        BlocksyPalette.setMode(p.mode || 'dark');
+        this.setMode(p.mode || 'dark');
         document.getElementById('palette-name').value = p.name;
         document.getElementById('color1').value = p.colors[0];
         document.getElementById('color1-hex').value = p.colors[0].toUpperCase();
@@ -765,86 +636,76 @@ export const BlocksyPalette = {
             const pk = document.getElementById(`color${i}`); if (pk) pk.value = p.colors[i-1];
             const hx = document.getElementById(`color${i}-hex`); if (hx) hx.value = p.colors[i-1].toUpperCase();
         }
-        BlocksyPalette.onColorInput();
-        App.showToast(App.t('msg_palette_loaded') || 'Palette loaded!');
+        this.onColorInput();
+        App.showToast(App.t('msg_palette_loaded'));
         window.scrollTo({ top: 0, behavior: 'smooth' });
     },
 
-    openEditModal: (id, e) => {
+    openEditModal: function(id, e) {
         if (e) e.stopPropagation();
-        const p = BlocksyPalette.getSaved().find(p => p.id === id);
+        const p = this.getSaved().find(p => p.id === id);
         if (!p) return;
-        BlocksyPalette.editingId = id;
+        this.editingId = id;
         document.getElementById('edit-palette-name').value = p.name;
-        document.getElementById('edit-color-inputs').innerHTML = p.colors.map((hex, i) => `
+        const container = document.getElementById('edit-color-inputs');
+        container.innerHTML = p.colors.map((hex, i) => `
             <div class="flex items-center gap-3">
-                <input type="color" id="edit-c${i+1}" value="${hex}" class="w-9 h-9 shrink-0 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
-                <span class="text-[10px] text-zinc-500 w-14 shrink-0">${App.t('label_color') || 'Color'} ${i+1}</span>
-                <input type="text" id="edit-c${i+1}-hex" value="${hex.toUpperCase()}" oninput="BlocksyPalette.syncEditHex(${i+1})"
-                    placeholder="hex / rgb / hsl"
-                    class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
+                <input type="color" id="edit-c${i+1}" value="${hex}" class="w-9 h-9 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
+                <span class="text-[10px] text-zinc-500 w-14 shrink-0">${App.t('label_color')} ${i+1}</span>
+                <input type="text" id="edit-c${i+1}-hex" value="${hex.toUpperCase()}" class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
             </div>`).join('');
+        
         for (let i = 1; i <= 8; i++) {
             const pk = document.getElementById(`edit-c${i}`);
-            if (pk) pk.oninput = () => { document.getElementById(`edit-c${i}-hex`).value = pk.value.toUpperCase(); };
+            const hx = document.getElementById(`edit-c${i}-hex`);
+            pk.oninput = () => hx.value = pk.value.toUpperCase();
+            hx.oninput = () => { const prs = parseColorInput(hx.value); if (prs) pk.value = prs; };
         }
         document.getElementById('edit-modal').classList.remove('hidden');
         if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
     },
 
-    syncEditHex: (index) => {
-        const raw = document.getElementById(`edit-c${index}-hex`)?.value;
-        const parsed = parseColorInput(raw || '');
-        if (parsed) { const pk = document.getElementById(`edit-c${index}`); if (pk) pk.value = parsed; }
-    },
-
-    closeEditModal: () => {
+    closeEditModal: function() {
         document.getElementById('edit-modal').classList.add('hidden');
-        BlocksyPalette.editingId = null;
+        this.editingId = null;
     },
 
-    saveEditModal: () => {
-        if (!BlocksyPalette.editingId) return;
-        const palettes = BlocksyPalette.getSaved();
-        const p = palettes.find(p => p.id === BlocksyPalette.editingId);
-        if (!p) return;
+    saveEditModal: function() {
+        if (!this.editingId) return;
+        const palettes = this.getSaved();
+        const p = palettes.find(p => p.id === this.editingId);
         const name = document.getElementById('edit-palette-name').value.trim();
-        if (!name) return;
+        if (!name || !p) return;
         p.name = name;
         for (let i = 1; i <= 8; i++) { const pk = document.getElementById(`edit-c${i}`); if (pk) p.colors[i-1] = pk.value; }
-        BlocksyPalette.setSaved(palettes);
-        BlocksyPalette.closeEditModal();
-        BlocksyPalette.renderSaved();
-        App.showToast(App.t('msg_palette_saved') || 'Palette updated!');
+        this.setSaved(palettes);
+        this.closeEditModal();
+        this.renderSaved();
+        App.showToast(App.t('msg_palette_saved'));
     },
 
-    renderSaved: () => {
+    renderSaved: function() {
         const list = document.getElementById('saved-palettes-list');
         const empty = document.getElementById('empty-saved');
-        const palettes = BlocksyPalette.getSaved();
+        const palettes = this.getSaved();
         if (palettes.length === 0) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
         empty.classList.add('hidden');
-        list.innerHTML = palettes.map(p => `
-            <div class="shadcn-card p-4 flex items-center gap-4 hover:border-zinc-700 transition-all group cursor-pointer" onclick="BlocksyPalette.loadPalette('${p.id}')">
-                <div class="flex rounded-lg overflow-hidden h-10 w-28 shrink-0 shadow-sm border border-zinc-800">
-                    ${p.colors.map(h => `<div class="flex-1" style="background:${h}"></div>`).join('')}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-bold text-white truncate">${p.name}</p>
-                    <p class="text-[10px] text-zinc-500 flex items-center gap-1 mt-0.5">
-                        <i data-lucide="${p.mode === 'dark' ? 'moon' : 'sun'}" class="w-3 h-3"></i>
-                        <span>${I18n.t('mode_' + p.mode)}</span>
-                    </p>
-                </div>
+        list.innerHTML = '';
+        palettes.forEach(p => {
+            const card = document.createElement('div');
+            card.className = "shadcn-card p-4 flex items-center gap-4 hover:border-zinc-700 transition-all group cursor-pointer";
+            card.innerHTML = `
+                <div class="flex rounded-lg overflow-hidden h-10 w-28 shrink-0 shadow-sm border border-zinc-800">${p.colors.map(h => `<div class="flex-1" style="background:${h}"></div>`).join('')}</div>
+                <div class="flex-1 min-w-0"><p class="text-sm font-bold text-white truncate">${p.name}</p><p class="text-[10px] text-zinc-500 flex items-center gap-1 mt-0.5"><i data-lucide="${p.mode==='dark'?'moon':'sun'}" class="w-3 h-3"></i><span>${I18n.t('mode_'+p.mode)}</span></p></div>
                 <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onclick="BlocksyPalette.openEditModal('${p.id}', event)" class="p-2 text-zinc-500 hover:text-primary rounded-lg hover:bg-zinc-800">
-                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                    </button>
-                    <button onclick="BlocksyPalette.deletePalette('${p.id}', event)" class="p-2 text-zinc-500 hover:text-red-400 rounded-lg hover:bg-zinc-800">
-                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                </div>
-            </div>`).join('');
+                    <button class="btn-edit p-2 text-zinc-500 hover:text-primary rounded-lg hover:bg-zinc-800"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                    <button class="btn-del p-2 text-zinc-500 hover:text-red-400 rounded-lg hover:bg-zinc-800"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                </div>`;
+            card.onclick = () => this.loadPalette(p.id);
+            card.querySelector('.btn-edit').onclick = (e) => this.openEditModal(p.id, e);
+            card.querySelector('.btn-del').onclick = (e) => this.deletePalette(p.id, e);
+            list.appendChild(card);
+        });
         if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
     },
 
@@ -852,6 +713,4 @@ export const BlocksyPalette = {
     setSaved: (p) => localStorage.setItem('wptoolbox_blocksy_palettes', JSON.stringify(p)),
 };
 
-window.BlocksyPalette = BlocksyPalette;
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', BlocksyPalette.init);
-else BlocksyPalette.init();
+App.registerTool('BlocksyPalette', BlocksyPalette);

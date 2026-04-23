@@ -62,7 +62,7 @@
                 <section class="shadcn-card p-6 bg-zinc-900/40">
                     <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2">
                         <i data-lucide="shield" class="w-4 h-4 text-emerald-500"></i>
-                        Image Size
+                        <span data-i18n="label_image_size">Image Size</span>
                     </h3>
                     <div class="space-y-4">
                         <label class="flex items-center justify-between cursor-pointer group">
@@ -146,7 +146,7 @@
                             <span data-i18n="btn_download_zip">Download all (ZIP)</span>
                         </button>
                     </div>
-                    <div id="images-container" class="flex flex-col gap-3">
+                    <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Injected by JS -->
                     </div>
                 </section>
@@ -155,7 +155,6 @@
         </div>
 
     </main>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <!-- Global Footer Container -->
     <wpt-footer></wpt-footer>
