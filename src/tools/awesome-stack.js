@@ -10,9 +10,18 @@ export const AwesomeStack = App.registerTool('AwesomeStack', {
     savedStacks: [],
 
     onInit: function() {
-        this.renderCheckboxes();
-        this.loadSavedStacks();
-        this.generateCommand();
+        const runInit = () => {
+            this.renderCheckboxes();
+            this.loadSavedStacks();
+            this.generateCommand();
+        };
+
+        // Wait for translations and core services to be ready
+        if (App.isReady) {
+            runInit();
+        } else {
+            window.addEventListener('appReady', runInit);
+        }
 
         // Listen for options changes
         const activateToggle = document.getElementById('include-activate');

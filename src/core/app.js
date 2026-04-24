@@ -21,8 +21,11 @@ export const App = {
         return this.tools[id];
     },
 
+    isReady: false,
+
     // Lifecycle
     async init() {
+        if (this.isReady) return;
         UI.initTheme(); // Must be first to prevent light flash
         I18n.updateDirection();
         await I18n.loadData();
@@ -36,6 +39,7 @@ export const App = {
         }
 
         // Signal all tools that translations are ready
+        this.isReady = true;
         window.dispatchEvent(new Event('appReady'));
     },
 
