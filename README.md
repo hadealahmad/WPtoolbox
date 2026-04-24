@@ -1,25 +1,41 @@
 # WPToolbox 🧙‍♂️
 
-A premium suite of lightweight, professional, and privacy-first browser-based tools specifically designed for WordPress developers and power users.
+A premium suite of lightweight, professional, and privacy-first browser-based tools specifically designed for WordPress developers and power users. Built for speed, security, and aesthetics.
 
-## 🚀 Key Features
+## 🚀 Key Tools
 
+WPToolbox is organized into three core categories to streamline your workflow:
+
+### 📦 Core Workflow
 - **Awesome Stack Setup**: Generate production-ready WP-CLI commands for your favorite themes and plugins in seconds.
+- **Website Checklist**: A professional pre-launch verification tool to ensure your site is production-ready.
+- **Demo Content Generator**: Generate high-quality mock data for WordPress or any other platform. Export as XML, CSV, or JSON.
+
+### 🖼️ Media & Assets
 - **Image to WebP Converter**: Fast, client-side image compression and conversion to WebP for better site performance.
-- **WordPress Snippets**: A curated collection of essential snippets for `.htaccess`, `wp-config.php`, and WordPress plugins.
+- **Unify Aspect Ratio**: Bulk process images to a consistent aspect ratio with smart padding. Ideal for sliders and galleries.
+- **QR Code Generator**: Generate single or batch QR codes from links instantly. Download in SVG, PNG, or JPG.
 - **Block Font Cleaner**: Automatically remove hardcoded fonts from Gutenberg and Greenshift block comments.
-- **Data Converters**: Robust XML to CSV (with HTML-to-Markdown) and JSON to CSV utilities.
-- **Multilingual Support**: Professional Arabic and English localization with automatic RTL (Right-to-Left) layout switching.
+- **Blocksy Palette Generator**: Create and export custom 8-color palettes compatible with the Blocksy theme.
 
-## 🛡️ Privacy First
+### 🛠️ Development & Utilities
+- **WordPress Snippets**: A curated collection of essential snippets for `.htaccess`, `wp-config.php`, and PHP performance tuning.
+- **WordPress Export Mapper**: Robust XML to CSV (with HTML-to-Markdown) and JSON to CSV utilities.
+- **Wizard Tips & Facts**: A collection of obscure WordPress behaviors, hosting bottlenecks, and clever production-tested solutions.
 
-All tools in WPToolbox process data **entirely in your browser**. No images, XML files, or JSON data are ever uploaded to a server. Your data remains yours.
+## ✨ Project Highlights
+
+- **Privacy First**: All data is processed **entirely in your browser**. No images, XML files, or JSON data are ever uploaded to a server.
+- **Premium UI/UX**: Modern, Shadcn-inspired design with dark mode, glassmorphism, and smooth transitions.
+- **Dynamic Filtering**: Easily find the right tool using the category filtering system on the homepage.
+- **Multilingual Support**: Full Arabic and English localization with automatic RTL (Right-to-Left) layout switching.
+- **Ultra Lightweight**: Built with Vanilla JS and Tailwind CSS for maximum performance and near-instant load times.
 
 ## 🛠️ Development & Guidelines
 
 If you are a developer looking to contribute or understand the project structure, please refer to the detailed [Guidelines](guidelines.md) file. It covers:
 - Project architecture and technology stack.
-- Design system and aesthetic standards (Shadcn-inspired).
+- Design system and aesthetic standards.
 - SEO and Social Meta tag implementation details.
 - Component modularity and code standards.
 
@@ -28,5 +44,5 @@ If you are a developer looking to contribute or understand the project structure
 This project is licensed under the [MIT License](LICENSE).
 
 ---
-Created by [Hadi Alahmad](https://github.com/hadealahmad)
+Created with ❤️ by [Hadi Alahmad](https://github.com/hadealahmad)  
 Follow on [X / Twitter](https://x.com/hadealahmad)
