@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #09090b; color: white;">
+
+<head>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#09090b">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title_server_config">Server Config Generator | WPToolbox</title>
+    <meta name="description" content="Generate secure and optimized .htaccess or Nginx server configurations for WordPress.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script type="module" src="src/tools/server-config-generator.js"></script>
+</head>
+
+<body class="min-h-screen flex flex-col grid-bg">
+
+    <wpt-navbar></wpt-navbar>
+
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
+        <header class="mb-10 text-center md:text-start">
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_server_config_title">Server Config Generator</h1>
+            <p class="text-zinc-500 mt-2" data-i18n="tool_server_config_desc">Generate optimized .htaccess or Nginx configuration blocks for security, caching, and performance.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+            <!-- Controls Column -->
+            <div class="lg:col-span-5 space-y-6">
+                <!-- Server Type -->
+                <div class="flex p-1 bg-zinc-900 rounded-lg">
+                    <button class="flex-1 py-2 text-sm font-medium rounded-md transition-all bg-zinc-800 text-white shadow" id="btn-apache" data-i18n="server_type_apache">Apache (.htaccess)</button>
+                    <button class="flex-1 py-2 text-sm font-medium rounded-md transition-all text-zinc-400 hover:text-white" id="btn-nginx" data-i18n="server_type_nginx">Nginx (nginx.conf)</button>
+                </div>
+
+                <!-- Toggles -->
+                <section class="shadcn-card p-6 bg-zinc-900/40">
+                    <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-4 h-4"></i>
+                        Options
+                    </h3>
+                    <div class="space-y-4">
+                        <label class="flex items-center justify-between cursor-pointer group">
+                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="opt_force_https">Force HTTPS</span>
+                            <div class="relative inline-flex items-center">
+                                <input type="checkbox" id="opt-https" class="sr-only peer config-toggle" checked>
+                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                            </div>
+                        </label>
+                        <label class="flex items-center justify-between cursor-pointer group">
+                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="opt_browser_caching">Enable Browser Caching</span>
+                            <div class="relative inline-flex items-center">
+                                <input type="checkbox" id="opt-caching" class="sr-only peer config-toggle" checked>
+                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                            </div>
+                        </label>
+                        <label class="flex items-center justify-between cursor-pointer group">
+                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="opt_gzip">Enable Gzip Compression</span>
+                            <div class="relative inline-flex items-center">
+                                <input type="checkbox" id="opt-gzip" class="sr-only peer config-toggle" checked>
+                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                            </div>
+                        </label>
+                        <label class="flex items-center justify-between cursor-pointer group">
+                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="opt_disable_dir">Disable Directory Browsing</span>
+                            <div class="relative inline-flex items-center">
+                                <input type="checkbox" id="opt-dir" class="sr-only peer config-toggle" checked>
+                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                            </div>
+                        </label>
+                        <label class="flex items-center justify-between cursor-pointer group">
+                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="opt_secure_wp_includes">Secure wp-includes</span>
+                            <div class="relative inline-flex items-center">
+                                <input type="checkbox" id="opt-wpinc" class="sr-only peer config-toggle" checked>
+                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                            </div>
+                        </label>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Output Column -->
+            <div class="lg:col-span-7">
+                <div class="relative shadcn-card overflow-hidden group">
+                    <div class="flex items-center justify-between px-4 py-3 bg-zinc-950 border-b border-zinc-800">
+                        <span class="text-xs font-mono text-zinc-400" id="filename-display">.htaccess</span>
+                        <button id="btn-copy" class="text-zinc-400 hover:text-white transition-colors" title="Copy to clipboard">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div class="p-4 bg-zinc-900/50 max-h-[600px] overflow-y-auto" dir="ltr">
+                        <pre><code id="code-output" class="text-sm font-mono text-zinc-300 block w-full whitespace-pre-wrap text-left"></code></pre>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <wpt-footer></wpt-footer>
+
+    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
+        <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
+            <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+            <span id="toast-msg" class="text-sm font-medium">Notification</span>
+        </div>
+    </div>
+</body>
+</html>

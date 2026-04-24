@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #09090b; color: white;">
+
+<head>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#09090b">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title_svg_sanitizer">WordPress SVG Sanitizer | WPToolbox</title>
+    <meta name="description" content="Clean, sanitize, and prepare SVG files for safe upload to WordPress media library.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script type="module" src="src/tools/svg-sanitizer.js"></script>
+</head>
+
+<body class="min-h-screen flex flex-col grid-bg">
+
+    <!-- Navbar Container -->
+    <wpt-navbar></wpt-navbar>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
+
+        <header class="mb-10 text-center md:text-start">
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_svg_sanitizer_title">WordPress SVG Sanitizer</h1>
+            <p class="text-zinc-500 mt-2" data-i18n="tool_svg_sanitizer_desc">Sanitize and optimize SVG files client-side to safely upload them to WordPress.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+            <!-- Controls Column -->
+            <div class="lg:col-span-4 space-y-8">
+                <section class="space-y-4">
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-zinc-900 bg-zinc-900/30">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-emerald-500 shrink-0"></i>
+                        <div>
+                            <p class="text-sm font-bold text-zinc-300" data-i18n="label_private">100% Private</p>
+                            <p class="text-xs text-zinc-500" data-i18n="private_desc">Processing happens entirely on
+                                your device. No images are
+                                uploaded to any server.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-zinc-900 bg-zinc-900/30">
+                        <i data-lucide="zap" class="w-5 h-5 text-amber-500 shrink-0"></i>
+                        <div>
+                            <p class="text-sm font-bold text-zinc-300" data-i18n="label_batch">Instant Batch</p>
+                            <p class="text-xs text-zinc-500" data-i18n="batch_desc">Drop multiple images to convert them
+                                all at once with
+                                matching quality.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Upload & Results Column -->
+            <div class="lg:col-span-8 flex flex-col gap-8">
+
+                <!-- Dropzone -->
+                <div id="drop-zone"
+                    class="relative shadcn-card border-2 border-dashed p-16 text-center cursor-pointer hover:bg-zinc-900/50 group transition-none overflow-hidden">
+                    <input id="file-input" type="file" accept=".svg" multiple class="hidden">
+                    <div class="flex flex-col items-center gap-6">
+                        <div
+                            class="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-400 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-none">
+                            <i data-lucide="file-code" class="w-8 h-8"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <p class="text-xl font-semibold text-white" data-i18n="drop_images_msg">Drop images to
+                                convert</p>
+                            <p class="text-zinc-400 text-sm">SVG files only</p>
+                        </div>
+                    </div>
+                    <!-- Processing Progress -->
+                    <div id="processing-bar"
+                        class="absolute bottom-0 left-0 h-1 bg-primary w-0 transition-all duration-300"></div>
+                </div>
+
+                <!-- Results -->
+                <section id="results-section" class="hidden space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
+                            <i data-lucide="file-check" class="w-4 h-4"></i>
+                            <span data-i18n="label_sanitized_svgs">Sanitized SVGs</span>
+                        </h3>
+                        <button id="download-zip-btn"
+                            class="shadcn-button shadcn-button-primary h-10 px-6 text-xs gap-2">
+                            <i data-lucide="package" class="w-4 h-4"></i>
+                            <span data-i18n="btn_download_zip">Download all (ZIP)</span>
+                        </button>
+                    </div>
+                    <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Injected by JS -->
+                    </div>
+                </section>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Global Footer Container -->
+    <wpt-footer></wpt-footer>
+
+    <!-- Global Toast Container -->
+    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
+        <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
+            <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+            <span id="toast-msg" class="text-sm font-medium">Notification</span>
+        </div>
+    </div>
+</body>
+
+</html>

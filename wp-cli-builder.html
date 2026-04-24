@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #09090b; color: white;">
+
+<head>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#09090b">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title_wp_cli_builder">WP-CLI Command Builder | WPToolbox</title>
+    <meta name="description" content="Build complex WP-CLI terminal commands with an easy-to-use visual interface.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script type="module" src="src/tools/wp-cli-builder.js"></script>
+</head>
+
+<body class="min-h-screen flex flex-col grid-bg">
+
+    <wpt-navbar></wpt-navbar>
+
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
+        <header class="mb-10 text-center md:text-start">
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_wp_cli_builder_title">WP-CLI Command Builder</h1>
+            <p class="text-zinc-500 mt-2" data-i18n="tool_wp_cli_builder_desc">Visually build complex WP-CLI commands like Search & Replace, user generation, or db exports without remembering flags.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+            <!-- Controls Column -->
+            <div class="lg:col-span-5 space-y-6">
+                <!-- Command Type -->
+                <div class="relative">
+                    <select id="cmd-type" class="w-full shadcn-input h-12 text-sm font-medium appearance-none cursor-pointer">
+                        <option value="search-replace" data-i18n="cmd_search_replace">Search & Replace</option>
+                        <option value="user-generate" data-i18n="cmd_user_generate">Generate Users</option>
+                        <option value="db-export" data-i18n="cmd_db_export">Database Export</option>
+                        <option value="media-regen" data-i18n="cmd_media_regen">Regenerate Media</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 end-0 flex items-center px-4 text-zinc-400">
+                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <!-- Dynamic Form Fields Container -->
+                <section id="form-container" class="shadcn-card p-6 bg-zinc-900/40">
+                    <!-- Injected by JS -->
+                </section>
+            </div>
+
+            <!-- Output Column -->
+            <div class="lg:col-span-7">
+                <div class="relative shadcn-card overflow-hidden group">
+                    <div class="flex items-center justify-between px-4 py-3 bg-zinc-950 border-b border-zinc-800">
+                        <span class="text-xs font-mono text-zinc-400">Terminal Command</span>
+                        <button id="btn-copy" class="text-zinc-400 hover:text-white transition-colors" title="Copy command">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div class="p-6 bg-zinc-900/50 flex items-center" dir="ltr">
+                        <span class="text-green-400 font-mono text-sm mr-3 font-bold">$</span>
+                        <code id="cmd-output" class="text-sm font-mono text-zinc-300 break-all w-full text-left">wp help</code>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex items-start gap-4 p-4 rounded-xl border border-zinc-900 bg-zinc-900/30">
+                    <i data-lucide="info" class="w-5 h-5 text-zinc-500 shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="text-sm text-zinc-400 leading-relaxed">Copy the command above and run it in your server's terminal inside your WordPress installation directory. Ensure WP-CLI is installed.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <wpt-footer></wpt-footer>
+
+    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
+        <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
+            <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+            <span id="toast-msg" class="text-sm font-medium">Notification</span>
+        </div>
+    </div>
+</body>
+</html>

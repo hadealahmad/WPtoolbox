@@ -31,6 +31,18 @@
                 "text": "nav_blocksy_palette",
                 "icon": "palette",
                 "desc": "nav_blocksy_palette_desc"
+            },
+            {
+                "href": "svg-sanitizer.html",
+                "text": "nav_svg_sanitizer",
+                "icon": "shield-check",
+                "desc": "nav_svg_sanitizer_desc"
+            },
+            {
+                "href": "dummy-image-generator.html",
+                "text": "nav_dummy_image",
+                "icon": "image",
+                "desc": "nav_dummy_image_desc"
             }
         ]
     },
@@ -54,6 +66,18 @@
                 "text": "nav_awesome_stack",
                 "icon": "layers",
                 "desc": "nav_awesome_stack_desc"
+            },
+            {
+                "href": "server-config-generator.html",
+                "text": "nav_server_config",
+                "icon": "server",
+                "desc": "nav_server_config_desc"
+            },
+            {
+                "href": "wp-cli-builder.html",
+                "text": "nav_wp_cli_builder",
+                "icon": "terminal",
+                "desc": "nav_wp_cli_builder_desc"
             }
         ]
     },

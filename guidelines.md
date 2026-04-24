@@ -6,14 +6,14 @@ This document outlines the architecture, design principles, and technical standa
 
 The project uses a modern modular architecture powered by **Vite**.
 
-- **`/` (Root)**: Contains tool-specific HTML templates (e.g., `index.html`, `awesomestack.html`).
+- **`/` (Root)**: Contains tool-specific HTML templates (e.g., `index.html`, `svg-sanitizer.html`).
 - **`/src/core/`**: Core framework logic.
   - `app.js`: Main application facade and lifecycle management.
   - `i18n.js`: Internationalization engine with MutationObserver support.
   - `base-tool.js`: Base class for all tools providing shared file handling and progress logic.
   - `ui.js`: Global UI utilities (theme, toasts, confetti).
   - `utils.js`: Helper functions (clipboard, download, formatting).
-- **`/src/tools/`**: Tool-specific modules (e.g., `awesome-stack.js`, `image-converter.js`).
+- **`/src/tools/`**: Tool-specific modules (e.g., `wp-cli-builder.js`, `image-converter.js`).
 - **`/src/components/`**: Reusable Web Components (`wpt-navbar`, `wpt-footer`).
 - **`/src/data/`**: Centralized data storage.
   - `translations.json`: Dictionary for all UI strings.
