@@ -40,11 +40,11 @@ export const WPCLIBuilder = App.registerTool('WPCLIBuilder', {
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-zinc-300 mb-2" data-i18n="label_search_for">Search For</label>
-                        <input type="text" id="sr-old" class="shadcn-input builder-input" placeholder="http://old-domain.com">
+                        <input type="text" id="sr-old" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all builder-input" placeholder="http://old-domain.com">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-zinc-300 mb-2" data-i18n="label_replace_with">Replace With</label>
-                        <input type="text" id="sr-new" class="shadcn-input builder-input" placeholder="https://new-domain.com">
+                        <input type="text" id="sr-new" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all builder-input" placeholder="https://new-domain.com">
                     </div>
                     <label class="flex items-center justify-between cursor-pointer group mt-6">
                         <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="opt_dry_run">Dry Run (Testing only)</span>
@@ -67,12 +67,12 @@ export const WPCLIBuilder = App.registerTool('WPCLIBuilder', {
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-zinc-300 mb-2">Number of Users</label>
-                        <input type="number" id="ug-count" class="shadcn-input builder-input" value="10" min="1">
+                        <input type="number" id="ug-count" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all builder-input" value="10" min="1">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-zinc-300 mb-2">Role</label>
                         <div class="relative">
-                            <select id="ug-role" class="w-full shadcn-input builder-input appearance-none cursor-pointer">
+                            <select id="ug-role" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all builder-input appearance-none cursor-pointer">
                                 <option value="subscriber">Subscriber</option>
                                 <option value="contributor">Contributor</option>
                                 <option value="author">Author</option>
@@ -91,7 +91,7 @@ export const WPCLIBuilder = App.registerTool('WPCLIBuilder', {
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-zinc-300 mb-2">Filename (optional)</label>
-                        <input type="text" id="db-file" class="shadcn-input builder-input" placeholder="backup.sql">
+                        <input type="text" id="db-file" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all builder-input" placeholder="backup.sql">
                     </div>
                     <label class="flex items-center justify-between cursor-pointer group mt-6">
                         <span class="text-sm font-medium text-zinc-300 group-hover:text-white">Add DROP TABLE</span>
