@@ -67,208 +67,135 @@
         </div>
 
 
+        <!-- Category Filters -->
+        <div class="flex flex-wrap gap-2 mb-12" id="filter-bar">
+            <button class="filter-btn active shadcn-button shadcn-button-outline px-6 rounded-full text-xs" data-category="all" data-i18n="filter_all">All Tools</button>
+            <button class="filter-btn shadcn-button shadcn-button-outline px-6 rounded-full text-xs" data-category="media" data-i18n="nav_group_media">Media & Assets</button>
+            <button class="filter-btn shadcn-button shadcn-button-outline px-6 rounded-full text-xs" data-category="workflow" data-i18n="nav_group_workflow">Core Workflow</button>
+            <button class="filter-btn shadcn-button shadcn-button-outline px-6 rounded-full text-xs" data-category="dev" data-i18n="nav_group_dev">Development</button>
+        </div>
+
         <!-- Tool Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="tool-grid">
 
             <!-- Tool 1: Awesome Stack -->
-            <a href="awesomestack.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
-                <div>
-                    <div
-                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-primary">
-                        <i data-lucide="layers" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_awesome_stack_title">
-                        Awesome Stack</h3>
-                    <p class="text-zinc-500 leading-snug" data-i18n="tool_awesome_stack_desc">Generate a one-liner
-                        WP-CLI command to set up your ideal
-                        WordPress theme and plugin stack instantly.</p>
+            <a href="awesomestack.html" class="tool-card group p-6 flex flex-col gap-4 transition-all duration-300" data-category="workflow">
+                <div class="w-10 h-10 bg-zinc-800/50 rounded-lg flex items-center justify-center text-white group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <i data-lucide="layers" class="w-5 h-5"></i>
                 </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 tracking-tight text-white" data-i18n="tool_awesome_stack_title">Awesome Stack</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed" data-i18n="tool_awesome_stack_desc">Generate a one-liner WP-CLI command to set up your ideal WordPress theme and plugin stack instantly.</p>
                 </div>
             </a>
 
             <!-- Tool 2: WebP Converter -->
-            <a href="img2webp.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
-                <div>
-                    <div
-                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-primary">
-                        <i data-lucide="image" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_img2webp_title">WebP
-                        Converter</h3>
-                    <p class="text-zinc-500 leading-snug" data-i18n="tool_img2webp_desc">Convert and compress PNG/JPG
-                        images to WebP format directly in
-                        your browser for faster site speeds.</p>
+            <a href="img2webp.html" class="tool-card group p-6 flex flex-col gap-4 transition-all duration-300" data-category="media">
+                <div class="w-10 h-10 bg-zinc-800/50 rounded-lg flex items-center justify-center text-white group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <i data-lucide="image" class="w-5 h-5"></i>
                 </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 tracking-tight text-white" data-i18n="tool_img2webp_title">WebP Converter</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed" data-i18n="tool_img2webp_desc">Convert and compress PNG/JPG images to WebP format directly in your browser for faster site speeds.</p>
                 </div>
             </a>
 
             <!-- Tool 3: Tips & Facts -->
-            <a href="tips.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
-                <div>
-                    <div
-                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-amber-400">
-                        <i data-lucide="lightbulb" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_tips_title">Tips &
-                        Facts</h3>
-                    <p class="text-zinc-500 leading-snug" data-i18n="tool_tips_desc">Obscure WordPress behavior, hosting
-                        bottlenecks, and clever
-                        production-tested solutions.</p>
+            <a href="tips.html" class="tool-card group p-6 flex flex-col gap-4 transition-all duration-300" data-category="dev">
+                <div class="w-10 h-10 bg-zinc-800/50 rounded-lg flex items-center justify-center text-white group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <i data-lucide="lightbulb" class="w-5 h-5 text-amber-400"></i>
                 </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 tracking-tight text-white" data-i18n="tool_tips_title">Tips & Facts</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed" data-i18n="tool_tips_desc">Obscure WordPress behavior, hosting bottlenecks, and clever production-tested solutions.</p>
                 </div>
             </a>
 
             <!-- Tool 4: Font Cleaner -->
-            <a href="clearfonts.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
-                <div>
-                    <div
-                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground">
-                        <i data-lucide="eraser" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_font_cleaner_title">
-                        Block Font Cleaner</h3>
-                    <p class="text-zinc-500 leading-snug" data-i18n="tool_font_cleaner_desc">Automatically remove
-                        hardcoded font-family definitions from
-                        Gutenberg and Greenshift block comments.</p>
+            <a href="clearfonts.html" class="tool-card group p-6 flex flex-col gap-4 transition-all duration-300" data-category="media">
+                <div class="w-10 h-10 bg-zinc-800/50 rounded-lg flex items-center justify-center text-white group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <i data-lucide="eraser" class="w-5 h-5"></i>
                 </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 tracking-tight text-white" data-i18n="tool_font_cleaner_title">Block Font Cleaner</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed" data-i18n="tool_font_cleaner_desc">Automatically remove hardcoded font-family definitions from Gutenberg and Greenshift block comments.</p>
                 </div>
             </a>
 
             <!-- Tool 5: WordPress Export Mapper -->
-            <a href="wp-mapper.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
-                <div>
-                    <div
-                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-blue-400">
-                        <i data-lucide="map" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_wp_mapper_title">
-                        WordPress Export Mapper</h3>
-                    <p class="text-zinc-500 leading-snug" data-i18n="tool_wp_mapper_desc">Convert CSV/JSON/XML to
-                        WordPress XML (WXR) with custom post type and custom field mapping.</p>
+            <a href="wp-mapper.html" class="tool-card group p-6 flex flex-col gap-4 transition-all duration-300" data-category="dev">
+                <div class="w-10 h-10 bg-zinc-800/50 rounded-lg flex items-center justify-center text-white group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <i data-lucide="map" class="w-5 h-5 text-blue-400"></i>
                 </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 tracking-tight text-white" data-i18n="tool_wp_mapper_title">WordPress Export Mapper</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed" data-i18n="tool_wp_mapper_desc">Convert CSV/JSON/XML to WordPress XML (WXR) with custom post type and custom field mapping.</p>
                 </div>
             </a>
 
             <!-- Tool 8: Snippets -->
-            <a href="snippets.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
-                <div>
-                    <div
-                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground">
-                        <i data-lucide="code-2" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_snippets_title">
-                        WordPress Snippets</h3>
-                    <p class="text-zinc-500 leading-snug" data-i18n="tool_snippets_desc">A curated collection of
-                        production-ready snippets for
-                        .htaccess, wp-config, and PHP performance tuning.</p>
+            <a href="snippets.html" class="tool-card group p-6 flex flex-col gap-4 transition-all duration-300" data-category="dev">
+                <div class="w-10 h-10 bg-zinc-800/50 rounded-lg flex items-center justify-center text-white group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <i data-lucide="code-2" class="w-5 h-5"></i>
                 </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 tracking-tight text-white" data-i18n="tool_snippets_title">WordPress Snippets</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed" data-i18n="tool_snippets_desc">A curated collection of production-ready snippets for .htaccess, wp-config, and PHP performance tuning.</p>
                 </div>
             </a>
 
-
-
             <!-- Tool 9: Demo Content Generator -->
-            <a href="demo-generator.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
-                <div>
-                    <div
-                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-green-400">
-                        <i data-lucide="sparkles" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_demo_generator_title">
-                        Demo Content Generator</h3>
-                    <p class="text-zinc-500 leading-snug" data-i18n="tool_demo_generator_desc">Generate high-quality
-                        mock data for WordPress or any other platform. Export as XML, CSV, or JSON.</p>
+            <a href="demo-generator.html" class="tool-card group p-6 flex flex-col gap-4 transition-all duration-300" data-category="workflow">
+                <div class="w-10 h-10 bg-zinc-800/50 rounded-lg flex items-center justify-center text-white group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-green-400"></i>
                 </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 tracking-tight text-white" data-i18n="tool_demo_generator_title">Demo Content Generator</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed" data-i18n="tool_demo_generator_desc">Generate high-quality mock data for WordPress or any other platform. Export as XML, CSV, or JSON.</p>
                 </div>
             </a>
 
             <!-- Tool 10: Unify Aspect Ratio -->
-            <a href="unify-aspect-ratio.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
-                <div>
-                    <div
-                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-indigo-400">
-                        <i data-lucide="expand" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_unify_aspect_ratio_title">
-                        Unify Aspect Ratio</h3>
-                    <p class="text-zinc-500 leading-snug" data-i18n="tool_unify_aspect_ratio_desc">Set all images to the
-                        same aspect ratio with transparent padding. Ideal for sliders and galleries.</p>
+            <a href="unify-aspect-ratio.html" class="tool-card group p-6 flex flex-col gap-4 transition-all duration-300" data-category="media">
+                <div class="w-10 h-10 bg-zinc-800/50 rounded-lg flex items-center justify-center text-white group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <i data-lucide="expand" class="w-5 h-5 text-indigo-400"></i>
                 </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 tracking-tight text-white" data-i18n="tool_unify_aspect_ratio_title">Unify Aspect Ratio</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed" data-i18n="tool_unify_aspect_ratio_desc">Set all images to the same aspect ratio with transparent padding. Ideal for sliders and galleries.</p>
                 </div>
             </a>
 
             <!-- Tool 11: Website Checklist -->
-            <a href="checklist.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
-                <div>
-                    <div
-                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-orange-400">
-                        <i data-lucide="check-square" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="nav_checklist">
-                        Website Checklist</h3>
-                    <p class="text-zinc-500 leading-snug" data-i18n="tool_checklist_desc">Ensure your WordPress site is production-ready with a professional pre-launch checklist.</p>
+            <a href="checklist.html" class="tool-card group p-6 flex flex-col gap-4 transition-all duration-300" data-category="workflow">
+                <div class="w-10 h-10 bg-zinc-800/50 rounded-lg flex items-center justify-center text-white group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <i data-lucide="check-square" class="w-5 h-5 text-orange-400"></i>
                 </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 tracking-tight text-white" data-i18n="nav_checklist">Website Checklist</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed" data-i18n="tool_checklist_desc">Ensure your WordPress site is production-ready with a professional pre-launch checklist.</p>
                 </div>
             </a>
 
             <!-- Tool 12: QR Generator -->
-            <a href="qr-generator.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
-                <div>
-                    <div
-                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-teal-400">
-                        <i data-lucide="qr-code" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_qr_generator_title">
-                        QR Code Generator</h3>
-                    <p class="text-zinc-500 leading-snug" data-i18n="tool_qr_generator_desc">Generate QR codes from one or multiple links instantly. Download in SVG, PNG, or JPG.</p>
+            <a href="qr-generator.html" class="tool-card group p-6 flex flex-col gap-4 transition-all duration-300" data-category="media">
+                <div class="w-10 h-10 bg-zinc-800/50 rounded-lg flex items-center justify-center text-white group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <i data-lucide="qr-code" class="w-5 h-5 text-teal-400"></i>
                 </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 tracking-tight text-white" data-i18n="tool_qr_generator_title">QR Code Generator</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed" data-i18n="tool_qr_generator_desc">Generate QR codes from one or multiple links instantly. Download in SVG, PNG, or JPG.</p>
                 </div>
             </a>
 
             <!-- Tool 13: Blocksy Palette -->
-            <a href="blocksy-palette.html" class="tool-card group p-8 flex flex-col justify-between min-h-[320px]">
-                <div>
-                    <div
-                        class="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-rose-400">
-                        <i data-lucide="palette" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 tracking-tight text-white" data-i18n="tool_blocksy_palette_title">
-                        Blocksy Palette</h3>
-                    <p class="text-zinc-500 leading-snug" data-i18n="tool_blocksy_palette_desc">Generate custom Blocksy-compatible 8-color palettes for light and dark modes. Save and edit your palettes.</p>
+            <a href="blocksy-palette.html" class="tool-card group p-6 flex flex-col gap-4 transition-all duration-300" data-category="media">
+                <div class="w-10 h-10 bg-zinc-800/50 rounded-lg flex items-center justify-center text-white group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <i data-lucide="palette" class="w-5 h-5 text-rose-400"></i>
                 </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-primary">
-                    <span data-i18n="launch_tool">Launch Tool</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 tracking-tight text-white" data-i18n="tool_blocksy_palette_title">Blocksy Palette</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed" data-i18n="tool_blocksy_palette_desc">Generate custom Blocksy-compatible 8-color palettes for light and dark modes. Save and edit your palettes.</p>
                 </div>
             </a>
         </div>

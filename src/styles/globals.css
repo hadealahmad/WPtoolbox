@@ -95,6 +95,12 @@ body {
     background-color: var(--secondary);
 }
 
+.filter-btn.active {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+}
+
 .grid-bg {
     background-image: radial-gradient(var(--border) 1px, transparent 1px);
     background-size: 32px 32px;
