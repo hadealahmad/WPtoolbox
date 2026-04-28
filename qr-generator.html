@@ -49,11 +49,83 @@
                         placeholder="https://example.com/&#10;https://example.com/about"
                         data-i18n-placeholder="placeholder_links"></textarea>
 
-                    <div class="flex items-center justify-between mt-4">
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" id="transparent-bg" class="w-4 h-4 rounded border-zinc-800 bg-zinc-900 text-primary focus:ring-primary focus:ring-offset-zinc-950">
-                            <label for="transparent-bg" class="text-sm text-zinc-400 cursor-pointer" data-i18n="label_transparent_bg">Transparent Background</label>
+                    <label class="flex items-center justify-between cursor-pointer group mt-4">
+                        <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="label_transparent_bg">Transparent Background</span>
+                        <div class="relative inline-flex items-center">
+                            <input type="checkbox" id="transparent-bg" class="sr-only peer">
+                            <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
                         </div>
+                    </label>
+
+                    <!-- Social Media Export Section -->
+                    <div class="border-t border-zinc-800 mt-6 pt-6">
+                        <label class="flex items-center justify-between cursor-pointer group mb-4">
+                            <span class="text-sm font-bold text-zinc-300 group-hover:text-white" data-i18n="label_social_bg">Social Media Export</span>
+                            <div class="relative inline-flex items-center">
+                                <input type="checkbox" id="enable-social" class="sr-only peer">
+                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                            </div>
+                        </label>
+
+                        <div id="social-options" class="hidden space-y-4">
+                            <div>
+                                <label class="text-xs text-zinc-500 mb-1 block" data-i18n="label_qr_title">Title (Optional)</label>
+                                <input type="text" id="qr-title" class="w-full bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" placeholder="Scan Me!" data-i18n-placeholder="placeholder_qr_title">
+                            </div>
+
+                            <label class="flex items-center justify-between cursor-pointer group mt-4 mb-4">
+                                <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="label_show_link">Show Link Under QR</span>
+                                <div class="relative inline-flex items-center">
+                                    <input type="checkbox" id="show-link" class="sr-only peer" checked>
+                                    <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                                </div>
+                            </label>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-xs text-zinc-500 mb-1 block" data-i18n="label_aspect_ratio">Aspect Ratio</label>
+                                    <select id="aspect-ratio" class="w-full bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-primary">
+                                        <option value="1:1">1:1 (Instagram Post)</option>
+                                        <option value="4:5">4:5 (Instagram Portrait)</option>
+                                        <option value="16:9">16:9 (Twitter/Facebook)</option>
+                                        <option value="9:16">9:16 (Stories/Reels)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-zinc-500 mb-1 block" data-i18n="label_bg_type">Background Type</label>
+                                    <select id="bg-type" class="w-full bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-primary">
+                                        <option value="gradient">Gradient</option>
+                                        <option value="image">Custom Image</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="gradient-options" class="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                                <!-- JS will inject gradients here -->
+                            </div>
+
+                            <div id="image-options" class="hidden">
+                                <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-zinc-800 border-dashed rounded-lg cursor-pointer hover:border-zinc-700 bg-zinc-900/50 relative overflow-hidden group">
+                                    <img id="bg-image-preview" class="absolute inset-0 w-full h-full object-cover hidden">
+                                    <div id="bg-upload-prompt" class="flex flex-col items-center justify-center pt-5 pb-6 bg-zinc-900/80 w-full h-full absolute inset-0 opacity-100 group-hover:opacity-90 transition-opacity">
+                                        <i data-lucide="upload-cloud" class="w-6 h-6 text-zinc-500 mb-2"></i>
+                                        <p class="text-xs text-zinc-500"><span class="font-semibold text-zinc-300">Click to upload</span></p>
+                                    </div>
+                                    <input id="bg-image-upload" type="file" class="hidden" accept="image/*" />
+                                </label>
+                            </div>
+
+                            <!-- Live Preview Container -->
+                            <div id="social-preview-container" class="mt-4 border border-zinc-800 rounded-lg p-4 bg-zinc-950 flex flex-col items-center hidden">
+                                <h4 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-4 w-full text-center" data-i18n="label_live_preview">Live Preview</h4>
+                                <div class="relative w-full max-w-[200px] flex items-center justify-center">
+                                    <img id="social-preview-img" class="w-full h-auto rounded-md border border-zinc-800 shadow-xl object-contain">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end mt-6">
                         <button id="generate-btn" class="shadcn-button shadcn-button-primary h-10 px-6 text-sm gap-2">
                             <i data-lucide="qr-code" class="w-4 h-4"></i>
                             <span data-i18n="btn_generate_qrs">Generate</span>
@@ -128,6 +200,19 @@
             <span id="toast-msg" class="text-sm font-medium">Notification</span>
         </div>
     </div>
+    
+    <style>
+        .bg-checkered {
+            background-color: #e5e5e5;
+            background-image: 
+                linear-gradient(45deg, #d4d4d4 25%, transparent 25%), 
+                linear-gradient(-45deg, #d4d4d4 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #d4d4d4 75%), 
+                linear-gradient(-45deg, transparent 75%, #d4d4d4 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+    </style>
 </body>
 
 </html>
