@@ -364,7 +364,21 @@ export const QRGenerator = App.registerTool('QRGenerator', {
 
                     if (showLink && linkText) {
                         const fontSize = Math.floor(dim.w * 0.035);
-                        const cleanLink = linkText.replace(/^https?:\/\//, '').replace(/\/$/, '');
+                        let cleanLink = linkText.replace(/^https?:\/\//, '').replace(/\/$/, '');
+                        
+                        ctx.font = `bold ${fontSize}px 'IBM Plex Sans Arabic', Inter, sans-serif`;
+                        const maxAllowedWidth = dim.w * 0.85; // 85% max width
+                        let linkWidth = ctx.measureText(cleanLink).width;
+                        
+                        if (linkWidth > maxAllowedWidth) {
+                            try {
+                                const u = new URL(linkText.startsWith('http') ? linkText : 'https://' + linkText);
+                                cleanLink = u.hostname;
+                            } catch (e) {
+                                cleanLink = cleanLink.split('/')[0];
+                            }
+                        }
+
                         drawTextPill(cleanLink, rectY + rectSize + 40, fontSize, true);
                     }
 
