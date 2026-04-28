@@ -18,7 +18,7 @@ WPToolbox is organized into three core categories to streamline your workflow:
 - **WordPress SVG Sanitizer**: Sanitize and optimize SVG files client-side to safely upload them to WordPress.
 - **Dummy Image Generator**: Generate a batch of lightweight placeholder images with custom dimensions, colors, and text.
 - **Unify Aspect Ratio**: Bulk process images to a consistent aspect ratio with smart padding. Ideal for sliders and galleries.
-- **QR Code Generator**: Generate single or batch QR codes from links instantly. Download in SVG, PNG, or JPG.
+- **QR Code Generator**: Generate single or batch QR codes instantly. Create beautiful, customizable social media export graphics with text overlays, smart link formatting, and OKLCH gradient backgrounds. Download in SVG or PNG.
 - **Block Font Cleaner**: Automatically remove hardcoded fonts from Gutenberg and Greenshift block comments.
 - **Blocksy Palette Generator**: Create and export custom 8-color palettes compatible with the Blocksy theme.
 

@@ -49,6 +49,7 @@ Every page includes professional meta-integration:
    - Use `data-i18n` for text, `data-i18n-html` for rich content, and `data-i18n-placeholder` for inputs.
    - Use `App.t('key')` for dynamic strings.
    - Always provide translations in both `en` and `ar` within `translations.json`.
+   - **Canvas APIs**: When drawing text dynamically to a `<canvas>`, use regex (e.g. `/^[\s\W\d]*[\u0600-\u06FF]/`) to detect Arabic text and manually set `ctx.direction = 'rtl'` and use an appropriate font stack (e.g. `'IBM Plex Sans Arabic'`).
 3. **Components**:
    - Use Custom Elements (Web Components) for global UI parts like navigation and footers to ensure encapsulation and ease of maintenance.
 4. **Lifecycle**:
