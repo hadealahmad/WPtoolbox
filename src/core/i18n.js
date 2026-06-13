@@ -77,13 +77,43 @@ export const I18n = {
 
         // Translate document title and meta description
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-        const docTitle = langData[`title_${currentPath}`];
-        if (docTitle) document.title = docTitle;
+        const pageKeyMap = {
+            'qr-generator.html': 'qr_generator',
+            'blocksy-palette.html': 'blocksy_palette',
+            'svg-sanitizer.html': 'svg_sanitizer',
+            'dummy-image-generator.html': 'dummy_image',
+            'server-config-generator.html': 'server_config',
+            'wp-cli-builder.html': 'wp_cli_builder'
+        };
+        const pageKey = pageKeyMap[currentPath] || currentPath;
 
-        const docDesc = langData[`desc_${currentPath}`];
+        const docTitle = langData[`title_${pageKey}`];
+        if (docTitle) {
+            document.title = docTitle;
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) ogTitle.setAttribute('content', docTitle);
+            const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+            if (twitterTitle) twitterTitle.setAttribute('content', docTitle);
+        }
+
+        const docDesc = langData[`desc_${pageKey}`];
         if (docDesc) {
             const meta = document.querySelector('meta[name="description"]');
             if (meta) meta.setAttribute('content', docDesc);
+            const ogDesc = document.querySelector('meta[property="og:description"]');
+            if (ogDesc) ogDesc.setAttribute('content', docDesc);
+            const twitterDesc = document.querySelector('meta[name="twitter:description"]');
+            if (twitterDesc) twitterDesc.setAttribute('content', docDesc);
+        }
+
+        const ogLocale = document.querySelector('meta[property="og:locale"]');
+        const ogLocaleAlt = document.querySelector('meta[property="og:locale:alternate"]');
+        if (State.currentLang === 'ar') {
+            if (ogLocale) ogLocale.setAttribute('content', 'ar_AR');
+            if (ogLocaleAlt) ogLocaleAlt.setAttribute('content', 'en_US');
+        } else {
+            if (ogLocale) ogLocale.setAttribute('content', 'en_US');
+            if (ogLocaleAlt) ogLocaleAlt.setAttribute('content', 'ar_AR');
         }
     }
 };
