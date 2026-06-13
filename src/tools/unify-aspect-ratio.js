@@ -131,24 +131,26 @@ export const UnifyAspectRatio = App.registerTool('UnifyAspectRatio', {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
 
-                    let targetWidth, targetHeight;
+                    let canvasWidth, canvasHeight;
                     const imgRatio = img.width / img.height;
 
                     if (imgRatio > this.targetRatio) {
-                        targetHeight = img.height;
-                        targetWidth = img.height * this.targetRatio;
+                        // Image is wider than the target aspect ratio
+                        canvasWidth = img.width;
+                        canvasHeight = img.width / this.targetRatio;
                     } else {
-                        targetWidth = img.width;
-                        targetHeight = img.width / this.targetRatio;
+                        // Image is taller than or equal to the target aspect ratio
+                        canvasHeight = img.height;
+                        canvasWidth = img.height * this.targetRatio;
                     }
 
-                    canvas.width = targetWidth;
-                    canvas.height = targetHeight;
+                    canvas.width = canvasWidth;
+                    canvas.height = canvasHeight;
 
-                    const offsetX = (img.width - targetWidth) / 2;
-                    const offsetY = (img.height - targetHeight) / 2;
+                    const x = (canvasWidth - img.width) / 2;
+                    const y = (canvasHeight - img.height) / 2;
 
-                    ctx.drawImage(img, offsetX, offsetY, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight);
+                    ctx.drawImage(img, x, y, img.width, img.height);
 
                     this.processedImages.push({
                         name: `unified-${file.name}`,
