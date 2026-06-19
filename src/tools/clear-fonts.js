@@ -15,11 +15,11 @@ export const ClearFonts = App.registerTool('ClearFonts', {
 
         input.oninput = () => {
             let val = input.value;
-            // Enhanced regex to catch font-family in both JSON and standard comment styles
-            val = val.replace(/"fontFamily":"[^"]*",?/g, '');
+            // Robust regex to catch font-family (string/array, single/double/no quotes) in both JSON and standard styles
+            val = val.replace(/"?(fontFamily|font-family)"?:\s*(?:\[[^\]]*\]|"[^"]*"|'[^']*'),?/g, '');
             val = val.replace(/font-family:[^;"]*;?/g, '');
             // Clean up trailing commas in objects
-            val = val.replace(/,}/g, '}');
+            val = val.replace(/,\s*}/g, '}');
             output.value = val;
         };
 
