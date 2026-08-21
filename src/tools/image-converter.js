@@ -10,6 +10,11 @@ export const ImageConverter = App.registerTool('ImageConverter', {
     convertedImages: [],
     multiple: true,
     resultsId: 'results-section',
+    progressBarId: 'processing-bar',
+
+    onCleanup: function() {
+        if (this._onPaste) document.removeEventListener('paste', this._onPaste);
+    },
 
     onInit: function() {
         const qualitySlider = document.getElementById('quality-slider');
@@ -27,8 +32,13 @@ export const ImageConverter = App.registerTool('ImageConverter', {
             zipBtn.onclick = () => this.downloadZip();
         }
 
-        // Add clipboard listener
-        document.addEventListener('paste', (e) => this.handlePaste(e));
+        // Clipboard listener (removed on teardown via onCleanup)
+        this._onPaste = (e) => {
+            const target = e.target;
+            if (target && (target.isContentEditable || /^(input|textarea|select)$/i.test(target.tagName))) return;
+            this.handlePaste(e);
+        };
+        document.addEventListener('paste', this._onPaste);
     },
 
     onLanguageChange: function() {
@@ -56,15 +66,15 @@ export const ImageConverter = App.registerTool('ImageConverter', {
     handleFiles: async function(files) {
         if (!files || !files.length) return;
 
-        // Clear existing results
-        this.convertedImages = [];
-
-        const progressBar = document.getElementById('processing-bar');
+        const progressBar = document.getElementById(this.config.progressBarId);
         
         let processed = 0;
+        let rejected = 0;
         for (const file of files) {
+            if (this.isCancelled) break;
+
             if (!file.type.startsWith('image/')) {
-                App.showToast(App.t('msg_upload_images') || 'Please upload only images.');
+                rejected++;
                 continue;
             }
 
@@ -78,6 +88,10 @@ export const ImageConverter = App.registerTool('ImageConverter', {
             await this.processImage(file, tempName);
             processed++;
             if (progressBar) progressBar.style.width = `${(processed / files.length) * 100}%`;
+        }
+
+        if (rejected > 0) {
+            App.showToast(App.t('msg_upload_images') || 'Please upload only images.');
         }
 
         setTimeout(() => {
@@ -169,7 +183,7 @@ export const ImageConverter = App.registerTool('ImageConverter', {
             grid.appendChild(card);
         });
 
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons, root: grid });
         App.translatePage();
     },
 

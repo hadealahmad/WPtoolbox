@@ -6,6 +6,7 @@ import { App } from '../core/app.js';
 import JSZip from 'jszip';
 
 export const UnifyAspectRatio = App.registerTool('UnifyAspectRatio', {
+    progressBarId: 'processing-bar',
     targetRatio: 1, // 1:1 default
     customWidth: 1000,
     customHeight: 1000,
@@ -100,25 +101,25 @@ export const UnifyAspectRatio = App.registerTool('UnifyAspectRatio', {
         if (!files || !files.length) return;
         this.lastFiles = files;
 
-        // Clear existing results
-        this.processedImages = [];
-
-        const progressBar = document.getElementById('processing-bar');
-        
         let processed = 0;
+        let rejected = 0;
         for (const file of files) {
             if (!file.type.startsWith('image/')) {
-                App.showToast(App.t('msg_upload_images') || 'Please upload only images.');
+                rejected++;
                 continue;
             }
 
             await this.processImage(file);
             processed++;
-            if (progressBar) progressBar.style.width = `${(processed / files.length) * 100}%`;
+            this.updateProgress(Math.round((processed / files.length) * 100));
+        }
+
+        if (rejected > 0) {
+            App.showToast(App.t('msg_upload_images') || 'Please upload only images.');
         }
 
         setTimeout(() => {
-            if (progressBar) progressBar.style.width = '0';
+            this.updateProgress(0);
         }, 1000);
     },
 

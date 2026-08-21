@@ -32,7 +32,6 @@ export const App = {
         I18n.translatePage();
         I18n.initObserver(); // Watch for dynamic content
         UI.initCommandPalette();
-        Utils.initServiceWorker();
 
         if (typeof createIcons !== 'undefined' && typeof icons !== 'undefined') {
             createIcons({ icons });

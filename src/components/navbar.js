@@ -32,7 +32,7 @@ export class WptNavbar extends HTMLElement {
         menu.classList.toggle('hidden');
         const isOpening = !menu.classList.contains('hidden');
         btn.innerHTML = `<i data-lucide="${isOpening ? 'x' : 'menu'}" class="w-6 h-6 pointer-events-none"></i>`;
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons, root: this });
     }
 
     render() {
@@ -175,13 +175,13 @@ export class WptNavbar extends HTMLElement {
                 if (!menu.classList.contains('hidden')) {
                     menu.classList.add('hidden');
                     btn.innerHTML = '<i data-lucide="menu" class="w-6 h-6 pointer-events-none"></i>';
-                    if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+                    if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons, root: this });
                 }
             }
         };
 
         document.addEventListener('click', this._outsideClickHandler);
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons, root: this });
     }
 }
 

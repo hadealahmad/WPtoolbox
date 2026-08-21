@@ -419,7 +419,15 @@
         "label_search_for": "Search For",
         "label_replace_with": "Replace With",
         "opt_dry_run": "Dry Run (Testing only)",
-        "opt_skip_columns": "Skip GUID Column"
+        "opt_skip_columns": "Skip GUID Column",
+        "msg_cancelled": "Operation cancelled.",
+        "msg_copy_failed": "Failed to copy to clipboard.",
+        "label_user_count": "Number of Users",
+        "label_user_role": "Role",
+        "label_filename_optional": "Filename (optional)",
+        "opt_drop_table": "Add DROP TABLE",
+        "opt_skip_regen": "Skip previously regenerated",
+        "opt_only_missing": "Only regenerate missing sizes"
     },
     "ar": {
         "nav_home": "الرئيسية",
@@ -839,6 +847,14 @@
         "label_search_for": "ابحث عن",
         "label_replace_with": "استبدل بـ",
         "opt_dry_run": "تشغيل جاف (للاختبار فقط)",
-        "opt_skip_columns": "تخطي عمود GUID"
+        "opt_skip_columns": "تخطي عمود GUID",
+        "msg_cancelled": "تم إلغاء العملية.",
+        "msg_copy_failed": "فشل النسخ إلى الحافظة.",
+        "label_user_count": "عدد المستخدمين",
+        "label_user_role": "الدور",
+        "label_filename_optional": "اسم الملف (اختياري)",
+        "opt_drop_table": "إضافة DROP TABLE",
+        "opt_skip_regen": "تخطي العناصر المعاد توليدها مسبقاً",
+        "opt_only_missing": "إعادة توليد الأحجام الناقصة فقط"
     }
 }

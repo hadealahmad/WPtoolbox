@@ -40,11 +40,16 @@ export const Checklist = App.registerTool('Checklist', {
     loadSites: function() {
         const saved = localStorage.getItem('wptoolbox_checklist_sites');
         this.sites = saved ? JSON.parse(saved) : [];
+        this.activeSiteId = localStorage.getItem('wptoolbox_checklist_active_site') || null;
+        if (this.activeSiteId && !this.sites.some(s => s.id === this.activeSiteId)) {
+            this.activeSiteId = null;
+        }
         this.renderSites();
     },
 
     saveSites: function() {
         localStorage.setItem('wptoolbox_checklist_sites', JSON.stringify(this.sites));
+        localStorage.setItem('wptoolbox_checklist_active_site', this.activeSiteId || '');
         this.renderSites();
     },
 
@@ -143,6 +148,7 @@ export const Checklist = App.registerTool('Checklist', {
 
     selectSite: function(id) {
         this.activeSiteId = id;
+        localStorage.setItem('wptoolbox_checklist_active_site', id || '');
         this.renderSites();
         this.renderChecklist();
         document.getElementById('empty-checklist').classList.add('hidden');

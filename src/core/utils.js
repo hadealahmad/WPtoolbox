@@ -6,12 +6,12 @@ import { I18n } from './i18n.js';
 import JSZip from 'jszip';
 
 export const Utils = {
-    initServiceWorker() {
-        // Handled by VitePWA via injectRegister: 'script'
+    isArabic(text) {
+        return /^[\s\W\d]*[\u0600-\u06FF]/.test(String(text || ''));
     },
 
     escapeCSV(val) {
-        if (val === null || val === undefined) return '""';
+        if (val === null || val === undefined) return '';
         let s = String(val).replace(/\r/g, '').replace(/\n/g, ' ');
         if (/[",\n\r]/.test(s)) {
             s = `"${s.replace(/"/g, '""')}"`;
@@ -32,7 +32,7 @@ export const Utils = {
     htmlToMarkdown(html) {
         if (!html) return '';
         let md = String(html)
-            .replace(/<h[1-6][^>]*>(.*?)<\/h[1-6]>/gi, (m, c) => `\n\n# ${c}\n\n`)
+            .replace(/<h([1-6])[^>]*>(.*?)<\/h\1>/gi, (m, level, c) => `\n\n${'#'.repeat(Number(level))} ${c}\n\n`)
             .replace(/<p[^>]*>(.*?)<\/p>/gi, '\n\n$1\n\n')
             .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
             .replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**')
@@ -75,10 +75,6 @@ export const Utils = {
     },
 
     async downloadZip(files, zipFilename = 'download.zip') {
-        if (typeof JSZip === 'undefined') {
-            UI.showToast("JSZip not loaded");
-            return;
-        }
         const zip = new JSZip();
         files.forEach(file => {
             zip.file(file.name, file.content || file.blob);
@@ -93,46 +89,57 @@ export const Utils = {
         if (!cleanText) return;
 
         const performFeedback = () => {
-            const originalText = btnElement.innerHTML;
-            btnElement.innerHTML = feedbackText || (I18n.t('copy_btn') + "!");
+            if (btnElement) {
+                const originalText = btnElement.innerHTML;
+                btnElement.innerHTML = feedbackText || (I18n.t('copy_btn') + "!");
+                setTimeout(() => {
+                    btnElement.innerHTML = originalText;
+                }, 2000);
+            }
             UI.showToast(I18n.t('copy_btn') + " " + I18n.t('to_clipboard'));
             UI.fireConfetti();
-            setTimeout(() => {
-                btnElement.innerHTML = originalText;
-            }, 2000);
         };
 
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
+        const legacyCopy = () => {
+            const textArea = document.createElement("textarea");
+            textArea.value = cleanText;
+            textArea.setAttribute("readonly", "");
+            textArea.style.position = "fixed";
+            textArea.style.insetInlineStart = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            let successful = false;
+            try {
+                successful = document.execCommand('copy');
+            } catch (e) {
+                successful = false;
+            }
+            document.body.removeChild(textArea);
+            return successful;
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            try {
                 await navigator.clipboard.writeText(cleanText);
                 performFeedback();
-            } else {
-                throw new Error('Clipboard API unavailable');
+                return;
+            } catch (err) {
+                UI.showToast(I18n.t('msg_copy_failed') || "Failed to copy", 2000);
+                return;
             }
-        } catch (err) {
-            try {
-                const textArea = document.createElement("textarea");
-                textArea.value = cleanText;
-                textArea.style.position = "fixed";
-                textArea.style.insetInlineStart = "-9999px";
-                textArea.style.top = "0";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                const successful = document.execCommand('copy');
-                document.body.removeChild(textArea);
-                if (successful) {
-                    performFeedback();
-                } else {
-                    throw new Error('ExecCommand failed');
-                }
-            } catch (fallbackErr) {
-                UI.showToast("Failed to copy", 2000);
-            }
+        }
+
+        if (legacyCopy()) {
+            performFeedback();
+        } else {
+            UI.showToast(I18n.t('msg_copy_failed') || "Failed to copy", 2000);
         }
     },
 
     formatSize(bytes) {
+        if (typeof bytes !== 'number' || !isFinite(bytes) || bytes < 0) return '';
         if (bytes === 0) return '0 ' + I18n.t('unit_bytes');
         const k = 1024;
         const sizes = [

@@ -31,8 +31,30 @@ export const UI = {
         const input = palette.querySelector('#cmd-search');
         const results = palette.querySelector('#cmd-results');
 
+        const openPalette = () => {
+            palette.classList.remove('hidden');
+            input.focus();
+        };
+        const closePalette = () => {
+            palette.classList.add('hidden');
+            input.value = '';
+            updatePalette();
+        };
+
+        let activeIndex = -1;
+
+        const setActive = (idx) => {
+            const items = results.querySelectorAll('a');
+            if (!items.length) return;
+            activeIndex = (idx + items.length) % items.length;
+            items.forEach((el, i) => el.classList.toggle('bg-zinc-900', i === activeIndex));
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        };
+
         const updatePalette = () => {
-            const tools = State.nav.flatMap(group => 
+            input.placeholder = I18n.t('palette_placeholder');
+
+            const tools = State.nav.flatMap(group =>
                 group.items.map(item => ({
                     name: I18n.t(item.text),
                     href: item.href,
@@ -41,9 +63,10 @@ export const UI = {
             );
 
             const renderTools = (filter = '') => {
+                activeIndex = -1;
                 const filtered = tools.filter(t => (t.name || '').toLowerCase().includes((filter || '').toLowerCase()));
                 results.innerHTML = filtered.map((t, idx) => `
-                    <a href="${t.href}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-900 group transition-none">
+                    <a href="${t.href}" data-index="${idx}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-900 group transition-none">
                         <div class="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-primary transition-none">
                             <i data-lucide="${t.icon}" class="w-4 h-4"></i>
                         </div>
@@ -61,15 +84,40 @@ export const UI = {
         window.addEventListener('dataLoaded', updatePalette);
 
         window.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
                 e.preventDefault();
-                palette.classList.toggle('hidden');
-                if (!palette.classList.contains('hidden')) input.focus();
+                palette.classList.contains('hidden') ? openPalette() : closePalette();
+                return;
             }
-            if (e.key === 'Escape') palette.classList.add('hidden');
+            if (palette.classList.contains('hidden')) return;
+
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closePalette();
+                return;
+            }
+
+            const items = results.querySelectorAll('a');
+            if (!items.length) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setActive(activeIndex < 0 ? 0 : activeIndex + 1);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setActive(activeIndex < 0 ? items.length - 1 : activeIndex - 1);
+            } else if (e.key === 'Enter' && activeIndex >= 0) {
+                e.preventDefault();
+                items[activeIndex].click();
+            }
         });
 
-        palette.onclick = (e) => { if (e.target === palette) palette.classList.add('hidden'); };
+        results.addEventListener('mousemove', (e) => {
+            const link = e.target.closest('a[data-index]');
+            if (link) setActive(Number(link.dataset.index));
+        });
+
+        palette.onclick = (e) => { if (e.target === palette) closePalette(); };
         updatePalette();
     },
 

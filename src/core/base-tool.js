@@ -30,6 +30,10 @@ export class BaseTool {
         });
 
         this.isCancelled = false;
+
+        const cancelBtn = document.getElementById(this.config.cancelBtnId);
+        if (cancelBtn) cancelBtn.onclick = () => this.cancel();
+
         this.init();
         if (this.onInit) this.onInit();
     }
@@ -59,9 +63,10 @@ export class BaseTool {
         }
 
         // Global language change listener
-        window.addEventListener('languageChanged', () => {
-            if (this.config.onLanguageChange) this.config.onLanguageChange(State.currentLang);
-        });
+        this._onLanguageChange = () => {
+            if (this.onLanguageChange) this.onLanguageChange(State.currentLang);
+        };
+        window.addEventListener('languageChanged', this._onLanguageChange);
 
         // Initialize Lucide icons if any were added dynamically
         if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
@@ -70,21 +75,26 @@ export class BaseTool {
     async handleFiles(files) {
         if (!files || files.length === 0) return;
         this.isCancelled = false;
-        
+
         if (this.config.resultsId) {
             const results = document.getElementById(this.config.resultsId);
             if (results) results.classList.remove('hidden');
         }
 
         if (this.config.multiple) {
-            if (typeof this.config.onFiles === 'function') {
-                await this.config.onFiles(files);
+            if (typeof this.onFiles === 'function') {
+                await this.onFiles(files);
             }
         } else {
-            if (typeof this.config.onFile === 'function') {
-                await this.config.onFile(files[0]);
+            if (typeof this.onFile === 'function') {
+                await this.onFile(files[0]);
             }
         }
+    }
+
+    destroy() {
+        window.removeEventListener('languageChanged', this._onLanguageChange);
+        if (typeof this.onCleanup === 'function') this.onCleanup();
     }
 
     showOverlay(title, desc) {

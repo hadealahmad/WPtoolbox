@@ -5,7 +5,7 @@
 import '../main.js';
 import { App } from '../core/app.js';
 
-export const DemoGenerator = App.registerTool('demo-generator', {
+export const DemoGenerator = App.registerTool('DemoGenerator', {
     fields: [
         { id: 'post_title', type: 'sentence', mapping: 'title', locked: false },
         { id: 'post_content', type: 'paragraphs', mapping: 'content', locked: false },
@@ -334,6 +334,10 @@ export const DemoGenerator = App.registerTool('demo-generator', {
         }
     },
 
+    escapeCData(str) {
+        return String(str ?? '').replace(/\]\]>/g, ']]]]><![CDATA[>');
+    },
+
     exportToXML(data, postType) {
         let xml = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0"
@@ -362,13 +366,13 @@ export const DemoGenerator = App.registerTool('demo-generator', {
 
             xml += `
 	<item>
-		<title><![CDATA[${title}]]></title>
+		<title><![CDATA[${this.escapeCData(title)}]]></title>
 		<link>http://wptoolbox.local/?p=${postId}</link>
 		<pubDate>${new Date().toUTCString()}</pubDate>
 		<dc:creator><![CDATA[admin]]></dc:creator>
 		<description></description>
-		<content:encoded><![CDATA[${content}]]></content:encoded>
-		<excerpt:encoded><![CDATA[${item.excerpt || ''}]]></excerpt:encoded>
+		<content:encoded><![CDATA[${this.escapeCData(content)}]]></content:encoded>
+		<excerpt:encoded><![CDATA[${this.escapeCData(item.excerpt || '')}]]></excerpt:encoded>
 		<wp:post_id>${postId}</wp:post_id>
 		<wp:post_date><![CDATA[${now}]]></wp:post_date>
 		<wp:post_date_gmt><![CDATA[${now}]]></wp:post_date_gmt>
@@ -391,15 +395,15 @@ export const DemoGenerator = App.registerTool('demo-generator', {
                     if (mapping === 'meta') {
                         xml += `
 		<wp:postmeta>
-			<wp:meta_key><![CDATA[${key}]]></wp:meta_key>
-			<wp:meta_value><![CDATA[${value}]]></wp:meta_value>
+			<wp:meta_key><![CDATA[${this.escapeCData(key)}]]></wp:meta_key>
+			<wp:meta_value><![CDATA[${this.escapeCData(value)}]]></wp:meta_value>
 		</wp:postmeta>`;
                     } else if (mapping === 'category') {
                         xml += `
-        <category domain="category" nicename="${value.toLowerCase().replace(/\s+/g, '-')}"><![CDATA[${value}]]></category>`;
+        <category domain="category" nicename="${value.toLowerCase().replace(/\s+/g, '-')}"><![CDATA[${this.escapeCData(value)}]]></category>`;
                     } else if (mapping === 'tag') {
                         xml += `
-        <category domain="post_tag" nicename="${value.toLowerCase().replace(/\s+/g, '-')}"><![CDATA[${value}]]></category>`;
+        <category domain="post_tag" nicename="${value.toLowerCase().replace(/\s+/g, '-')}"><![CDATA[${this.escapeCData(value)}]]></category>`;
                     } else if (mapping === 'featured_image') {
                         featuredImageUrl = value;
                         xml += `

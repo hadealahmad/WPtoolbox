@@ -19,7 +19,12 @@ export const I18n = {
     },
 
     t(key) {
-        return State.translations[State.currentLang]?.[key] || key;
+        const translation = State.translations[State.currentLang]?.[key];
+        if (translation === undefined) {
+            console.warn(`[i18n] Missing translation key: "${key}" (${State.currentLang})`);
+            return key;
+        }
+        return translation;
     },
 
     initObserver() {
@@ -109,7 +114,7 @@ export const I18n = {
         const ogLocale = document.querySelector('meta[property="og:locale"]');
         const ogLocaleAlt = document.querySelector('meta[property="og:locale:alternate"]');
         if (State.currentLang === 'ar') {
-            if (ogLocale) ogLocale.setAttribute('content', 'ar_AR');
+            if (ogLocale) ogLocale.setAttribute('content', 'ar_SA');
             if (ogLocaleAlt) ogLocaleAlt.setAttribute('content', 'en_US');
         } else {
             if (ogLocale) ogLocale.setAttribute('content', 'en_US');

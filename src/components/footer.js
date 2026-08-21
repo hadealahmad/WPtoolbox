@@ -37,7 +37,7 @@ export class WptFooter extends HTMLElement {
                 </div>
             </div>
         `;
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons, root: this });
     }
 }
 

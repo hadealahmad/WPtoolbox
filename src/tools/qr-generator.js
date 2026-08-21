@@ -3,6 +3,7 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
+import { Utils } from '../core/utils.js';
 import JSZip from 'jszip';
 import QRCode from 'qrcode';
 
@@ -22,6 +23,7 @@ function getValidFilename(urlStr) {
 }
 
 export const QRGenerator = App.registerTool('QRGenerator', {
+    progressBarId: 'processing-bar',
     processedQRs: [],
     multiple: false,
     resultsId: 'results-section',
@@ -216,10 +218,8 @@ export const QRGenerator = App.registerTool('QRGenerator', {
         document.getElementById('results-section')?.classList.remove('hidden');
         
         const progressContainer = document.getElementById('progress-container');
-        const progressBar = document.getElementById('processing-bar');
-        
         if (progressContainer) progressContainer.classList.remove('hidden');
-        if (progressBar) progressBar.style.width = '0%';
+        this.updateProgress(0);
 
         this.processedQRs = [];
         let processed = 0;
@@ -258,7 +258,7 @@ export const QRGenerator = App.registerTool('QRGenerator', {
                 });
 
                 processed++;
-                if (progressBar) progressBar.style.width = `${(processed / lines.length) * 100}%`;
+                this.updateProgress(Math.round((processed / lines.length) * 100));
                 
                 await new Promise(r => setTimeout(r, 0));
             } catch (err) {
@@ -320,8 +320,7 @@ export const QRGenerator = App.registerTool('QRGenerator', {
                     ctx.drawImage(img, (dim.w - qrSize) / 2, (dim.h - qrSize) / 2, qrSize, qrSize);
 
                     const drawTextPill = (text, y, fontSize, isBottom) => {
-                        const isArabic = /^[\s\W\d]*[\u0600-\u06FF]/.test(text);
-                        ctx.direction = isArabic ? 'rtl' : 'ltr';
+                        ctx.direction = Utils.isArabic(text) ? 'rtl' : 'ltr';
                         ctx.font = `bold ${fontSize}px 'IBM Plex Sans Arabic', Inter, sans-serif`;
                         
                         const textMetrics = ctx.measureText(text);

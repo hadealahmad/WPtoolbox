@@ -19,13 +19,16 @@ The project uses a modern modular architecture powered by **Vite**.
   - `translations.json`: Dictionary for all UI strings.
   - `nav.json`: Categorized navigation structure.
   - `tips.json` & `snippets.json`: Multilingual content databases.
-- **`/src/styles/`**: Tailwind CSS 4.0 styling with OKLCH color variables.
+- **`/src/styles/`**: Tailwind CSS 4 styling via `@tailwindcss/vite`; `main.css` defines `@theme` tokens (`--color-primary`, `--color-primary-foreground`) and imports `globals.css` with OKLCH variables.
+- **`/dist/`**: Build output (committed; deployed to GitHub Pages).
+- **Note**: root `tailwind.config.js` targets legacy paths and is effectively unused — do not extend it; add theme tokens in `src/styles/main.css`.
 
 ## 🎨 Design & Aesthetic Standards
 
 The project follows a **Premium Dark Shadcn-inspired theme**.
 
-- **Colors**: Strictly uses the **OKLCH** color space for vibrant, consistent dark mode aesthetics.
+- **Colors**: Strictly uses the **OKLCH** color space for vibrant, consistent dark mode aesthetics. Primary: `oklch(0.488 0.243 264.376)`; surfaces use the zinc scale (`zinc-950` inputs, `zinc-800` borders, `zinc-300` labels) on a `#09090b` base.
+- **Inputs**: Shared `builder-input` class for form controls; toggles built with Tailwind peer classes (`peer-checked:bg-primary`).
 - **Typography**: 
   - **Interface**: Inter (Latin) and IBM Plex Sans Arabic (Arabic).
   - **Code**: JetBrains Mono for all monospaced elements.
@@ -43,8 +46,9 @@ Every page includes professional meta-integration:
 ## 🛠 Coding Standards
 
 1. **Tool Registration**: 
-   - All new tools must extend the `BaseTool` logic or use the `App.registerTool` API.
+   - All new tools must register via `App.registerTool(id, config)` (wrapped in `BaseTool`).
    - Initial logic should be placed in the `onInit` hook.
+   - New pages: add a root `*.html` file — Vite auto-discovers it as a build input.
 2. **Localization (I18n)**:
    - Use `data-i18n` for text, `data-i18n-html` for rich content, and `data-i18n-placeholder` for inputs.
    - Use `App.t('key')` for dynamic strings.
@@ -58,4 +62,5 @@ Every page includes professional meta-integration:
    - Zero-server processing. All data must be handled client-side using Blobs, DataURLs, or browser-based workers.
 
 ---
-*Last Updated: April 2026*
+*Last Updated: August 2026*
+*See also: [getting-started.md](getting-started.md) · [architecture/overview.md](architecture/overview.md)*

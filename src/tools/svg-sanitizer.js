@@ -4,6 +4,7 @@ import JSZip from 'jszip';
 import { UI } from '../core/ui.js';
 
 export const SVGSanitizer = App.registerTool('SVGSanitizer', {
+    progressBarId: 'processing-bar',
     results: [],
     zip: null,
     multiple: true,
@@ -149,10 +150,7 @@ export const SVGSanitizer = App.registerTool('SVGSanitizer', {
         });
     },
 
-    updateProgress: function(percent) {
-        const bar = document.getElementById('processing-bar');
-        if (bar) bar.style.width = `${percent}%`;
-    },
+
 
     downloadZip: async function() {
         if (!this.results.length) return;
