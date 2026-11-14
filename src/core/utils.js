@@ -3,9 +3,98 @@
  */
 import { UI } from './ui.js';
 import { I18n } from './i18n.js';
+import { Analytics } from './analytics.js';
 import JSZip from 'jszip';
 
+const _copyFeedbackState = new WeakMap();
+
+const _appendChildren = (parent, items) => {
+    for (const child of items) {
+        if (child === null || child === undefined || typeof child === 'boolean') continue;
+        if (Array.isArray(child)) {
+            _appendChildren(parent, child);
+        } else if (child instanceof Node) {
+            parent.appendChild(child);
+        } else {
+            parent.appendChild(document.createTextNode(String(child)));
+        }
+    }
+};
+
 export const Utils = {
+    yieldToMain() {
+        if (typeof globalThis.scheduler?.yield === 'function') {
+            return globalThis.scheduler.yield();
+        }
+        return new Promise(resolve => setTimeout(resolve, 0));
+    },
+
+    createYielder(budgetMs = 50) {
+        const now = () => (typeof performance !== 'undefined' && typeof performance.now === 'function'
+            ? performance.now()
+            : Date.now());
+        let lastYield = now();
+        return async () => {
+            if (now() - lastYield >= budgetMs) {
+                await Utils.yieldToMain();
+                lastYield = now();
+            }
+        };
+    },
+
+    h(tag, props = {}, ...children) {
+        const el = document.createElement(tag);
+        const safeProps = props && typeof props === 'object' ? props : {};
+
+        for (const [key, value] of Object.entries(safeProps)) {
+            if (value === null || value === undefined) continue;
+
+            if (key === 'class' || key === 'className') {
+                el.className = Array.isArray(value) ? value.filter(Boolean).join(' ') : String(value);
+            } else if (key === 'text') {
+                el.textContent = String(value);
+            } else if (key === 'dataset' && typeof value === 'object') {
+                for (const [dataKey, dataVal] of Object.entries(value)) {
+                    if (dataVal !== null && dataVal !== undefined && dataVal !== false) {
+                        el.dataset[dataKey] = String(dataVal);
+                    }
+                }
+            } else if (key === 'attrs' && typeof value === 'object') {
+                for (const [attrKey, attrVal] of Object.entries(value)) {
+                    if (attrVal === null || attrVal === undefined || attrVal === false) continue;
+                    if (attrVal === true) {
+                        el.setAttribute(attrKey, attrKey.startsWith('aria-') ? 'true' : '');
+                    } else {
+                        el.setAttribute(attrKey, String(attrVal));
+                    }
+                }
+            } else if (key === 'on' && typeof value === 'object') {
+                for (const [eventName, handler] of Object.entries(value)) {
+                    if (typeof handler === 'function') {
+                        el.addEventListener(eventName, handler);
+                    }
+                }
+            } else if (key === 'style' && typeof value === 'object') {
+                Object.assign(el.style, value);
+            } else if (key === 'innerHTML' || key === 'outerHTML') {
+                // Intentionally ignored for XSS safety
+                continue;
+            } else if (value !== false) {
+                if (value === true) {
+                    el.setAttribute(key, key.startsWith('aria-') ? 'true' : '');
+                } else {
+                    el.setAttribute(key, String(value));
+                }
+                if (key === 'value' && 'value' in el) {
+                    el.value = String(value);
+                }
+            }
+        }
+
+        _appendChildren(el, children);
+        return el;
+    },
+
     isArabic(text) {
         return /^[\s\W\d]*[\u0600-\u06FF]/.test(String(text || ''));
     },
@@ -90,13 +179,24 @@ export const Utils = {
 
         const performFeedback = () => {
             if (btnElement) {
-                const originalText = btnElement.innerHTML;
-                btnElement.innerHTML = feedbackText || (I18n.t('copy_btn') + "!");
-                setTimeout(() => {
-                    btnElement.innerHTML = originalText;
+                let state = _copyFeedbackState.get(btnElement);
+                if (!state) {
+                    state = { nodes: Array.from(btnElement.childNodes), timer: null };
+                    _copyFeedbackState.set(btnElement, state);
+                } else if (state.timer) {
+                    clearTimeout(state.timer);
+                }
+
+                btnElement.textContent = feedbackText || (I18n.t('copy_btn') + "!");
+                state.timer = setTimeout(() => {
+                    btnElement.replaceChildren(...state.nodes);
+                    _copyFeedbackState.delete(btnElement);
                 }, 2000);
             }
-            UI.showToast(I18n.t('copy_btn') + " " + I18n.t('to_clipboard'));
+            Analytics.track('copy_to_clipboard', {
+                tool_id: Analytics.getToolId()
+            });
+            UI.showToast(I18n.t('copy_btn') + " " + I18n.t('to_clipboard'), { type: 'success' });
             UI.fireConfetti();
         };
 
@@ -126,7 +226,7 @@ export const Utils = {
                 performFeedback();
                 return;
             } catch (err) {
-                UI.showToast(I18n.t('msg_copy_failed') || "Failed to copy", 2000);
+                UI.showToast(I18n.t('msg_copy_failed') || "Failed to copy", { type: 'error', duration: 2000 });
                 return;
             }
         }
@@ -134,7 +234,7 @@ export const Utils = {
         if (legacyCopy()) {
             performFeedback();
         } else {
-            UI.showToast(I18n.t('msg_copy_failed') || "Failed to copy", 2000);
+            UI.showToast(I18n.t('msg_copy_failed') || "Failed to copy", { type: 'error', duration: 2000 });
         }
     },
 

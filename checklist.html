@@ -2,11 +2,31 @@
 <html lang="en" style="background-color: #09090b; color: white;">
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Oip6BSOueP4OrFxv4cPieX4wlFgT6dUZKKme7nQ4MjY=' https://www.googletagmanager.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta charset="UTF-8">
     <meta name="theme-color" content="#09090b">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+        analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var c = localStorage.getItem('wpt-consent');
+        if (c === 'granted') gtag('consent', 'update', { analytics_storage: 'granted' });
+        else if (c === 'all') gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+      } catch (e) {}
+      gtag('js', new Date());
+    </script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KWMHKN5M"></script>
     <title data-i18n="title_checklist.html">New Website Checklist | WPToolbox</title>
     <meta name="description" content="A comprehensive pre-launch checklist for WordPress, SEO, and WooCommerce to ensure a smooth website launch.">
 
@@ -39,17 +59,17 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
         <header class="mb-10 text-center md:text-start flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
-            <div class="max-w-2xl">
-                <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_checklist_title">Website Checklist</h1>
+            <div class="max-w-2xl min-w-0 w-full">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter text-white break-words [overflow-wrap:anywhere] text-balance" data-i18n="tool_checklist_title">Website Checklist</h1>
                 <p class="text-zinc-500 mt-2" data-i18n="tool_checklist_desc">Ensure your WordPress site is production-ready with a professional pre-launch checklist.</p>
             </div>
-            <div class="flex gap-2 w-full md:w-auto shrink-0">
-                 <button id="import-btn" class="flex-1 md:flex-none shadcn-button shadcn-button-outline h-10 px-4 text-xs gap-2 border-zinc-800 hover:bg-zinc-900 transition-all">
+            <div class="flex flex-wrap gap-2 w-full md:w-auto shrink-0">
+                 <button type="button" id="import-btn" class="flex-1 md:flex-none shadcn-button shadcn-button-outline h-10 px-4 text-xs gap-2 border-zinc-800 hover:bg-zinc-900 transition-all">
                     <i data-lucide="upload" class="w-3.5 h-3.5"></i>
                     <span data-i18n="btn_import_checklist">Import</span>
-                    <input type="file" id="import-all-input" class="hidden" accept=".json">
                 </button>
-                <button id="export-btn" class="flex-1 md:flex-none shadcn-button shadcn-button-outline h-10 px-4 text-xs gap-2 border-zinc-800 hover:bg-zinc-900 transition-all">
+                <input type="file" id="import-input" class="hidden" accept=".json">
+                <button type="button" id="export-btn" class="flex-1 md:flex-none shadcn-button shadcn-button-outline h-10 px-4 text-xs gap-2 border-zinc-800 hover:bg-zinc-900 transition-all">
                     <i data-lucide="download" class="w-3.5 h-3.5"></i>
                     <span data-i18n="btn_export_checklist">Export</span>
                 </button>
@@ -61,8 +81,8 @@
             <!-- Col 1: Sites List -->
             <div class="md:col-span-3 space-y-6">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-zinc-500" data-i18n="label_sites">Sites</h3>
-                    <button id="add-site-btn" class="w-8 h-8 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center">
+                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-zinc-500" data-i18n="label_sites">Sites</h2>
+                    <button type="button" id="add-site-btn" aria-label="Add New Site" class="w-8 h-8 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -75,9 +95,9 @@
             <div class="md:col-span-3 space-y-6 sticky top-24">
                 <section class="shadcn-card p-6 bg-zinc-900/40">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_progress">
+                        <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_progress">
                             Launch Readiness
-                        </h3>
+                        </h2>
                         <span id="active-site-progress" class="text-sm font-mono text-primary">0%</span>
                     </div>
                     <div class="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
@@ -86,29 +106,28 @@
                 </section>
 
                 <div id="category-filters" class="space-y-2">
-                    <button id="filter-all" class="filter-btn w-full text-start px-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex justify-between items-center group active" data-category="all">
+                    <button type="button" id="filter-all" aria-pressed="true" class="filter-btn w-full text-start px-4 py-3 rounded-xl border border-primary/40 bg-zinc-900/80 text-white hover:bg-zinc-800 transition-all flex justify-between items-center group active" data-category="all">
                         <div class="flex items-center gap-3">
-                            <i data-lucide="layers" class="w-4 h-4 text-zinc-500 group-hover:text-primary"></i>
+                            <i data-lucide="layers" class="w-4 h-4 text-primary group-hover:text-primary"></i>
                             <span class="text-sm font-medium" data-i18n="cat_all_tasks">All Tasks</span>
                         </div>
-                        <span id="count-all" class="text-[10px] font-bold bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">0</span>
+                        <span id="count-all" class="text-[10px] font-bold bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-400">0</span>
                     </button>
-                    <!-- other categories injected or static -->
-                    <button id="filter-wp" class="filter-btn w-full text-start px-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex justify-between items-center group" data-category="wp">
+                    <button type="button" id="filter-wp" aria-pressed="false" class="filter-btn w-full text-start px-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex justify-between items-center group" data-category="wp">
                         <div class="flex items-center gap-3">
                             <i data-lucide="layout" class="w-4 h-4 text-zinc-500 group-hover:text-primary"></i>
                             <span class="text-sm font-medium" data-i18n="cat_wp">WordPress</span>
                         </div>
                         <span id="count-wp" class="text-[10px] font-bold bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">0</span>
                     </button>
-                    <button id="filter-seo" class="filter-btn w-full text-start px-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex justify-between items-center group" data-category="seo">
+                    <button type="button" id="filter-seo" aria-pressed="false" class="filter-btn w-full text-start px-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex justify-between items-center group" data-category="seo">
                         <div class="flex items-center gap-3">
                             <i data-lucide="search" class="w-4 h-4 text-zinc-500 group-hover:text-primary"></i>
                             <span class="text-sm font-medium" data-i18n="cat_seo">SEO</span>
                         </div>
                         <span id="count-seo" class="text-[10px] font-bold bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">0</span>
                     </button>
-                    <button id="filter-woo" class="filter-btn w-full text-start px-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex justify-between items-center group" data-category="woo">
+                    <button type="button" id="filter-woo" aria-pressed="false" class="filter-btn w-full text-start px-4 py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex justify-between items-center group" data-category="woo">
                         <div class="flex items-center gap-3">
                             <i data-lucide="shopping-cart" class="w-4 h-4 text-zinc-500 group-hover:text-primary"></i>
                             <span class="text-sm font-medium" data-i18n="cat_woo">WooCommerce</span>
@@ -128,13 +147,15 @@
                 </div>
 
                 <div id="checklist-content" class="hidden space-y-6">
-                    <div class="flex items-center justify-between">
-                         <h2 id="active-site-name" class="text-2xl font-bold text-white tracking-tight">Site Name</h2>
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                         <h2 id="active-site-name" class="text-2xl font-bold text-white tracking-tight break-words min-w-0">Site Name</h2>
+                         <div id="active-site-url-wrap" class="min-w-0"></div>
                     </div>
 
                     <div class="flex gap-2">
-                        <input type="text" id="new-task-input" class="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all" data-i18n-placeholder="placeholder_task_name" placeholder="Add a custom task...">
-                        <button id="add-task-btn" class="shadcn-button shadcn-button-primary px-6 rounded-xl h-12 shadow-lg shadow-primary/20">
+                        <label for="new-task-input" class="sr-only" data-i18n="placeholder_task_name">Add a custom task...</label>
+                        <input type="text" id="new-task-input" class="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all" data-i18n-placeholder="placeholder_task_name" placeholder="Add a custom task...">
+                        <button type="button" id="add-task-btn" aria-label="Add custom task" class="shadcn-button shadcn-button-primary px-6 rounded-xl h-12 shadow-lg shadow-primary/20 shrink-0">
                             <i data-lucide="plus" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -150,42 +171,50 @@
     </main>
 
     <!-- Site Add Modal -->
-    <div id="site-modal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="shadcn-card max-w-sm w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-            <h3 class="text-lg font-bold text-white tracking-tight" data-i18n="modal_add_site">Add New Site</h3>
+    <dialog id="site-modal" closedby="any" aria-labelledby="site-modal-title"
+        class="wpt-dialog w-[min(24rem,calc(100vw-2rem))] overscroll-contain">
+        <div id="site-modal-card" class="shadcn-card w-full p-6 space-y-4">
+            <h2 id="site-modal-title" class="text-lg font-bold text-white tracking-tight" data-i18n="modal_add_site">Add New Site</h2>
             <div class="space-y-4">
                 <div>
-                    <input type="text" id="site-name-input" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all" data-i18n-placeholder="placeholder_site_name" placeholder="Site name...">
+                    <label for="site-name-input" class="sr-only" data-i18n="placeholder_site_name">Site name</label>
+                    <input type="text" id="site-name-input" required class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all" data-i18n-placeholder="placeholder_site_name" placeholder="Site name...">
+                </div>
+                <div>
+                    <label for="site-url-input" class="sr-only">Site URL (optional)</label>
+                    <input type="url" id="site-url-input" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all" placeholder="https://example.com">
                 </div>
             </div>
             <div class="flex justify-end gap-3 pt-4">
-                <button id="close-site-modal-btn" class="shadcn-button shadcn-button-outline px-4 text-xs" data-i18n="btn_cancel">Cancel</button>
-                <button id="confirm-add-site-btn" class="shadcn-button shadcn-button-primary px-6 text-xs" data-i18n="btn_save_site">Save Site</button>
+                <button type="button" id="close-site-modal-btn" class="shadcn-button shadcn-button-outline px-4 text-xs" data-i18n="btn_cancel">Cancel</button>
+                <button type="button" id="confirm-add-site-btn" class="shadcn-button shadcn-button-primary px-6 text-xs" data-i18n="btn_save_site">Save Site</button>
             </div>
         </div>
-    </div>
+    </dialog>
 
     <!-- Task Edit Modal -->
-    <div id="edit-modal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="shadcn-card max-w-lg w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-            <h3 class="text-lg font-bold text-white tracking-tight" data-i18n="modal_edit_task">Edit Task</h3>
+    <dialog id="edit-modal" closedby="any" aria-labelledby="edit-modal-title"
+        class="wpt-dialog w-[min(32rem,calc(100vw-2rem))] overscroll-contain">
+        <div id="edit-modal-card" class="shadcn-card w-full p-6 space-y-4">
+            <h2 id="edit-modal-title" class="text-lg font-bold text-white tracking-tight" data-i18n="modal_edit_task">Edit Task</h2>
             <div class="space-y-4">
                 <div>
-                    <textarea id="edit-task-input" rows="4" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all resize-none"></textarea>
+                    <label for="edit-task-input" class="sr-only" data-i18n="modal_edit_task">Edit Task</label>
+                    <textarea id="edit-task-input" rows="4" required class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all resize-y"></textarea>
                 </div>
             </div>
             <div class="flex justify-end gap-3 pt-2">
-                <button id="close-edit-modal-btn" class="shadcn-button shadcn-button-outline px-4 text-xs" data-i18n="btn_cancel">Cancel</button>
-                <button id="save-edit-task-btn" class="shadcn-button shadcn-button-primary px-6 text-xs" data-i18n="btn_save_changes">Save Changes</button>
+                <button type="button" id="close-edit-modal-btn" class="shadcn-button shadcn-button-outline px-4 text-xs" data-i18n="btn_cancel">Cancel</button>
+                <button type="button" id="save-edit-task-btn" class="shadcn-button shadcn-button-primary px-6 text-xs" data-i18n="btn_save_changes">Save Changes</button>
             </div>
         </div>
-    </div>
+    </dialog>
 
     <!-- Global Footer Container -->
     <wpt-footer></wpt-footer>
 
     <!-- Global Toast Container -->
-    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50 transition-all duration-300">
+    <div id="toast" popover="manual" role="status" aria-live="polite" aria-atomic="true" class="wpt-popover fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>

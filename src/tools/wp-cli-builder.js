@@ -1,6 +1,5 @@
 import '../main.js';
 import { App } from '../core/app.js';
-import { UI } from '../core/ui.js';
 
 export const WPCLIBuilder = App.registerTool('WPCLIBuilder', {
     currentType: 'search-replace',
@@ -19,13 +18,22 @@ export const WPCLIBuilder = App.registerTool('WPCLIBuilder', {
             });
         }
 
+        const container = document.getElementById('form-container');
+        if (container) {
+            const onUpdate = (e) => {
+                if (e.target.matches('.builder-input')) {
+                    this.generateCommand();
+                }
+            };
+            container.addEventListener('input', onUpdate);
+            container.addEventListener('change', onUpdate);
+        }
+
         const btnCopy = document.getElementById('btn-copy');
         if (btnCopy) {
             btnCopy.addEventListener('click', () => {
-                const code = document.getElementById('cmd-output').textContent;
-                navigator.clipboard.writeText(code).then(() => {
-                    UI.showToast(App.t('msg_snippet_saved') || "Command copied!");
-                });
+                const code = document.getElementById('cmd-output')?.textContent || '';
+                App.copyToClipboard(code, btnCopy);
             });
         }
     },
@@ -36,12 +44,6 @@ export const WPCLIBuilder = App.registerTool('WPCLIBuilder', {
 
         container.querySelectorAll('[data-form]').forEach(section => {
             section.classList.toggle('hidden', section.dataset.form !== this.currentType);
-        });
-
-        // Attach listeners to inputs
-        container.querySelectorAll('.builder-input').forEach(input => {
-            input.addEventListener('input', () => this.generateCommand());
-            input.addEventListener('change', () => this.generateCommand());
         });
 
         this.generateCommand();

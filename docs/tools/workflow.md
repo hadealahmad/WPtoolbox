@@ -1,21 +1,23 @@
 # Workflow Tools (`nav_group_workflow`)
 
-Five tools covering deployment prep and WordPress setup.
+Tools covering deployment prep, WordPress setup, server configuration, CLI generation, and block font cleanup.
 
 ## Deployment Checklist — `checklist.js` → `checklist.html`
-- Interactive checklist driven by `src/data/checklist-data.json` (**13 tasks**).
-- Progress tracking with confetti celebration on completion (`canvas-confetti`).
+- Multi-site interactive deployment checklist seeded from `src/data/checklist-data.json` (**13 tasks** across `wp`, `seo`, and `woo` categories) with `localStorage` persistence.
+- Supports adding/deleting sites (`#site-modal` native `<dialog>`, validated `http(s)` site URLs, `await App.confirm(...)` on deletion), adding custom tasks, editing task titles/descriptions (`#edit-modal` native `<dialog>`), category filtering, JSON import/export, and confetti celebration on 100% completion (`App.fireConfetti()`).
+- Site tabs, links, and task rows render safely via `App.h`.
 
 ## Demo Generator — `demo-generator.js` → `demo-generator.html`
-- Generates mock WordPress content in three formats: **XML/WXR**, **CSV**, **JSON**.
-- Configurable post/page counts, titles, bodies; downloads via Blob.
+- Generates up to 100 mock WordPress records per run in **XML/WXR** (with split-`]]>` CDATA escaping), **CSV** (with `App.escapeCSV`), or **JSON**, downloading via `App.downloadFile`.
+- Supports custom fields via `#field-modal` (`<dialog class="wpt-dialog" closedby="any">`) rendered safely with `App.h`.
+- Generation yields smoothly to the main thread using `App.createYielder(50)` while updating `#processing-overlay` (`<dialog>`).
 
 ## Awesome Stack — `awesome-stack.js` → `awesomestack.html`
-- Guided stack recommendations from presets in `src/data/stack-config.json`.
+- Guided WordPress stack selector backed by `src/data/stack-config.json` with custom saved stacks in `localStorage` and JSON import/export.
+- Prompts and deletions use `await App.prompt(...)` and `await App.confirm(...)`; stack cards and checkbox options render safely via `App.h` (with `<label>` checkbox rows and keyboard-focusable switches).
 
 ## Server Config Generator — `server-config-generator.js` → `server-config-generator.html`
-- Toggle between **Apache** (.htaccess) and **Nginx** output modes; button state swapped via Tailwind class replacement (`text-zinc-400` / `bg-zinc-800 shadow`).
+- Toggle between **Apache** (`.htaccess`) and **Nginx** (`nginx.conf`) modes with synced `aria-pressed` state and accessible `sr-only peer` toggles (`peer-focus-visible:ring-2`); copies via `App.copyToClipboard(...)`.
 
 ## WP-CLI Builder — `wp-cli-builder.js` → `wp-cli-builder.html`
-- Builds `wp search-replace` commands: old/new domain inputs, **Dry Run** toggle (default on), **Skip GUID column** toggle (default on).
-- UI rendered inline by the module using `data-i18n` keys (`label_search_for`, `label_replace_with`, `opt_dry_run`, `opt_skip_columns`); inputs styled with the shared `builder-input` class.
+- Visually builds `wp search-replace`, `wp user generate`, `wp db export`, and `wp media regenerate` commands with delegated `.builder-input` listeners, associated `<label for="...">` controls, `peer-focus-visible` switches, and `App.copyToClipboard(...)`.

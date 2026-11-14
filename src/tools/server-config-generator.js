@@ -1,6 +1,5 @@
 import '../main.js';
 import { App } from '../core/app.js';
-import { UI } from '../core/ui.js';
 
 export const ServerConfigGenerator = App.registerTool('ServerConfigGenerator', {
     serverType: 'apache', // 'apache' or 'nginx'
@@ -14,25 +13,27 @@ export const ServerConfigGenerator = App.registerTool('ServerConfigGenerator', {
         const btnApache = document.getElementById('btn-apache');
         const btnNginx = document.getElementById('btn-nginx');
 
-        if (btnApache) {
+        if (btnApache && btnNginx) {
             btnApache.addEventListener('click', () => {
                 this.serverType = 'apache';
                 btnApache.classList.replace('text-zinc-400', 'text-white');
                 btnApache.classList.add('bg-zinc-800', 'shadow');
+                btnApache.setAttribute('aria-pressed', 'true');
                 btnNginx.classList.replace('text-white', 'text-zinc-400');
                 btnNginx.classList.remove('bg-zinc-800', 'shadow');
+                btnNginx.setAttribute('aria-pressed', 'false');
                 document.getElementById('filename-display').textContent = '.htaccess';
                 this.generateCode();
             });
-        }
 
-        if (btnNginx) {
             btnNginx.addEventListener('click', () => {
                 this.serverType = 'nginx';
                 btnNginx.classList.replace('text-zinc-400', 'text-white');
                 btnNginx.classList.add('bg-zinc-800', 'shadow');
+                btnNginx.setAttribute('aria-pressed', 'true');
                 btnApache.classList.replace('text-white', 'text-zinc-400');
                 btnApache.classList.remove('bg-zinc-800', 'shadow');
+                btnApache.setAttribute('aria-pressed', 'false');
                 document.getElementById('filename-display').textContent = 'nginx.conf';
                 this.generateCode();
             });
@@ -45,10 +46,8 @@ export const ServerConfigGenerator = App.registerTool('ServerConfigGenerator', {
         const btnCopy = document.getElementById('btn-copy');
         if (btnCopy) {
             btnCopy.addEventListener('click', () => {
-                const code = document.getElementById('code-output').textContent;
-                navigator.clipboard.writeText(code).then(() => {
-                    UI.showToast(App.t('msg_snippet_saved') || "Copied to clipboard!");
-                });
+                const code = document.getElementById('code-output')?.textContent || '';
+                App.copyToClipboard(code, btnCopy);
             });
         }
     },

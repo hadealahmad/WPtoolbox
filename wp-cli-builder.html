@@ -2,11 +2,31 @@
 <html lang="en" style="background-color: #09090b; color: white;">
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Oip6BSOueP4OrFxv4cPieX4wlFgT6dUZKKme7nQ4MjY=' https://www.googletagmanager.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta charset="UTF-8">
     <meta name="theme-color" content="#09090b">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+        analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var c = localStorage.getItem('wpt-consent');
+        if (c === 'granted') gtag('consent', 'update', { analytics_storage: 'granted' });
+        else if (c === 'all') gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+      } catch (e) {}
+      gtag('js', new Date());
+    </script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KWMHKN5M"></script>
     <title data-i18n="title_wp_cli_builder">WP-CLI Command Builder | WPToolbox</title>
     <meta name="description" content="Build complex WP-CLI terminal commands with an easy-to-use visual interface.">
 
@@ -36,16 +56,17 @@
 
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
         <header class="mb-10 text-center md:text-start">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_wp_cli_builder_title">WP-CLI Command Builder</h1>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter text-white break-words [overflow-wrap:anywhere] text-balance" data-i18n="tool_wp_cli_builder_title">WP-CLI Command Builder</h1>
             <p class="text-zinc-500 mt-2" data-i18n="tool_wp_cli_builder_desc">Visually build complex WP-CLI commands like Search & Replace, user generation, or db exports without remembering flags.</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
             <!-- Controls Column -->
-            <div class="lg:col-span-5 space-y-6">
+            <div class="lg:col-span-5 space-y-6 min-w-0">
                 <!-- Command Type -->
                 <div class="relative">
+                    <label for="cmd-type" class="sr-only" data-i18n="label_command_type">Command Type</label>
                     <select id="cmd-type" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all appearance-none cursor-pointer">
                         <option value="search-replace" data-i18n="cmd_search_replace">Search & Replace</option>
                         <option value="user-generate" data-i18n="cmd_user_generate">Generate Users</option>
@@ -61,36 +82,36 @@
                 <section id="form-container" class="shadcn-card p-6 bg-zinc-900/40">
                     <div data-form="search-replace" class="hidden space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-zinc-300 mb-2" data-i18n="label_search_for">Search For</label>
+                            <label for="sr-old" class="block text-sm font-medium text-zinc-300 mb-2" data-i18n="label_search_for">Search For</label>
                             <input type="text" id="sr-old" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all builder-input" placeholder="http://old-domain.com">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-zinc-300 mb-2" data-i18n="label_replace_with">Replace With</label>
+                            <label for="sr-new" class="block text-sm font-medium text-zinc-300 mb-2" data-i18n="label_replace_with">Replace With</label>
                             <input type="text" id="sr-new" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all builder-input" placeholder="https://new-domain.com">
                         </div>
-                        <label class="flex items-center justify-between cursor-pointer group mt-6">
-                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="opt_dry_run">Dry Run (Testing only)</span>
-                            <div class="relative inline-flex items-center">
+                        <label class="flex items-center justify-between gap-3 cursor-pointer group mt-6">
+                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white min-w-0" data-i18n="opt_dry_run">Dry Run (Testing only)</span>
+                            <div class="relative inline-flex items-center shrink-0">
                                 <input type="checkbox" id="sr-dry" class="sr-only peer builder-input" checked>
-                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
                             </div>
                         </label>
-                        <label class="flex items-center justify-between cursor-pointer group">
-                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="opt_skip_columns">Skip GUID Column</span>
-                            <div class="relative inline-flex items-center">
+                        <label class="flex items-center justify-between gap-3 cursor-pointer group">
+                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white min-w-0" data-i18n="opt_skip_columns">Skip GUID Column</span>
+                            <div class="relative inline-flex items-center shrink-0">
                                 <input type="checkbox" id="sr-guid" class="sr-only peer builder-input" checked>
-                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
                             </div>
                         </label>
                     </div>
 
                     <div data-form="user-generate" class="hidden space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-zinc-300 mb-2" data-i18n="label_user_count">Number of Users</label>
+                            <label for="ug-count" class="block text-sm font-medium text-zinc-300 mb-2" data-i18n="label_user_count">Number of Users</label>
                             <input type="number" id="ug-count" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all builder-input" value="10" min="1">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-zinc-300 mb-2" data-i18n="label_user_role">Role</label>
+                            <label for="ug-role" class="block text-sm font-medium text-zinc-300 mb-2" data-i18n="label_user_role">Role</label>
                             <div class="relative">
                                 <select id="ug-role" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all builder-input appearance-none cursor-pointer">
                                     <option value="subscriber">Subscriber</option>
@@ -108,31 +129,31 @@
 
                     <div data-form="db-export" class="hidden space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-zinc-300 mb-2" data-i18n="label_filename_optional">Filename (optional)</label>
+                            <label for="db-file" class="block text-sm font-medium text-zinc-300 mb-2" data-i18n="label_filename_optional">Filename (optional)</label>
                             <input type="text" id="db-file" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-all builder-input" placeholder="backup.sql">
                         </div>
-                        <label class="flex items-center justify-between cursor-pointer group mt-6">
-                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="opt_drop_table">Add DROP TABLE</span>
-                            <div class="relative inline-flex items-center">
+                        <label class="flex items-center justify-between gap-3 cursor-pointer group mt-6">
+                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white min-w-0" data-i18n="opt_drop_table">Add DROP TABLE</span>
+                            <div class="relative inline-flex items-center shrink-0">
                                 <input type="checkbox" id="db-drop" class="sr-only peer builder-input">
-                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
                             </div>
                         </label>
                     </div>
 
                     <div data-form="media-regen" class="hidden space-y-4">
-                        <label class="flex items-center justify-between cursor-pointer group">
-                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="opt_skip_regen">Skip previously regenerated</span>
-                            <div class="relative inline-flex items-center">
+                        <label class="flex items-center justify-between gap-3 cursor-pointer group">
+                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white min-w-0" data-i18n="opt_skip_regen">Skip previously regenerated</span>
+                            <div class="relative inline-flex items-center shrink-0">
                                 <input type="checkbox" id="mr-skip" class="sr-only peer builder-input" checked>
-                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
                             </div>
                         </label>
-                        <label class="flex items-center justify-between cursor-pointer group">
-                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="opt_only_missing">Only regenerate missing sizes</span>
-                            <div class="relative inline-flex items-center">
+                        <label class="flex items-center justify-between gap-3 cursor-pointer group">
+                            <span class="text-sm font-medium text-zinc-300 group-hover:text-white min-w-0" data-i18n="opt_only_missing">Only regenerate missing sizes</span>
+                            <div class="relative inline-flex items-center shrink-0">
                                 <input type="checkbox" id="mr-missing" class="sr-only peer builder-input">
-                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
                             </div>
                         </label>
                     </div>
@@ -140,17 +161,17 @@
             </div>
 
             <!-- Output Column -->
-            <div class="lg:col-span-7">
+            <div class="lg:col-span-7 min-w-0">
                 <div class="relative shadcn-card overflow-hidden group">
-                    <div class="flex items-center justify-between px-4 py-3 bg-zinc-950 border-b border-zinc-800">
+                    <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 bg-zinc-950 border-b border-zinc-800">
                         <span class="text-xs font-mono text-zinc-400">Terminal Command</span>
-                        <button id="btn-copy" class="text-zinc-400 hover:text-white transition-colors" title="Copy command">
+                        <button type="button" id="btn-copy" aria-label="Copy command" class="text-zinc-400 hover:text-white transition-colors shrink-0" title="Copy command">
                             <i data-lucide="copy" class="w-4 h-4"></i>
                         </button>
                     </div>
-                    <div class="p-6 bg-zinc-900/50 flex items-center" dir="ltr">
-                        <span class="text-green-400 font-mono text-sm mr-3 font-bold">$</span>
-                        <code id="cmd-output" class="text-sm font-mono text-zinc-300 break-all w-full text-left">wp help</code>
+                    <div class="p-6 bg-zinc-900/50 flex items-center min-w-0" dir="ltr">
+                        <span class="text-green-400 font-mono text-sm mr-3 font-bold shrink-0">$</span>
+                        <code id="cmd-output" class="text-sm font-mono text-zinc-300 break-all w-full min-w-0 text-left">wp help</code>
                     </div>
                 </div>
                 
@@ -167,7 +188,8 @@
 
     <wpt-footer></wpt-footer>
 
-    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
+    <div id="toast" popover="manual" role="status" aria-live="polite" aria-atomic="true"
+        class="wpt-popover fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>

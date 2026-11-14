@@ -3,6 +3,8 @@
  */
 import { State } from './state.js';
 import { I18n } from './i18n.js';
+import { Utils } from './utils.js';
+import { createIcons, icons } from 'lucide';
 
 export class BaseTool {
     constructor(id, config) {
@@ -69,7 +71,7 @@ export class BaseTool {
         window.addEventListener('languageChanged', this._onLanguageChange);
 
         // Initialize Lucide icons if any were added dynamically
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        createIcons({ icons });
     }
 
     async handleFiles(files) {
@@ -133,9 +135,6 @@ export class BaseTool {
     cancel() {
         this.isCancelled = true;
         this.hideOverlay();
-        // Since we don't have direct access to UI or App yet here, I'll rely on global events or pass it in.
-        // Or I can import them after they are created. 
-        // For now, using a standard alert if UI isn't available, but let's assume it will be available.
         if (window.App && window.App.showToast) {
             window.App.showToast(I18n.t('msg_cancelled'));
         }
@@ -151,8 +150,7 @@ export class BaseTool {
             results.push(...chunkResults);
             const progress = Math.min(100, Math.round(((i + chunk.length) / total) * 100));
             this.updateProgress(progress, i + chunk.length, total);
-            // Yield to UI thread
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await Utils.yieldToMain();
         }
         return results;
     }

@@ -2,11 +2,31 @@
 <html lang="en" style="background-color: #09090b; color: white;">
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Oip6BSOueP4OrFxv4cPieX4wlFgT6dUZKKme7nQ4MjY=' https://www.googletagmanager.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta charset="UTF-8">
     <meta name="theme-color" content="#09090b">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+        analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var c = localStorage.getItem('wpt-consent');
+        if (c === 'granted') gtag('consent', 'update', { analytics_storage: 'granted' });
+        else if (c === 'all') gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+      } catch (e) {}
+      gtag('js', new Date());
+    </script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KWMHKN5M"></script>
     <title data-i18n="title_clearfonts.html">Font Cleaner | WPToolbox</title>
     <meta name="description" content="Remove hardcoded font families from Gutenberg and Greenshift block comments automatically.">
 
@@ -42,7 +62,7 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
         <header class="mb-10 text-center md:text-start">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_font_cleaner_title">Block
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter text-white break-words [overflow-wrap:anywhere] text-balance" data-i18n="tool_font_cleaner_title">Block
                 Font Cleaner</h1>
             <p class="text-zinc-500 mt-2" data-i18n="tool_font_cleaner_desc">Automatically remove hardcoded font-family
                 definitions from Gutenberg and
@@ -52,32 +72,32 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
             <!-- Input Section -->
-            <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <label class="text-xs font-bold uppercase tracking-widest text-zinc-500"
+            <div class="space-y-4 min-w-0">
+                <div class="flex flex-wrap justify-between items-center gap-2">
+                    <label for="input" class="text-xs font-bold uppercase tracking-widest text-zinc-500"
                         data-i18n="label_input_block">Input Block Code</label>
-                    <button class="text-xs text-zinc-500 hover:text-white transition-none"
+                    <button type="button" class="text-xs text-zinc-500 hover:text-white transition-none"
                         data-i18n="btn_clear">Clear</button>
                 </div>
                 <div class="shadcn-card bg-zinc-950 border-zinc-800">
                     <textarea id="input"
-                        class="w-full h-[500px] bg-transparent p-6 text-sm font-mono text-zinc-300 focus:outline-none resize-none leading-relaxed"
+                        class="w-full h-[500px] bg-transparent p-6 text-sm font-mono text-zinc-300 focus:outline-none resize-y leading-relaxed"
                         data-i18n-placeholder="placeholder_input_block"
                         placeholder="Paste your Gutenberg / Greenshift code here..."></textarea>
                 </div>
             </div>
 
             <!-- Output Section -->
-            <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <label class="text-xs font-bold uppercase tracking-widest text-zinc-500"
+            <div class="space-y-4 min-w-0">
+                <div class="flex flex-wrap justify-between items-center gap-2">
+                    <label for="output" class="text-xs font-bold uppercase tracking-widest text-zinc-500"
                         data-i18n="label_cleaned_code">Cleaned Code</label>
-                    <button class="shadcn-button shadcn-button-outline h-8 px-4 text-xs" data-i18n="btn_copy_result">Copy
+                    <button type="button" class="shadcn-button shadcn-button-outline h-8 px-4 text-xs" data-i18n="btn_copy_result">Copy
                         Result</button>
                 </div>
                 <div class="shadcn-card bg-zinc-950 border-zinc-900 border-2">
                     <textarea id="output" readonly
-                        class="w-full h-[500px] bg-transparent p-6 text-sm font-mono text-emerald-400 focus:outline-none resize-none leading-relaxed"
+                        class="w-full h-[500px] bg-transparent p-6 text-sm font-mono text-emerald-400 focus:outline-none resize-y leading-relaxed"
                         data-i18n-placeholder="placeholder_cleaned_code"
                         placeholder="Cleaned code will appear here..."></textarea>
                 </div>
@@ -91,7 +111,8 @@
     <wpt-footer></wpt-footer>
 
     <!-- Global Toast Container -->
-    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
+    <div id="toast" popover="manual" role="status" aria-live="polite" aria-atomic="true"
+        class="wpt-popover fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>

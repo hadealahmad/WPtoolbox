@@ -77,7 +77,7 @@ erDiagram
 - **translations.json** — flat key→string maps per locale; page meta uses `title_<page>` / `desc_<page>` keys.
 - **nav.json** — three groups: `nav_group_media`, `nav_group_workflow`, `nav_group_dev`.
 - **tips.json / snippets.json** — each entry carries both `en` and `ar` variants.
-- Duplicated copies exist in `public/js/data/` for legacy/static fallback; `src/data/` is the source of truth.
+- `src/data/` is the single source of truth for all bundled JSON data.
 
 ## Build Pipeline
 

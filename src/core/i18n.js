@@ -2,6 +2,7 @@
  * WPToolbox Internationalization (I18n)
  */
 import { State } from './state.js';
+import { Analytics } from './analytics.js';
 import translations from '../data/translations.json';
 import nav from '../data/nav.json';
 
@@ -56,6 +57,8 @@ export const I18n = {
                 if (el.tagName === 'INPUT' && (el.type === 'button' || el.type === 'submit')) {
                     el.value = translation;
                 } else if (isHtml) {
+                    // Safe trust boundary: translations are loaded strictly from bundled first-party
+                    // src/data/translations.json, never from user input or external sources.
                     el.innerHTML = translation;
                 } else {
                     el.textContent = translation;
@@ -124,7 +127,10 @@ export const I18n = {
 };
 
 // Language change side effects
-window.addEventListener('languageChanged', () => {
+window.addEventListener('languageChanged', (e) => {
     I18n.updateDirection();
     I18n.translatePage();
+    Analytics.track('language_change', {
+        language: (e && e.detail && e.detail.lang) || State.currentLang
+    });
 });

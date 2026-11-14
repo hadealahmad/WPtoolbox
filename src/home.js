@@ -25,33 +25,30 @@ export const Home = {
         const toolCards = document.querySelectorAll('.tool-card');
 
         filterBtns.forEach(btn => {
-            btn.onclick = () => {
+            btn.setAttribute('aria-pressed', btn.classList.contains('active') ? 'true' : 'false');
+            btn.addEventListener('click', () => {
                 const category = btn.dataset.category;
 
                 // Update active button
-                filterBtns.forEach(b => b.classList.remove('active', 'shadcn-button-primary'));
-                filterBtns.forEach(b => b.classList.add('shadcn-button-outline'));
-                btn.classList.add('active', 'shadcn-button-primary');
-                btn.classList.remove('shadcn-button-outline');
-
-                // Filter cards
-                toolCards.forEach(card => {
-                    const cardCat = card.dataset.category;
-                    if (category === 'all' || category === cardCat) {
-                        card.style.display = 'flex';
-                        setTimeout(() => {
-                            card.style.opacity = '1';
-                            card.style.transform = 'scale(1)';
-                        }, 10);
-                    } else {
-                        card.style.opacity = '0';
-                        card.style.transform = 'scale(0.95)';
-                        setTimeout(() => {
-                            card.style.display = 'none';
-                        }, 300);
-                    }
+                filterBtns.forEach(b => {
+                    const isSelected = b === btn;
+                    b.classList.toggle('active', isSelected);
+                    b.classList.toggle('shadcn-button-primary', isSelected);
+                    b.classList.toggle('shadcn-button-outline', !isSelected);
+                    b.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
                 });
-            };
+
+                // Filter cards with class toggles (animations respect prefers-reduced-motion)
+                toolCards.forEach(card => {
+                    const match = category === 'all' || category === card.dataset.category;
+                    card.classList.add('motion-reduce:transition-none', 'motion-reduce:animate-none');
+                    card.classList.toggle('hidden', !match);
+                    card.classList.toggle('flex', match);
+                    card.classList.toggle('motion-safe:animate-in', match);
+                    card.classList.toggle('motion-safe:fade-in', match);
+                    card.classList.toggle('motion-safe:duration-200', match);
+                });
+            });
         });
 
         window.addEventListener('languageChanged', (e) => {

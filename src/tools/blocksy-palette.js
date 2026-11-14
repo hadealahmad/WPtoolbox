@@ -5,6 +5,41 @@
 import '../main.js';
 import { App } from '../core/app.js';
 import { I18n } from '../core/i18n.js';
+import { createIcons, icons } from 'lucide';
+
+const DEFAULT_PALETTE = ['#2872fa', '#1559ed', '#3a4f66', '#192a3d', '#e1e8ed', '#f2f5f7', '#fafbfc', '#ffffff'];
+const HEX_RE = /^#[0-9a-f]{3,8}$/i;
+const SUPPORTS_CLOSEDBY = typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
+
+function safeHex(val, fallback = '#2872fa') {
+    const s = String(val || '').trim();
+    if (!HEX_RE.test(s)) return fallback;
+    if (s.length === 4) {
+        return '#' + s.slice(1).split('').map(c => c + c).join('').toLowerCase();
+    }
+    return s.slice(0, 7).toLowerCase();
+}
+
+function sanitizePaletteColors(arr) {
+    const src = Array.isArray(arr) ? arr : [];
+    return DEFAULT_PALETTE.map((fb, i) => safeHex(src[i], fb));
+}
+
+function attachBackdropDismiss(dialog, card, onDismiss) {
+    if (!dialog || !card || SUPPORTS_CLOSEDBY) return;
+    let startedOutside = false;
+    const isOutside = (e) => {
+        const r = card.getBoundingClientRect();
+        return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+    };
+    dialog.addEventListener('pointerdown', (e) => {
+        startedOutside = e.target === dialog && isOutside(e);
+    });
+    dialog.addEventListener('pointerup', (e) => {
+        if (startedOutside && e.target === dialog && isOutside(e)) onDismiss();
+        startedOutside = false;
+    });
+}
 
 // ── Utility ───────────────────────────────────────────────────────────────────
 function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
@@ -276,6 +311,18 @@ export const BlocksyPalette = {
         const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
         const cancelEditBtn = document.getElementById('cancel-edit-btn');
         const saveEditBtn = document.getElementById('save-edit-btn');
+        const importBtn = document.getElementById('import-palettes-btn');
+        const importInput = document.getElementById('import-palettes-input');
+        const exportBtn = document.getElementById('export-palettes-btn');
+        const editModal = document.getElementById('edit-modal');
+        const editModalCard = document.getElementById('edit-modal-card');
+
+        if (editModal) {
+            attachBackdropDismiss(editModal, editModalCard, () => this.closeEditModal());
+            editModal.addEventListener('close', () => {
+                this.editingId = null;
+            });
+        }
 
         if (autoGen) {
             autoGen.addEventListener('change', e => {
@@ -297,10 +344,15 @@ export const BlocksyPalette = {
         if (randomBtn) randomBtn.onclick = () => this.randomColors();
         if (logoUpload) logoUpload.onchange = (e) => this.extractFromImage(e);
         if (savePaletteBtn) savePaletteBtn.onclick = () => this.savePalette();
-        if (copyCssBtn) copyCssBtn.onclick = () => this.copyCSS();
+        if (copyCssBtn) copyCssBtn.onclick = (e) => this.copyCSS(e.currentTarget);
         if (closeEditModalBtn) closeEditModalBtn.onclick = () => this.closeEditModal();
         if (cancelEditBtn) cancelEditBtn.onclick = () => this.closeEditModal();
         if (saveEditBtn) saveEditBtn.onclick = () => this.saveEditModal();
+        if (importBtn && importInput) {
+            importBtn.onclick = () => importInput.click();
+            importInput.onchange = (e) => this.importPalettes(e);
+        }
+        if (exportBtn) exportBtn.onclick = () => this.exportPalettes();
 
         for (let i = 1; i <= 8; i++) {
             const pk = document.getElementById(`color${i}`);
@@ -321,21 +373,27 @@ export const BlocksyPalette = {
     },
 
     setMode: function(mode) {
-        this.mode = mode;
+        this.mode = mode === 'light' ? 'light' : 'dark';
         const a = 'flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all border-primary bg-primary/10 text-primary';
         const i = 'flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all border-zinc-800 text-zinc-500 hover:border-zinc-600';
         const ml = document.getElementById('mode-light');
         const md = document.getElementById('mode-dark');
-        if (ml) ml.className = mode === 'light' ? a : i;
-        if (md) md.className  = mode === 'dark'  ? a : i;
+        if (ml) {
+            ml.className = this.mode === 'light' ? a : i;
+            ml.setAttribute('aria-pressed', this.mode === 'light' ? 'true' : 'false');
+        }
+        if (md) {
+            md.className = this.mode === 'dark' ? a : i;
+            md.setAttribute('aria-pressed', this.mode === 'dark' ? 'true' : 'false');
+        }
         const badge = document.getElementById('preview-mode-badge');
-        if (badge) { badge.textContent = I18n.t(`mode_${mode}`); badge.dataset.i18n = `mode_${mode}`; }
+        if (badge) { badge.textContent = I18n.t(`mode_${this.mode}`); badge.dataset.i18n = `mode_${this.mode}`; }
         this.onColorInput();
     },
 
     onColorInput: function() {
-        const c1 = document.getElementById('color1')?.value || '#2872fa';
-        const c2 = document.getElementById('color2')?.value || '#1559ed';
+        const c1 = safeHex(document.getElementById('color1')?.value, '#2872fa');
+        const c2 = safeHex(document.getElementById('color2')?.value, '#1559ed');
         const h1 = document.getElementById('color1-hex');
         const h2 = document.getElementById('color2-hex');
         if (h1) h1.value = c1.toUpperCase();
@@ -350,11 +408,11 @@ export const BlocksyPalette = {
                 const hx = document.getElementById(`color${i}-hex`); if (hx) hx.value = colors[i-1].toUpperCase();
             }
         } else {
-            const g = (id, fb) => document.getElementById(id)?.value || fb;
+            const g = (id, fb) => safeHex(document.getElementById(id)?.value, fb);
             colors = [c1, c2, g('color3','#3a4f66'), g('color4','#192a3d'), g('color5','#e1e8ed'), g('color6','#f2f5f7'), g('color7','#fafbfc'), g('color8','#ffffff')];
         }
-        this.currentColors = colors;
-        this.renderPreview(colors);
+        this.currentColors = sanitizePaletteColors(colors);
+        this.renderPreview(this.currentColors);
     },
 
     onTextInput: function(index) {
@@ -495,7 +553,8 @@ export const BlocksyPalette = {
         this.onColorInput();
     },
 
-    renderPreview: function(colors) {
+    renderPreview: function(rawColors) {
+        const colors = sanitizePaletteColors(rawColors);
         const strip = document.getElementById('color-strip');
         const details = document.getElementById('color-details');
         if (!strip || !details) return;
@@ -504,113 +563,334 @@ export const BlocksyPalette = {
         const c3cr = contrastRatio(colors[2], colors[4]).toFixed(1);
         const c4cr = contrastRatio(colors[3], colors[7]).toFixed(1);
 
-        strip.innerHTML = '';
+        strip.replaceChildren();
         colors.forEach((hex, i) => {
             const tc = isLightColor(hex) ? '#000' : '#fff';
-            const div = document.createElement('div');
-            div.className = "relative flex-1 flex flex-col items-center justify-end pb-1.5 cursor-pointer select-none overflow-hidden";
-            div.style.background = hex;
-            div.innerHTML = `<span class="text-[9px] font-black pointer-events-none" style="color:${tc}">${i+1}</span><div class="copy-flash absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 pointer-events-none" style="background:rgba(0,0,0,0.42)"><span class="text-base font-black text-white leading-none">✓</span></div>`;
-            div.onclick = () => this.copyColor(hex, div);
-            strip.appendChild(div);
+            const displayed = formatColor(hex, fmt);
+            const btn = App.h(
+                'button',
+                {
+                    type: 'button',
+                    class: 'relative flex-1 flex flex-col items-center justify-end pb-1.5 cursor-pointer select-none overflow-hidden border-0 focus-visible:outline-2 focus-visible:outline-white focus-visible:z-10',
+                    style: { backgroundColor: hex },
+                    attrs: { 'aria-label': `Copy ${App.t('label_color') || 'Color'} ${i + 1}: ${displayed}` },
+                    on: { click: () => this.copyColor(hex, btn) }
+                },
+                App.h('span', { class: 'text-[9px] font-black pointer-events-none', style: { color: tc }, text: String(i + 1) }),
+                App.h(
+                    'div',
+                    {
+                        class: 'copy-flash absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 pointer-events-none',
+                        style: { background: 'rgba(0,0,0,0.42)' }
+                    },
+                    App.h('span', { class: 'text-base font-black text-white leading-none', text: '✓' })
+                )
+            );
+            strip.appendChild(btn);
         });
 
-        details.innerHTML = '';
+        details.replaceChildren();
         colors.forEach((hex, i) => {
             const displayed = formatColor(hex, fmt);
-            const role = roles[i];
-            let badge = '';
-            if (i === 2) { const cr = parseFloat(c3cr); badge = `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full ${cr >= 4.5 ? 'bg-emerald-900/60 text-emerald-400' : 'bg-amber-900/60 text-amber-400'}">${c3cr}:1</span>`; }
-            if (i === 3) { const cr = parseFloat(c4cr); badge = `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full ${cr >= 7 ? 'bg-emerald-900/60 text-emerald-400' : 'bg-amber-900/60 text-amber-400'}">${c4cr}:1</span>`; }
-            const card = document.createElement('div');
-            card.className = "rounded-xl overflow-hidden border border-zinc-800/60 group cursor-pointer hover:scale-105 transition-transform";
-            card.innerHTML = `<div style="background:${hex}" class="h-12 flex items-center justify-center relative overflow-hidden"><div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style="background:rgba(0,0,0,0.38)"><i data-lucide="copy" class="w-3.5 h-3.5 text-white"></i></div><div class="copy-flash absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 pointer-events-none" style="background:rgba(0,0,0,0.45)"><span class="text-sm font-black text-white">✓</span></div></div><div class="bg-zinc-950 px-2 py-1.5"><div class="flex items-center justify-between gap-1 mb-0.5"><span class="text-[9px] font-bold text-zinc-600 uppercase">${App.t('label_color') || 'Color'} ${i+1}</span>${badge}</div><p class="text-[9px] font-mono text-zinc-400 truncate">${displayed}</p><p class="text-[9px] text-zinc-600 truncate mt-0.5">${role}</p></div>`;
-            card.onclick = () => this.copyColor(hex, card);
+            const role = roles[i] || '';
+            let badge = null;
+            if (i === 2) {
+                const cr = parseFloat(c3cr);
+                badge = App.h('span', {
+                    class: `text-[9px] font-bold px-1.5 py-0.5 rounded-full ${cr >= 4.5 ? 'bg-emerald-900/60 text-emerald-400' : 'bg-amber-900/60 text-amber-400'}`,
+                    text: `${c3cr}:1`
+                });
+            }
+            if (i === 3) {
+                const cr = parseFloat(c4cr);
+                badge = App.h('span', {
+                    class: `text-[9px] font-bold px-1.5 py-0.5 rounded-full ${cr >= 7 ? 'bg-emerald-900/60 text-emerald-400' : 'bg-amber-900/60 text-amber-400'}`,
+                    text: `${c4cr}:1`
+                });
+            }
+            const card = App.h(
+                'button',
+                {
+                    type: 'button',
+                    class: 'min-w-0 text-start rounded-xl overflow-hidden border border-zinc-800/60 group cursor-pointer hover:scale-105 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    attrs: { 'aria-label': `Copy ${App.t('label_color') || 'Color'} ${i + 1}: ${displayed}` },
+                    on: { click: () => this.copyColor(hex, card) }
+                },
+                App.h(
+                    'div',
+                    {
+                        class: 'h-12 flex items-center justify-center relative overflow-hidden w-full',
+                        style: { backgroundColor: hex }
+                    },
+                    App.h(
+                        'div',
+                        {
+                            class: 'absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none',
+                            style: { background: 'rgba(0,0,0,0.38)' }
+                        },
+                        App.h('i', { attrs: { 'data-lucide': 'copy' }, class: 'w-3.5 h-3.5 text-white' })
+                    ),
+                    App.h(
+                        'div',
+                        {
+                            class: 'copy-flash absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 pointer-events-none',
+                            style: { background: 'rgba(0,0,0,0.45)' }
+                        },
+                        App.h('span', { class: 'text-sm font-black text-white', text: '✓' })
+                    )
+                ),
+                App.h(
+                    'div',
+                    { class: 'bg-zinc-950 px-2 py-1.5 w-full min-w-0' },
+                    App.h(
+                        'div',
+                        { class: 'flex flex-wrap items-center justify-between gap-1 mb-0.5' },
+                        App.h('span', { class: 'text-[9px] font-bold text-zinc-600 uppercase truncate', text: `${App.t('label_color') || 'Color'} ${i + 1}` }),
+                        badge
+                    ),
+                    App.h('p', { class: 'text-[9px] font-mono text-zinc-400 truncate', text: displayed }),
+                    App.h('p', { class: 'text-[9px] text-zinc-600 truncate mt-0.5', text: role })
+                )
+            );
             details.appendChild(card);
         });
 
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        createIcons({ icons, root: details });
         this.renderGradients(colors);
     },
 
-    copyColor: function(hex, el) {
-        const text = formatColor(hex, this.colorFormat);
-        navigator.clipboard?.writeText(text).catch(() => {});
+    copyColor: async function(hex, el) {
+        const text = formatColor(safeHex(hex), this.colorFormat);
+        await App.copyToClipboard(text);
         const flash = el?.querySelector?.('.copy-flash');
-        if (flash) { flash.style.opacity = '1'; setTimeout(() => flash.style.opacity = '0', 700); }
+        if (flash) { flash.style.opacity = '1'; setTimeout(() => { flash.style.opacity = '0'; }, 700); }
         App.showToast(text);
     },
 
-    copyCSS: function() {
-        const colors = this.currentColors;
-        const name = document.getElementById('palette-name')?.value.trim() || 'My Palette';
-        const css = `/* ${name} — Blocksy Color Palette */\n:root {\n${colors.map((c, i) => `  --theme-palette-color-${i+1}: ${c};`).join('\n')}\n}`;
-        navigator.clipboard?.writeText(css).catch(() => {});
+    copyCSS: async function(btn) {
+        const colors = sanitizePaletteColors(this.currentColors);
+        const name = (document.getElementById('palette-name')?.value.trim() || 'My Palette').replace(/\*\//g, '');
+        const css = `/* ${name} — Blocksy Color Palette */\n:root {\n${colors.map((c, i) => `  --theme-palette-color-${i + 1}: ${c};`).join('\n')}\n}`;
+        await App.copyToClipboard(css, btn);
         App.showToast(App.t('msg_css_copied') || 'CSS copied!');
     },
 
-    renderGradients: function(colors) {
+    renderGradients: function(rawColors) {
+        const colors = sanitizePaletteColors(rawColors);
         const container = document.getElementById('gradients-container');
         if (!container) return;
         const gradients = buildGradients(colors);
         this._gradientData = {};
-        container.innerHTML = '';
+        container.replaceChildren();
+
         gradients.forEach((g) => {
             this._gradientData[g.id] = { css: g.css, oklch: g.oklch };
-            const dots = g.enhanced.map(h => `<span class="inline-block w-3 h-3 rounded-full border border-zinc-700/80 shrink-0" style="background:${h}" title="${h}"></span>`).join('');
-            const card = document.createElement('div');
-            card.className = "shadcn-card overflow-hidden group flex flex-col";
-            card.innerHTML = `
-                <div class="grad-preview h-24 w-full cursor-pointer relative overflow-hidden flex-shrink-0" style="background:${g.preview}">
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all bg-black/30"><div class="flex items-center gap-2 bg-black/60 text-white text-[10px] font-bold px-3 py-1.5 rounded-full"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>${App.t('btn_copy_css')}</span></div></div>
-                    <div class="copy-flash absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 pointer-events-none bg-black/40"><span class="text-lg font-black text-white">✓</span></div>
-                </div>
-                <div class="p-4 flex flex-col gap-3 flex-1">
-                    <div class="flex items-start justify-between gap-2">
-                        <div class="min-w-0"><p class="text-sm font-bold text-white truncate">${g.name}</p>${g.enhanced.length ? `<div class="flex items-center gap-1.5 mt-1.5"><span class="text-[9px] text-zinc-600 font-semibold">${App.t('label_extra_colors')}:</span>${dots}</div>` : ''}</div>
-                        <div class="flex gap-1 shrink-0"><button class="tab-css text-[10px] font-bold px-2 py-1 rounded-md transition-all border border-primary/30 bg-primary/20 text-primary">CSS</button><button class="tab-oklch text-[10px] font-bold px-2 py-1 rounded-md transition-all text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800">OKLCH</button></div>
-                    </div>
-                    <div class="panel-css flex items-start gap-2 p-2.5 bg-zinc-950 rounded-lg border border-zinc-800"><code class="text-[10px] font-mono text-zinc-400 break-all flex-1">${g.css}</code><button class="btn-copy-css shrink-0 p-1.5 text-zinc-600 hover:text-primary rounded hover:bg-zinc-800"><i data-lucide="copy" class="w-3 h-3"></i></button></div>
-                    <div class="panel-oklch hidden flex flex-col gap-1.5"><div class="flex items-start gap-2 p-2.5 bg-zinc-950 rounded-lg border border-zinc-800"><code class="text-[10px] font-mono text-zinc-400 break-all flex-1">${g.oklch}</code><button class="btn-copy-oklch shrink-0 p-1.5 text-zinc-600 hover:text-primary rounded hover:bg-zinc-800"><i data-lucide="copy" class="w-3 h-3"></i></button></div>${g.oklchNote ? `<p class="text-[9px] text-zinc-600 italic">${g.oklchNote}</p>` : ''}<p class="text-[9px] text-zinc-700">${App.t('label_oklch_support')}</p></div>
-                </div>`;
-            
-            card.querySelector('.grad-preview').onclick = () => {
-                const isOklch = !card.querySelector('.panel-oklch').classList.contains('hidden');
+
+            const dotsRow = g.enhanced.length
+                ? App.h(
+                    'div',
+                    { class: 'flex items-center gap-1.5 mt-1.5' },
+                    App.h('span', { class: 'text-[9px] text-zinc-600 font-semibold', text: `${App.t('label_extra_colors')}:` }),
+                    ...g.enhanced.map(h => {
+                        const safe = safeHex(h);
+                        return App.h('span', {
+                            class: 'inline-block w-3 h-3 rounded-full border border-zinc-700/80 shrink-0',
+                            style: { backgroundColor: safe },
+                            attrs: { title: safe }
+                        });
+                    })
+                )
+                : null;
+
+            const panelCss = App.h(
+                'div',
+                { class: 'panel-css flex items-start gap-2 p-2.5 bg-zinc-950 rounded-lg border border-zinc-800 min-w-0' },
+                App.h('code', { class: 'text-[10px] font-mono text-zinc-400 break-all flex-1 min-w-0', text: g.css }),
+                App.h(
+                    'button',
+                    {
+                        type: 'button',
+                        class: 'btn-copy-css shrink-0 p-1.5 text-zinc-600 hover:text-primary rounded hover:bg-zinc-800',
+                        attrs: { 'aria-label': `Copy ${g.name} CSS` }
+                    },
+                    App.h('i', { attrs: { 'data-lucide': 'copy' }, class: 'w-3 h-3' })
+                )
+            );
+
+            const panelOklch = App.h(
+                'div',
+                { class: 'panel-oklch hidden flex flex-col gap-1.5 min-w-0' },
+                App.h(
+                    'div',
+                    { class: 'flex items-start gap-2 p-2.5 bg-zinc-950 rounded-lg border border-zinc-800 min-w-0' },
+                    App.h('code', { class: 'text-[10px] font-mono text-zinc-400 break-all flex-1 min-w-0', text: g.oklch }),
+                    App.h(
+                        'button',
+                        {
+                            type: 'button',
+                            class: 'btn-copy-oklch shrink-0 p-1.5 text-zinc-600 hover:text-primary rounded hover:bg-zinc-800',
+                            attrs: { 'aria-label': `Copy ${g.name} OKLCH CSS` }
+                        },
+                        App.h('i', { attrs: { 'data-lucide': 'copy' }, class: 'w-3 h-3' })
+                    )
+                ),
+                g.oklchNote ? App.h('p', { class: 'text-[9px] text-zinc-600 italic', text: g.oklchNote }) : null,
+                App.h('p', { class: 'text-[9px] text-zinc-700', text: App.t('label_oklch_support') })
+            );
+
+            const tabCss = App.h('button', {
+                type: 'button',
+                class: 'tab-css text-[10px] font-bold px-2 py-1 rounded-md transition-all border border-primary/30 bg-primary/20 text-primary',
+                attrs: { 'aria-pressed': 'true' },
+                text: 'CSS'
+            });
+            const tabOklch = App.h('button', {
+                type: 'button',
+                class: 'tab-oklch text-[10px] font-bold px-2 py-1 rounded-md transition-all text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800',
+                attrs: { 'aria-pressed': 'false' },
+                text: 'OKLCH'
+            });
+
+            const previewBtn = App.h(
+                'button',
+                {
+                    type: 'button',
+                    class: 'grad-preview h-24 w-full cursor-pointer relative overflow-hidden flex-shrink-0 border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    style: { background: g.preview },
+                    attrs: { 'aria-label': `Copy ${g.name} gradient CSS` }
+                },
+                App.h(
+                    'div',
+                    { class: 'absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all bg-black/30 pointer-events-none' },
+                    App.h(
+                        'div',
+                        { class: 'flex items-center gap-2 bg-black/60 text-white text-[10px] font-bold px-3 py-1.5 rounded-full' },
+                        App.h('i', { attrs: { 'data-lucide': 'copy' }, class: 'w-3.5 h-3.5' }),
+                        App.h('span', { text: App.t('btn_copy_css') })
+                    )
+                ),
+                App.h(
+                    'div',
+                    { class: 'copy-flash absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 pointer-events-none bg-black/40' },
+                    App.h('span', { class: 'text-lg font-black text-white', text: '✓' })
+                )
+            );
+
+            const card = App.h(
+                'div',
+                { class: 'shadcn-card overflow-hidden group flex flex-col min-w-0' },
+                previewBtn,
+                App.h(
+                    'div',
+                    { class: 'p-4 flex flex-col gap-3 flex-1 min-w-0' },
+                    App.h(
+                        'div',
+                        { class: 'flex flex-wrap items-start justify-between gap-2' },
+                        App.h(
+                            'div',
+                            { class: 'min-w-0' },
+                            App.h('p', { class: 'text-sm font-bold text-white truncate', text: g.name }),
+                            dotsRow
+                        ),
+                        App.h('div', { class: 'flex gap-1 shrink-0' }, tabCss, tabOklch)
+                    ),
+                    panelCss,
+                    panelOklch
+                )
+            );
+
+            previewBtn.onclick = () => {
+                const isOklch = !panelOklch.classList.contains('hidden');
                 this.copyGradient(g.id, isOklch ? 'oklch' : 'css', card);
             };
-            card.querySelector('.tab-css').onclick = (e) => this.switchGradientTab(g.id, 'css', e.target, card);
-            card.querySelector('.tab-oklch').onclick = (e) => this.switchGradientTab(g.id, 'oklch', e.target, card);
-            card.querySelector('.btn-copy-css').onclick = () => this.copyGradient(g.id, 'css', card);
-            card.querySelector('.btn-copy-oklch').onclick = () => this.copyGradient(g.id, 'oklch', card);
+            tabCss.onclick = () => this.switchGradientTab(g.id, 'css', tabCss, card);
+            tabOklch.onclick = () => this.switchGradientTab(g.id, 'oklch', tabOklch, card);
+            panelCss.querySelector('.btn-copy-css').onclick = () => this.copyGradient(g.id, 'css', card);
+            panelOklch.querySelector('.btn-copy-oklch').onclick = () => this.copyGradient(g.id, 'oklch', card);
             container.appendChild(card);
         });
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        createIcons({ icons, root: container });
     },
 
     switchGradientTab: function(gid, fmt, btn, card) {
-        card.querySelectorAll('button[class*="tab-"]').forEach(b => b.className = 'text-[10px] font-bold px-2 py-1 rounded-md transition-all text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800');
-        btn.className = 'text-[10px] font-bold px-2 py-1 rounded-md transition-all border border-primary/30 bg-primary/20 text-primary';
+        const activeCls = 'text-[10px] font-bold px-2 py-1 rounded-md transition-all border border-primary/30 bg-primary/20 text-primary';
+        const inactiveCls = 'text-[10px] font-bold px-2 py-1 rounded-md transition-all text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800';
+        const tabCss = card.querySelector('.tab-css');
+        const tabOklch = card.querySelector('.tab-oklch');
+        if (tabCss) {
+            tabCss.className = `tab-css ${fmt === 'css' ? activeCls : inactiveCls}`;
+            tabCss.setAttribute('aria-pressed', fmt === 'css' ? 'true' : 'false');
+        }
+        if (tabOklch) {
+            tabOklch.className = `tab-oklch ${fmt === 'oklch' ? activeCls : inactiveCls}`;
+            tabOklch.setAttribute('aria-pressed', fmt === 'oklch' ? 'true' : 'false');
+        }
         card.querySelector('.panel-css').classList.toggle('hidden', fmt !== 'css');
         card.querySelector('.panel-oklch').classList.toggle('hidden', fmt !== 'oklch');
     },
 
-    copyGradient: function(gid, fmt, card) {
-        const text = this._gradientData[gid][fmt];
-        navigator.clipboard?.writeText(text).catch(() => {});
+    copyGradient: async function(gid, fmt, card) {
+        const text = this._gradientData[gid]?.[fmt];
+        if (!text) return;
+        await App.copyToClipboard(text);
         const flash = card.querySelector('.copy-flash');
-        if (flash) { flash.style.opacity = '1'; setTimeout(() => flash.style.opacity = '0', 700); }
+        if (flash) { flash.style.opacity = '1'; setTimeout(() => { flash.style.opacity = '0'; }, 700); }
         App.showToast(`${fmt.toUpperCase()} ${App.t('msg_gradient_copied') || 'gradient copied!'}`);
     },
 
     savePalette: function() {
         const name = document.getElementById('palette-name')?.value.trim();
-        if (!name) { App.showToast(App.t('msg_enter_palette_name')); document.getElementById('palette-name')?.focus(); return; }
+        if (!name) { App.showToast(App.t('msg_enter_palette_name'), 'error'); document.getElementById('palette-name')?.focus(); return; }
         const p = this.getSaved();
-        p.push({ id: 'palette_' + Date.now(), name, mode: this.mode, colors: [...this.currentColors], createdAt: Date.now() });
+        p.push({ id: 'palette_' + Date.now(), name, mode: this.mode, colors: sanitizePaletteColors(this.currentColors), createdAt: Date.now() });
         this.setSaved(p);
         this.renderSaved();
-        App.showToast(App.t('msg_palette_saved'));
+        App.showToast(App.t('msg_palette_saved'), 'success');
         App.fireConfetti();
+    },
+
+    exportPalettes: function() {
+        const palettes = this.getSaved();
+        if (!palettes.length) {
+            App.showToast(App.t('msg_no_palettes_export') || 'No saved palettes to export.', 'info');
+            return;
+        }
+        App.downloadFile(JSON.stringify(palettes, null, 2), 'blocksy-palettes.json', 'application/json');
+        App.fireConfetti();
+    },
+
+    importPalettes: async function(e) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            const text = await file.text();
+            const parsed = JSON.parse(text);
+            if (!Array.isArray(parsed)) throw new Error('Invalid format');
+            const existing = this.getSaved();
+            const existingIds = new Set(existing.map(p => String(p.id)));
+            const cleaned = parsed
+                .filter(item => item && typeof item === 'object')
+                .map((item, idx) => {
+                    let id = String(item.id || `palette_${Date.now()}_${idx}`);
+                    if (existingIds.has(id)) id = `palette_${Date.now()}_${idx}`;
+                    existingIds.add(id);
+                    return {
+                        id,
+                        name: String(item.name || 'Imported Palette').trim() || 'Imported Palette',
+                        mode: item.mode === 'light' ? 'light' : 'dark',
+                        colors: sanitizePaletteColors(item.colors),
+                        createdAt: Number(item.createdAt) || Date.now()
+                    };
+                });
+            this.setSaved([...existing, ...cleaned]);
+            this.renderSaved();
+            App.showToast(App.t('msg_palettes_imported') || 'Palettes imported successfully!', 'success');
+            App.fireConfetti();
+        } catch {
+            App.showToast(App.t('msg_import_fail') || 'Failed to import palettes.', 'error');
+        } finally {
+            e.target.value = '';
+        }
     },
 
     deletePalette: function(id, e) {
@@ -623,18 +903,19 @@ export const BlocksyPalette = {
     loadPalette: function(id) {
         const p = this.getSaved().find(p => p.id === id);
         if (!p) return;
-        this.setMode(p.mode || 'dark');
-        document.getElementById('palette-name').value = p.name;
-        document.getElementById('color1').value = p.colors[0];
-        document.getElementById('color1-hex').value = p.colors[0].toUpperCase();
-        document.getElementById('color2').value = p.colors[1];
-        document.getElementById('color2-hex').value = p.colors[1].toUpperCase();
+        const colors = sanitizePaletteColors(p.colors);
+        this.setMode(p.mode === 'light' ? 'light' : 'dark');
+        document.getElementById('palette-name').value = String(p.name || '');
+        document.getElementById('color1').value = colors[0];
+        document.getElementById('color1-hex').value = colors[0].toUpperCase();
+        document.getElementById('color2').value = colors[1];
+        document.getElementById('color2-hex').value = colors[1].toUpperCase();
         const auto = document.getElementById('auto-generate');
         if (auto) auto.checked = false;
         document.getElementById('manual-colors').classList.remove('hidden');
         for (let i = 3; i <= 8; i++) {
-            const pk = document.getElementById(`color${i}`); if (pk) pk.value = p.colors[i-1];
-            const hx = document.getElementById(`color${i}-hex`); if (hx) hx.value = p.colors[i-1].toUpperCase();
+            const pk = document.getElementById(`color${i}`); if (pk) pk.value = colors[i - 1];
+            const hx = document.getElementById(`color${i}-hex`); if (hx) hx.value = colors[i - 1].toUpperCase();
         }
         this.onColorInput();
         App.showToast(App.t('msg_palette_loaded'));
@@ -644,72 +925,174 @@ export const BlocksyPalette = {
     openEditModal: function(id, e) {
         if (e) e.stopPropagation();
         const p = this.getSaved().find(p => p.id === id);
-        if (!p) return;
+        const modal = document.getElementById('edit-modal');
+        if (!p || !modal) return;
         this.editingId = id;
-        document.getElementById('edit-palette-name').value = p.name;
+        const colors = sanitizePaletteColors(p.colors);
+        document.getElementById('edit-palette-name').value = String(p.name || '');
         const container = document.getElementById('edit-color-inputs');
-        container.innerHTML = p.colors.map((hex, i) => `
-            <div class="flex items-center gap-3">
-                <input type="color" id="edit-c${i+1}" value="${hex}" class="w-9 h-9 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
-                <span class="text-[10px] text-zinc-500 w-14 shrink-0">${App.t('label_color')} ${i+1}</span>
-                <input type="text" id="edit-c${i+1}-hex" value="${hex.toUpperCase()}" class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
-            </div>`).join('');
-        
-        for (let i = 1; i <= 8; i++) {
-            const pk = document.getElementById(`edit-c${i}`);
-            const hx = document.getElementById(`edit-c${i}-hex`);
-            pk.oninput = () => hx.value = pk.value.toUpperCase();
-            hx.oninput = () => { const prs = parseColorInput(hx.value); if (prs) pk.value = prs; };
+        container.replaceChildren();
+
+        colors.forEach((hex, i) => {
+            const pk = App.h('input', {
+                attrs: { type: 'color', id: `edit-c${i + 1}`, value: hex, 'aria-label': `${App.t('label_color') || 'Color'} ${i + 1} picker` },
+                class: 'w-9 h-9 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5 shrink-0'
+            });
+            pk.value = hex;
+            const hx = App.h('input', {
+                attrs: { type: 'text', id: `edit-c${i + 1}-hex`, value: hex.toUpperCase() },
+                class: 'flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary'
+            });
+            hx.value = hex.toUpperCase();
+
+            pk.oninput = () => { hx.value = pk.value.toUpperCase(); };
+            hx.oninput = () => { const prs = parseColorInput(hx.value); if (prs) pk.value = safeHex(prs); };
+
+            container.appendChild(
+                App.h(
+                    'div',
+                    { class: 'flex items-center gap-3 min-w-0' },
+                    pk,
+                    App.h('label', {
+                        attrs: { for: `edit-c${i + 1}-hex` },
+                        class: 'text-[10px] text-zinc-500 w-14 shrink-0',
+                        text: `${App.t('label_color')} ${i + 1}`
+                    }),
+                    hx
+                )
+            );
+        });
+
+        if (typeof modal.showModal === 'function' && !modal.open) {
+            modal.showModal();
         }
-        document.getElementById('edit-modal').classList.remove('hidden');
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        createIcons({ icons, root: modal });
     },
 
     closeEditModal: function() {
-        document.getElementById('edit-modal').classList.add('hidden');
+        const modal = document.getElementById('edit-modal');
+        if (modal && modal.open) modal.close();
         this.editingId = null;
     },
 
     saveEditModal: function() {
         if (!this.editingId) return;
         const palettes = this.getSaved();
-        const p = palettes.find(p => p.id === this.editingId);
-        const name = document.getElementById('edit-palette-name').value.trim();
-        if (!name || !p) return;
+        const p = palettes.find(item => item.id === this.editingId);
+        const nameInput = document.getElementById('edit-palette-name');
+        const name = nameInput?.value.trim();
+        if (!name) {
+            nameInput?.reportValidity?.();
+            nameInput?.focus();
+            return;
+        }
+        if (!p) return;
         p.name = name;
-        for (let i = 1; i <= 8; i++) { const pk = document.getElementById(`edit-c${i}`); if (pk) p.colors[i-1] = pk.value; }
+        const nextColors = [];
+        for (let i = 1; i <= 8; i++) {
+            const pk = document.getElementById(`edit-c${i}`);
+            nextColors.push(safeHex(pk?.value, DEFAULT_PALETTE[i - 1]));
+        }
+        p.colors = sanitizePaletteColors(nextColors);
         this.setSaved(palettes);
         this.closeEditModal();
         this.renderSaved();
-        App.showToast(App.t('msg_palette_saved'));
+        App.showToast(App.t('msg_palette_saved'), 'success');
     },
 
     renderSaved: function() {
         const list = document.getElementById('saved-palettes-list');
         const empty = document.getElementById('empty-saved');
+        if (!list || !empty) return;
         const palettes = this.getSaved();
-        if (palettes.length === 0) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
+        if (palettes.length === 0) {
+            list.replaceChildren();
+            empty.classList.remove('hidden');
+            return;
+        }
         empty.classList.add('hidden');
-        list.innerHTML = '';
+        list.replaceChildren();
         palettes.forEach(p => {
-            const card = document.createElement('div');
-            card.className = "shadcn-card p-4 flex items-center gap-4 hover:border-zinc-700 transition-all group cursor-pointer";
-            card.innerHTML = `
-                <div class="flex rounded-lg overflow-hidden h-10 w-28 shrink-0 shadow-sm border border-zinc-800">${p.colors.map(h => `<div class="flex-1" style="background:${h}"></div>`).join('')}</div>
-                <div class="flex-1 min-w-0"><p class="text-sm font-bold text-white truncate">${p.name}</p><p class="text-[10px] text-zinc-500 flex items-center gap-1 mt-0.5"><i data-lucide="${p.mode==='dark'?'moon':'sun'}" class="w-3 h-3"></i><span>${I18n.t('mode_'+p.mode)}</span></p></div>
-                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button class="btn-edit p-2 text-zinc-500 hover:text-primary rounded-lg hover:bg-zinc-800"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
-                    <button class="btn-del p-2 text-zinc-500 hover:text-red-400 rounded-lg hover:bg-zinc-800"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-                </div>`;
-            card.onclick = () => this.loadPalette(p.id);
-            card.querySelector('.btn-edit').onclick = (e) => this.openEditModal(p.id, e);
-            card.querySelector('.btn-del').onclick = (e) => this.deletePalette(p.id, e);
+            const pName = String(p?.name || 'Palette');
+            const pMode = p?.mode === 'light' ? 'light' : 'dark';
+            const colors = sanitizePaletteColors(p?.colors);
+
+            const loadBtn = App.h(
+                'button',
+                {
+                    type: 'button',
+                    class: 'flex-1 min-w-0 flex items-center gap-4 p-1 text-start rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    attrs: { 'aria-label': `Load palette ${pName}` },
+                    on: { click: () => this.loadPalette(p.id) }
+                },
+                App.h(
+                    'div',
+                    { class: 'flex rounded-lg overflow-hidden h-10 w-28 shrink-0 shadow-sm border border-zinc-800' },
+                    ...colors.map(h => App.h('div', { class: 'flex-1', style: { backgroundColor: h } }))
+                ),
+                App.h(
+                    'div',
+                    { class: 'flex-1 min-w-0' },
+                    App.h('p', { class: 'text-sm font-bold text-white truncate', text: pName }),
+                    App.h(
+                        'p',
+                        { class: 'text-[10px] text-zinc-500 flex items-center gap-1 mt-0.5' },
+                        App.h('i', { attrs: { 'data-lucide': pMode === 'dark' ? 'moon' : 'sun' }, class: 'w-3 h-3' }),
+                        App.h('span', { text: I18n.t(`mode_${pMode}`) })
+                    )
+                )
+            );
+
+            const actions = App.h(
+                'div',
+                { class: 'flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-within:opacity-100 transition-opacity shrink-0' },
+                App.h(
+                    'button',
+                    {
+                        type: 'button',
+                        class: 'btn-edit p-2 text-zinc-500 hover:text-primary rounded-lg hover:bg-zinc-800',
+                        attrs: { 'aria-label': `Edit ${pName}` },
+                        on: { click: (e) => this.openEditModal(p.id, e) }
+                    },
+                    App.h('i', { attrs: { 'data-lucide': 'edit-3' }, class: 'w-3.5 h-3.5' })
+                ),
+                App.h(
+                    'button',
+                    {
+                        type: 'button',
+                        class: 'btn-del p-2 text-zinc-500 hover:text-red-400 rounded-lg hover:bg-zinc-800',
+                        attrs: { 'aria-label': `Delete ${pName}` },
+                        on: { click: (e) => this.deletePalette(p.id, e) }
+                    },
+                    App.h('i', { attrs: { 'data-lucide': 'trash-2' }, class: 'w-3.5 h-3.5' })
+                )
+            );
+
+            const card = App.h(
+                'div',
+                { class: 'shadcn-card p-3 flex items-center gap-3 hover:border-zinc-700 transition-all group' },
+                loadBtn,
+                actions
+            );
             list.appendChild(card);
         });
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        createIcons({ icons, root: list });
     },
 
-    getSaved: () => JSON.parse(localStorage.getItem('wptoolbox_blocksy_palettes') || '[]'),
+    getSaved: () => {
+        try {
+            const raw = JSON.parse(localStorage.getItem('wptoolbox_blocksy_palettes') || '[]');
+            if (!Array.isArray(raw)) return [];
+            return raw.filter(p => p && typeof p === 'object').map(p => ({
+                ...p,
+                name: String(p.name || 'Palette'),
+                mode: p.mode === 'light' ? 'light' : 'dark',
+                colors: sanitizePaletteColors(p.colors)
+            }));
+        } catch {
+            return [];
+        }
+    },
     setSaved: (p) => localStorage.setItem('wptoolbox_blocksy_palettes', JSON.stringify(p)),
 };
 

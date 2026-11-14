@@ -22,6 +22,19 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'script',
       includeAssets: ['favicon.svg', 'assets/*'],
+      workbox: {
+        navigateFallbackDenylist: [/^\/gtm\.js/],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/(www\.)?googletagmanager\.com\/.*/i,
+            handler: 'NetworkOnly',
+          },
+          {
+            urlPattern: /^https:\/\/(www\.)?google-analytics\.com\/.*/i,
+            handler: 'NetworkOnly',
+          },
+        ],
+      },
       manifest: {
         name: 'WPToolbox',
         short_name: 'WPToolbox',

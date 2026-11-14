@@ -8,7 +8,7 @@
 | Styling | Tailwind CSS via `@tailwindcss/vite` plugin | ^4.2.1 |
 | Language | Vanilla ES modules (no framework) | — |
 | PWA | `vite-plugin-pwa` (Workbox, autoUpdate) | ^1.2.0 |
-| Libraries | `jszip`, `qrcode`, `canvas-confetti`, `lucide` / `lucide-static` | latest |
+| Libraries | `jszip`, `qrcode`, `canvas-confetti`, `lucide` | latest |
 | Runtime | Bun (CI) or npm locally | — |
 
 ## Project Layout

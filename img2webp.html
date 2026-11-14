@@ -2,11 +2,31 @@
 <html lang="en" style="background-color: #09090b; color: white;">
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Oip6BSOueP4OrFxv4cPieX4wlFgT6dUZKKme7nQ4MjY=' https://www.googletagmanager.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta charset="UTF-8">
     <meta name="theme-color" content="#09090b">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+        analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var c = localStorage.getItem('wpt-consent');
+        if (c === 'granted') gtag('consent', 'update', { analytics_storage: 'granted' });
+        else if (c === 'all') gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+      } catch (e) {}
+      gtag('js', new Date());
+    </script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KWMHKN5M"></script>
     <title data-i18n="title_img2webp.html">WebP Converter | WPToolbox</title>
     <meta name="description" content="Convert and compress PNG/JPG images to WebP format directly in your browser for faster site speeds.">
 
@@ -39,7 +59,7 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
         <header class="mb-10 text-center md:text-start">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_img2webp_title">WebP
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter text-white break-words [overflow-wrap:anywhere] text-balance" data-i18n="tool_img2webp_title">WebP
                 Converter</h1>
             <p class="text-zinc-500 mt-2" data-i18n="tool_img2webp_desc">Convert and compress PNG/JPG images to WebP
                 format directly in your browser
@@ -49,23 +69,24 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
             <!-- Controls Column -->
-            <div class="lg:col-span-4 space-y-8">
+            <div class="lg:col-span-4 space-y-8 min-w-0">
 
                 <!-- Quality Control -->
                 <section class="shadcn-card p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2"
+                    <div class="flex flex-wrap justify-between items-center gap-2 mb-6">
+                        <h3 id="label-compression" class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2 min-w-0"
                             data-i18n="label_compression">
-                            <i data-lucide="settings-2" class="w-4 h-4"></i>
+                            <i data-lucide="settings-2" class="w-4 h-4 shrink-0"></i>
                             Compression
                         </h3>
                         <span id="quality-value"
-                            class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">80%</span>
+                            class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded shrink-0">80%</span>
                     </div>
                     <input type="range" id="quality-slider" min="0.1" max="1.0" step="0.05" value="0.8"
+                        aria-labelledby="label-compression"
                         class="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-primary">
                     <div
-                        class="flex justify-between mt-3 text-[10px] uppercase font-bold text-zinc-600 tracking-widest">
+                        class="flex flex-wrap justify-between gap-2 mt-3 text-[10px] uppercase font-bold text-zinc-600 tracking-widest">
                         <span data-i18n="label_high_comp">High Comp</span>
                         <span data-i18n="label_best_quality">Best Quality</span>
                     </div>
@@ -78,23 +99,23 @@
                         <span data-i18n="label_image_size">Image Size</span>
                     </h3>
                     <div class="space-y-4">
-                        <label class="flex items-center justify-between cursor-pointer group">
+                        <label for="resize-toggle" class="flex items-center justify-between gap-3 cursor-pointer group">
                             <span class="text-xs font-medium text-zinc-400 group-hover:text-white"
                                 data-i18n="label_limit_width">Limit width to 1920px</span>
-                            <div class="relative inline-flex items-center">
-                                <input type="checkbox" id="resize-toggle" class="sr-only peer">
-                                <div
-                                    class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none">
+                            <div class="relative inline-flex items-center shrink-0">
+                                <input type="checkbox" id="resize-toggle" role="switch" class="sr-only peer">
+                                <div aria-hidden="true"
+                                    class="w-10 h-5 bg-zinc-800 rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-zinc-900 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none">
                                 </div>
                             </div>
                         </label>
-                        <label class="flex items-center justify-between cursor-pointer group">
+                        <label for="format-toggle" class="flex items-center justify-between gap-3 cursor-pointer group">
                             <span class="text-xs font-medium text-zinc-400 group-hover:text-white"
                                 data-i18n="label_keep_format">Keep original format</span>
-                            <div class="relative inline-flex items-center">
-                                <input type="checkbox" id="format-toggle" class="sr-only peer">
-                                <div
-                                    class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none">
+                            <div class="relative inline-flex items-center shrink-0">
+                                <input type="checkbox" id="format-toggle" role="switch" class="sr-only peer">
+                                <div aria-hidden="true"
+                                    class="w-10 h-5 bg-zinc-800 rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-zinc-900 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none">
                                 </div>
                             </div>
                         </label>
@@ -123,7 +144,7 @@
             </div>
 
             <!-- Upload & Results Column -->
-            <div class="lg:col-span-8 flex flex-col gap-8">
+            <div class="lg:col-span-8 flex flex-col gap-8 min-w-0">
 
                 <!-- Dropzone -->
                 <div id="drop-zone"
@@ -140,6 +161,9 @@
                             <p class="text-zinc-400 text-sm" data-i18n="drop_images_format">PNG, JPG, or any common
                                 image format</p>
                         </div>
+                        <button type="button" id="browse-files-btn"
+                            class="shadcn-button shadcn-button-outline h-9 px-4 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                            data-i18n="drop_browse">or click to browse your files</button>
                     </div>
                     <!-- Processing Progress -->
                     <div id="processing-bar"
@@ -148,18 +172,18 @@
 
                 <!-- Results -->
                 <section id="results-section" class="hidden space-y-4">
-                    <div class="flex justify-between items-center">
+                    <div class="flex flex-wrap justify-between items-center gap-3">
                         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
                             <i data-lucide="file-check" class="w-4 h-4"></i>
                             <span data-i18n="label_optimized_images">Optimized Images</span>
                         </h3>
-                        <button id="download-zip-btn"
+                        <button type="button" id="download-zip-btn"
                             class="shadcn-button shadcn-button-primary h-10 px-6 text-xs gap-2">
                             <i data-lucide="package" class="w-4 h-4"></i>
                             <span data-i18n="btn_download_zip">Download all (ZIP)</span>
                         </button>
                     </div>
-                    <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div id="results-grid" class="wpt-deferred grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Injected by JS -->
                     </div>
                 </section>
@@ -173,10 +197,15 @@
     <wpt-footer></wpt-footer>
 
     <!-- Global Toast Container -->
-    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
+    <div id="toast" popover="manual" role="status" aria-live="polite" aria-atomic="true"
+        class="wpt-popover fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
-            <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+            <i data-lucide="check-circle" class="w-4 h-4 text-green-400 shrink-0"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>
+            <button type="button" popovertarget="toast" popovertargetaction="hide" aria-label="Close notification"
+                class="ms-2 p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer">
+                <i data-lucide="x" class="w-3.5 h-3.5 pointer-events-none"></i>
+            </button>
         </div>
     </div>
 </body>

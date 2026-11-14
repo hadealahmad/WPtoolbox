@@ -4,6 +4,48 @@
 import '../main.js';
 import { App } from '../core/app.js';
 
+const SUPPORTS_CLOSEDBY = typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
+
+function attachBackdropDismiss(dialog, card, onDismiss) {
+    if (!dialog || !card || SUPPORTS_CLOSEDBY) return;
+    let startedOutside = false;
+    const isOutside = (e) => {
+        const r = card.getBoundingClientRect();
+        return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+    };
+    dialog.addEventListener('pointerdown', (e) => {
+        startedOutside = e.target === dialog && isOutside(e);
+    });
+    dialog.addEventListener('pointerup', (e) => {
+        if (startedOutside && e.target === dialog && isOutside(e)) onDismiss();
+        startedOutside = false;
+    });
+}
+
+function splitCSVLine(line) {
+    const out = [];
+    let cur = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+                cur += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (ch === ',' && !inQuotes) {
+            out.push(cur.trim());
+            cur = '';
+        } else {
+            cur += ch;
+        }
+    }
+    out.push(cur.trim());
+    return out;
+}
+
 export const WPMapper = App.registerTool('WPMapper', {
     sourceData: [],
     headers: [],
@@ -47,6 +89,8 @@ export const WPMapper = App.registerTool('WPMapper', {
         const filterUnmapped = document.getElementById('filter-unmapped');
         const filterWp = document.getElementById('filter-wp');
         const cancelBtn = document.getElementById('cancel-processing-btn');
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
 
         if (generateBtn) generateBtn.onclick = () => this.generate();
         if (downloadBtn) downloadBtn.onclick = () => this.download();
@@ -54,6 +98,24 @@ export const WPMapper = App.registerTool('WPMapper', {
         if (filterUnmapped) filterUnmapped.onclick = () => this.toggleFilter('unmapped');
         if (filterWp) filterWp.onclick = () => this.toggleFilter('wp');
         if (cancelBtn) cancelBtn.onclick = () => this.cancelProcessing();
+
+        if (dropZone && fileInput) {
+            dropZone.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    fileInput.click();
+                }
+            });
+        }
+
+        const overlay = document.getElementById('processing-overlay');
+        const overlayCard = document.getElementById('processing-overlay-card');
+        if (overlay) {
+            attachBackdropDismiss(overlay, overlayCard, () => this.cancelProcessing());
+            overlay.addEventListener('close', () => {
+                this.isProcessing = false;
+            });
+        }
 
         formatBtns.forEach(f => {
             const el = document.getElementById(`target-${f}-btn`);
@@ -68,11 +130,13 @@ export const WPMapper = App.registerTool('WPMapper', {
     },
 
     handleFile: async function(file) {
-        const extension = file.name.split('.').pop().toLowerCase();
+        const extension = (file.name.split('.').pop() || '').toLowerCase();
         const reader = new FileReader();
 
         reader.onload = async (e) => {
             const content = e.target.result;
+            this.sourceData = [];
+            this.headers = [];
             try {
                 if (extension === 'csv') {
                     this.parseCSV(content);
@@ -81,31 +145,40 @@ export const WPMapper = App.registerTool('WPMapper', {
                 } else if (extension === 'xml') {
                     this.parseXML(content);
                 }
-                
+
                 if (this.sourceData.length > 0) {
-                    document.getElementById('step-2').classList.remove('hidden');
+                    const step2 = document.getElementById('step-2');
+                    if (step2) {
+                        step2.classList.remove('hidden', 'opacity-50', 'pointer-events-none');
+                    }
                     this.renderMappingTable();
-                    App.showToast(App.t('msg_file_loaded') || 'File loaded successfully.');
+                    App.showToast(App.t('msg_file_loaded') || 'File loaded successfully.', 'success');
+                } else {
+                    App.showToast(App.t('msg_no_items_xml') || 'No items found in file.', 'error');
                 }
             } catch (err) {
                 console.error(err);
-                App.showToast(App.t('msg_file_error') || 'Error parsing file.');
+                App.showToast(App.t('msg_file_error') || 'Error parsing file.', 'error');
             }
+        };
+
+        reader.onerror = () => {
+            App.showToast(App.t('msg_file_error') || 'Error reading file.', 'error');
         };
 
         reader.readAsText(file);
     },
 
     parseCSV: function(csv) {
-        const lines = csv.split('\n');
+        const lines = String(csv || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
         if (lines.length < 2) return;
 
-        this.headers = lines[0].split(',').map(h => h.trim());
+        this.headers = splitCSVLine(lines[0]).filter(Boolean);
         this.sourceData = lines.slice(1).filter(l => l.trim()).map(line => {
-            const values = line.split(',');
+            const values = splitCSVLine(line);
             const obj = {};
             this.headers.forEach((h, i) => {
-                obj[h] = values[i] ? values[i].trim() : '';
+                obj[h] = values[i] !== undefined ? values[i] : '';
             });
             return obj;
         });
@@ -115,7 +188,8 @@ export const WPMapper = App.registerTool('WPMapper', {
 
     parseJSON: function(json) {
         const data = JSON.parse(json);
-        this.sourceData = Array.isArray(data) ? data : [data];
+        const list = Array.isArray(data) ? data : (data && typeof data === 'object' ? [data] : []);
+        this.sourceData = list.filter(item => item && typeof item === 'object');
         if (this.sourceData.length > 0) {
             this.headers = Object.keys(this.sourceData[0]);
             this.autoMap();
@@ -124,16 +198,22 @@ export const WPMapper = App.registerTool('WPMapper', {
 
     parseXML: function(xmlString) {
         const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-        const items = xmlDoc.querySelectorAll('item') || xmlDoc.querySelectorAll('post') || xmlDoc.children[0].children;
-        
+        const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+        if (xmlDoc.querySelector('parsererror')) {
+            throw new Error('Invalid XML document');
+        }
+
+        let items = xmlDoc.querySelectorAll('item');
+        if (!items.length) items = xmlDoc.querySelectorAll('post');
+        if (!items.length && xmlDoc.children[0]) items = xmlDoc.children[0].children;
+
         this.sourceData = Array.from(items).map(item => {
             const obj = {};
             Array.from(item.children).forEach(child => {
                 obj[child.tagName] = child.textContent;
             });
             return obj;
-        });
+        }).filter(obj => Object.keys(obj).length > 0);
 
         if (this.sourceData.length > 0) {
             this.headers = Object.keys(this.sourceData[0]);
@@ -175,52 +255,74 @@ export const WPMapper = App.registerTool('WPMapper', {
         const tbody = document.getElementById('mapping-body');
         if (!tbody) return;
 
-        tbody.innerHTML = '';
+        const rows = [];
         this.headers.forEach(header => {
             const mapping = this.mappings[header] || { type: 'ignore' };
-            
+
             if (this.filters.unmapped && mapping.type !== 'ignore') return;
             if (this.filters.wp && !this.wpFields.find(f => f.id === mapping.type && f.id !== 'ignore' && f.id !== 'custom')) return;
 
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="px-6 py-4">
-                    <span class="text-sm font-bold text-white">${header}</span>
-                    <p class="text-[10px] text-zinc-600 truncate max-w-[200px]">${this.sourceData[0][header] || 'null'}</p>
-                </td>
-                <td class="px-6 py-4">
-                    <select class="mapping-select w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-primary transition-all">
-                        ${this.wpFields.map(f => `<option value="${f.id}" ${mapping.type === f.id ? 'selected' : ''}>${App.t(f.label)}</option>`).join('')}
-                    </select>
-                </td>
-                <td class="px-6 py-4">
-                    <input type="text" class="meta-input w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white placeholder:text-zinc-800 focus:outline-none focus:border-primary transition-all ${mapping.type !== 'custom' ? 'opacity-20 pointer-events-none' : ''}" 
-                           value="${mapping.metaKey || ''}" placeholder="e.g. price_value">
-                </td>
-            `;
+            const sampleVal = this.sourceData[0]?.[header];
+            const sampleText = sampleVal !== undefined && sampleVal !== null && sampleVal !== '' ? String(sampleVal) : 'null';
 
-            const select = tr.querySelector('.mapping-select');
-            const metaInput = tr.querySelector('.meta-input');
-
-            select.onchange = (e) => {
-                const val = e.target.value;
-                this.mappings[header].type = val;
-                if (val === 'custom') {
-                    metaInput.classList.remove('opacity-20', 'pointer-events-none');
-                    metaInput.focus();
-                } else {
-                    metaInput.classList.add('opacity-20', 'pointer-events-none');
+            const metaInput = App.h('input', {
+                type: 'text',
+                value: mapping.metaKey || '',
+                placeholder: 'e.g. price_value',
+                attrs: { 'aria-label': `${App.t('label_meta_key') || 'Meta Key'}: ${header}` },
+                class: `meta-input w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white placeholder:text-zinc-800 focus:outline-none focus:border-primary transition-all ${mapping.type !== 'custom' ? 'opacity-20 pointer-events-none' : ''}`,
+                on: {
+                    input: (e) => {
+                        this.mappings[header].metaKey = e.target.value;
+                    }
                 }
-            };
+            });
+            metaInput.disabled = mapping.type !== 'custom';
 
-            metaInput.oninput = (e) => {
-                this.mappings[header].metaKey = e.target.value;
-            };
+            const select = App.h(
+                'select',
+                {
+                    attrs: { 'aria-label': `${App.t('label_wp_field') || 'WP Field'}: ${header}` },
+                    class: 'mapping-select w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-primary transition-all',
+                    on: {
+                        change: (e) => {
+                            const val = e.target.value;
+                            this.mappings[header].type = val;
+                            if (val === 'custom') {
+                                metaInput.disabled = false;
+                                metaInput.classList.remove('opacity-20', 'pointer-events-none');
+                                metaInput.focus();
+                            } else {
+                                metaInput.disabled = true;
+                                metaInput.classList.add('opacity-20', 'pointer-events-none');
+                            }
+                        }
+                    }
+                },
+                this.wpFields.map(f => {
+                    const opt = App.h('option', { value: f.id, text: App.t(f.label) });
+                    if (mapping.type === f.id) opt.selected = true;
+                    return opt;
+                })
+            );
 
-            tbody.appendChild(tr);
+            rows.push(
+                App.h(
+                    'tr',
+                    {},
+                    App.h(
+                        'td',
+                        { class: 'px-6 py-4' },
+                        App.h('span', { class: 'text-sm font-bold text-white', text: header }),
+                        App.h('p', { class: 'text-[10px] text-zinc-600 truncate max-w-[200px]', text: sampleText })
+                    ),
+                    App.h('td', { class: 'px-6 py-4' }, select),
+                    App.h('td', { class: 'px-6 py-4' }, metaInput)
+                )
+            );
         });
 
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        tbody.replaceChildren(...rows);
     },
 
     setFormat: function(format) {
@@ -232,7 +334,9 @@ export const WPMapper = App.registerTool('WPMapper', {
         ['xml', 'csv', 'json'].forEach(f => {
             const btn = document.getElementById(`target-${f}-btn`);
             if (btn) {
-                if (this.targetFormat === f) {
+                const isActive = this.targetFormat === f;
+                btn.setAttribute('aria-pressed', String(isActive));
+                if (isActive) {
                     btn.classList.add('bg-zinc-900', 'text-white', 'border-zinc-700', 'shadow-sm');
                     btn.classList.remove('text-zinc-600', 'border-transparent');
                 } else {
@@ -254,6 +358,7 @@ export const WPMapper = App.registerTool('WPMapper', {
         const knob = document.getElementById('markdown-toggle-knob');
         const btn = document.getElementById('markdown-toggle');
         if (knob && btn) {
+            btn.setAttribute('aria-checked', String(this.markdownMode));
             if (this.markdownMode) {
                 btn.classList.add('bg-primary', 'border-primary');
                 knob.classList.add('translate-x-5', 'bg-white');
@@ -270,6 +375,7 @@ export const WPMapper = App.registerTool('WPMapper', {
         this.filters[type] = !this.filters[type];
         const btn = document.getElementById(`filter-${type}`);
         if (btn) {
+            btn.setAttribute('aria-pressed', String(this.filters[type]));
             if (this.filters[type]) {
                 btn.classList.add('bg-zinc-900', 'text-primary');
                 btn.classList.remove('text-zinc-500');
@@ -283,7 +389,8 @@ export const WPMapper = App.registerTool('WPMapper', {
 
     cancelProcessing: function() {
         this.isProcessing = false;
-        document.getElementById('processing-overlay').classList.add('hidden');
+        const overlay = document.getElementById('processing-overlay');
+        if (overlay && overlay.open) overlay.close();
     },
 
     generate: async function() {
@@ -293,19 +400,25 @@ export const WPMapper = App.registerTool('WPMapper', {
         const progressStatus = document.getElementById('progress-status');
         const processedCount = document.getElementById('processed-count');
 
-        if (overlay) overlay.classList.remove('hidden');
+        if (overlay && !overlay.open) overlay.showModal();
 
         const total = this.sourceData.length;
         let result = '';
+        let mappedHeaders = [];
 
         if (this.targetFormat === 'xml') {
             result = this.generateWXRHeader();
         } else if (this.targetFormat === 'json') {
             result = [];
         } else if (this.targetFormat === 'csv') {
-            const mappedHeaders = Object.entries(this.mappings).filter(([k, v]) => v.type !== 'ignore').map(([k, v]) => v.type === 'custom' ? v.metaKey : v.type);
-            result = mappedHeaders.join(',') + '\n';
+            mappedHeaders = Object.entries(this.mappings)
+                .filter(([, v]) => v.type !== 'ignore')
+                .map(([, v]) => (v.type === 'custom' ? v.metaKey : v.type))
+                .filter(Boolean);
+            result = mappedHeaders.map(h => App.escapeCSV(h)).join(',') + '\n';
         }
+
+        const maybeYield = App.createYielder(50);
 
         for (let i = 0; i < total; i++) {
             if (!this.isProcessing) break;
@@ -318,7 +431,7 @@ export const WPMapper = App.registerTool('WPMapper', {
             } else if (this.targetFormat === 'json') {
                 result.push(mappedItem);
             } else if (this.targetFormat === 'csv') {
-                result += Object.values(mappedItem).join(',') + '\n';
+                result += mappedHeaders.map(h => App.escapeCSV(mappedItem[h] ?? '')).join(',') + '\n';
             }
 
             if (i % 10 === 0 || i === total - 1) {
@@ -326,8 +439,9 @@ export const WPMapper = App.registerTool('WPMapper', {
                 if (progressBar) progressBar.style.width = `${percent}%`;
                 if (progressStatus) progressStatus.textContent = `${percent}%`;
                 if (processedCount) processedCount.textContent = `${i + 1} / ${total}`;
-                await new Promise(r => setTimeout(r, 0));
             }
+
+            await maybeYield();
         }
 
         if (this.targetFormat === 'xml') {
@@ -338,10 +452,14 @@ export const WPMapper = App.registerTool('WPMapper', {
 
         if (this.isProcessing) {
             this.finalResult = result;
-            document.getElementById('xml-preview').textContent = result.substring(0, 5000) + (result.length > 5000 ? '\n\n... (TRUNCATED FOR PREVIEW)' : '');
-            document.getElementById('preview-section').classList.remove('hidden');
-            document.getElementById('step-2').classList.add('opacity-50', 'pointer-events-none');
-            overlay.classList.add('hidden');
+            const xmlPreview = document.getElementById('xml-preview');
+            if (xmlPreview) {
+                xmlPreview.textContent = result.substring(0, 5000) + (result.length > 5000 ? '\n\n... (TRUNCATED FOR PREVIEW)' : '');
+            }
+            document.getElementById('preview-section')?.classList.remove('hidden');
+            document.getElementById('step-2')?.classList.add('opacity-50', 'pointer-events-none');
+            if (overlay && overlay.open) overlay.close();
+            this.isProcessing = false;
             App.fireConfetti();
         }
     },
@@ -352,22 +470,18 @@ export const WPMapper = App.registerTool('WPMapper', {
             if (mapping.type === 'ignore') return;
             const key = mapping.type === 'custom' ? mapping.metaKey : mapping.type;
             if (!key) return;
-            
-            let val = sourceItem[sourceHeader] || '';
+
+            let val = sourceItem[sourceHeader] ?? '';
             if (this.markdownMode && mapping.type === 'content') {
-                val = val.replace(/<h1>(.*?)<\/h1>/gi, '# $1\n')
-                         .replace(/<h2>(.*?)<\/h2>/gi, '## $1\n')
-                         .replace(/<h3>(.*?)<\/h3>/gi, '### $1\n')
-                         .replace(/<p>(.*?)<\/p>/gi, '$1\n\n')
-                         .replace(/<strong>(.*?)<\/strong>/gi, '**$1**')
-                         .replace(/<b>(.*?)<\/b>/gi, '**$1**')
-                         .replace(/<em>(.*?)<\/em>/gi, '*$1*')
-                         .replace(/<i>(.*?)<\/i>/gi, '*$1*')
-                         .replace(/<br\s*\/?>/gi, '\n');
+                val = App.htmlToMarkdown(val);
             }
             mapped[key] = val;
         });
         return mapped;
+    },
+
+    escapeCData: function(str) {
+        return String(str ?? '').replace(/\]\]>/g, ']]]]><![CDATA[>');
     },
 
     generateWXRHeader: function() {
@@ -393,55 +507,61 @@ export const WPMapper = App.registerTool('WPMapper', {
     },
 
     generateWXRPace: function(item, index) {
-        const postType = document.getElementById('post-type-input').value || 'post';
+        const postType = document.getElementById('post-type-input')?.value.trim() || 'post';
         const date = item.date || new Date().toISOString().replace('T', ' ').substring(0, 19);
-        const slug = item.slug || (item.title ? item.title.toLowerCase().replace(/[^a-z0-9]/g, '-') : 'post-' + index);
-        
+        const parsedDate = new Date(date);
+        const pubDate = isNaN(parsedDate.getTime()) ? new Date().toUTCString() : parsedDate.toUTCString();
+        const rawSlug = item.slug || (item.title ? String(item.title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : '') || ('post-' + index);
+        const safeAttrSlug = App.escapeHtml(rawSlug);
+        const c = (v) => this.escapeCData(v);
+
         let xml = `
     <item>
-        <title><![CDATA[${item.title || ''}]]></title>
-        <link>http://example.com/${slug}/</link>
-        <pubDate>${new Date(date).toUTCString()}</pubDate>
-        <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/"><![CDATA[${item.author || 'admin'}]]></dc:creator>
+        <title><![CDATA[${c(item.title || '')}]]></title>
+        <link>http://example.com/${safeAttrSlug}/</link>
+        <pubDate>${pubDate}</pubDate>
+        <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/"><![CDATA[${c(item.author || 'admin')}]]></dc:creator>
         <guid isPermaLink="false">http://example.com/?p=${1000 + index}</guid>
         <description></description>
-        <content:encoded><![CDATA[${item.content || ''}]]></content:encoded>
-        <excerpt:encoded><![CDATA[${item.excerpt || ''}]]></excerpt:encoded>
+        <content:encoded><![CDATA[${c(item.content || '')}]]></content:encoded>
+        <excerpt:encoded><![CDATA[${c(item.excerpt || '')}]]></excerpt:encoded>
         <wp:post_id>${1000 + index}</wp:post_id>
-        <wp:post_date><![CDATA[${date}]]></wp:post_date>
-        <wp:post_date_gmt><![CDATA[${date}]]></wp:post_date_gmt>
-        <wp:comment_status><![CDATA[${item.comment_status || 'open'}]]></wp:comment_status>
-        <wp:ping_status><![CDATA[${item.ping_status || 'open'}]]></wp:ping_status>
-        <wp:post_name><![CDATA[${slug}]]></wp:post_name>
-        <wp:status><![CDATA[${item.status || 'publish'}]]></wp:status>
+        <wp:post_date><![CDATA[${c(date)}]]></wp:post_date>
+        <wp:post_date_gmt><![CDATA[${c(date)}]]></wp:post_date_gmt>
+        <wp:comment_status><![CDATA[${c(item.comment_status || 'open')}]]></wp:comment_status>
+        <wp:ping_status><![CDATA[${c(item.ping_status || 'open')}]]></wp:ping_status>
+        <wp:post_name><![CDATA[${c(rawSlug)}]]></wp:post_name>
+        <wp:status><![CDATA[${c(item.status || 'publish')}]]></wp:status>
         <wp:post_parent>0</wp:post_parent>
         <wp:menu_order>0</wp:menu_order>
-        <wp:post_type><![CDATA[${postType}]]></wp:post_type>
-        <wp:post_password><![CDATA[${item.password || ''}]]></wp:post_password>
+        <wp:post_type><![CDATA[${c(postType)}]]></wp:post_type>
+        <wp:post_password><![CDATA[${c(item.password || '')}]]></wp:post_password>
         <wp:is_sticky>0</wp:is_sticky>`;
 
         Object.entries(item).forEach(([key, val]) => {
-            if (!['title', 'content', 'excerpt', 'slug', 'date', 'author', 'status', 'password', 'comment_status', 'ping_status'].includes(key)) {
+            if (!['title', 'content', 'excerpt', 'slug', 'date', 'author', 'status', 'password', 'comment_status', 'ping_status', 'categories', 'tags'].includes(key)) {
                 xml += `
         <wp:postmeta>
-            <wp:meta_key><![CDATA[${key}]]></wp:meta_key>
-            <wp:meta_value><![CDATA[${val}]]></wp:meta_value>
+            <wp:meta_key><![CDATA[${c(key)}]]></wp:meta_key>
+            <wp:meta_value><![CDATA[${c(val)}]]></wp:meta_value>
         </wp:postmeta>`;
             }
         });
 
         if (item.categories) {
-            const cats = String(item.categories).split(',').map(c => c.trim());
-            cats.forEach(c => {
+            const cats = String(item.categories).split(',').map(s => s.trim()).filter(Boolean);
+            cats.forEach(cat => {
+                const nicename = App.escapeHtml(cat.toLowerCase().replace(/\s+/g, '-'));
                 xml += `
-        <category domain="category" nicename="${c.toLowerCase().replace(/ /g, '-')}"><![CDATA[${c}]]></category>`;
+        <category domain="category" nicename="${nicename}"><![CDATA[${c(cat)}]]></category>`;
             });
         }
         if (item.tags) {
-            const tags = String(item.tags).split(',').map(t => t.trim());
-            tags.forEach(t => {
+            const tags = String(item.tags).split(',').map(s => s.trim()).filter(Boolean);
+            tags.forEach(tag => {
+                const nicename = App.escapeHtml(tag.toLowerCase().replace(/\s+/g, '-'));
                 xml += `
-        <category domain="post_tag" nicename="${t.toLowerCase().replace(/ /g, '-')}"><![CDATA[${t}]]></category>`;
+        <category domain="post_tag" nicename="${nicename}"><![CDATA[${c(tag)}]]></category>`;
             });
         }
 

@@ -2,11 +2,31 @@
 <html lang="en" style="background-color: #09090b; color: white;">
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Oip6BSOueP4OrFxv4cPieX4wlFgT6dUZKKme7nQ4MjY=' https://www.googletagmanager.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta charset="UTF-8">
     <meta name="theme-color" content="#09090b">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+        analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var c = localStorage.getItem('wpt-consent');
+        if (c === 'granted') gtag('consent', 'update', { analytics_storage: 'granted' });
+        else if (c === 'all') gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+      } catch (e) {}
+      gtag('js', new Date());
+    </script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KWMHKN5M"></script>
     <title data-i18n="title_unify-aspect-ratio.html">Unify Aspect Ratio | WPToolbox</title>
     <meta name="description" content="Fit images into a specific aspect ratio with transparent space around them, centering the original image.">
 
@@ -39,59 +59,59 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
         <header class="mb-10 text-center md:text-start">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_unify_aspect_ratio_title">Unify Aspect Ratio</h1>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter text-white break-words [overflow-wrap:anywhere] text-balance" data-i18n="tool_unify_aspect_ratio_title">Unify Aspect Ratio</h1>
             <p class="text-zinc-500 mt-2" data-i18n="tool_unify_aspect_ratio_desc">Set all images to the same aspect ratio with transparent padding. Ideal for sliders and galleries.</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
             <!-- Controls Column -->
-            <div class="lg:col-span-4 space-y-8">
+            <div class="lg:col-span-4 space-y-8 min-w-0">
 
                 <!-- Aspect Ratio Selection -->
                 <section class="shadcn-card p-6">
                     <div class="flex items-center gap-2 mb-6">
-                        <i data-lucide="aspect-ratio" class="w-4 h-4 text-primary"></i>
+                        <i data-lucide="aspect-ratio" class="w-4 h-4 text-primary shrink-0"></i>
                         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_target_ratio">
                             Target Aspect Ratio
                         </h3>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-4">
-                        <button class="ratio-btn shadcn-button border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs py-2 px-3 rounded-lg flex justify-between items-center active" data-ratio="1:1">
+                        <button type="button" aria-pressed="true" class="ratio-btn shadcn-button border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs py-2 px-3 rounded-lg flex flex-wrap justify-between items-center gap-1 min-w-0 active" data-ratio="1:1">
                             <span>1:1</span>
                             <span class="text-[10px] text-zinc-600" data-i18n="ratio_square">Square</span>
                         </button>
-                        <button class="ratio-btn shadcn-button border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs py-2 px-3 rounded-lg flex justify-between items-center" data-ratio="4:3">
+                        <button type="button" aria-pressed="false" class="ratio-btn shadcn-button border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs py-2 px-3 rounded-lg flex flex-wrap justify-between items-center gap-1 min-w-0" data-ratio="4:3">
                             <span>4:3</span>
                             <span class="text-[10px] text-zinc-600" data-i18n="ratio_classic">Classic</span>
                         </button>
-                        <button class="ratio-btn shadcn-button border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs py-2 px-3 rounded-lg flex justify-between items-center" data-ratio="16:9">
+                        <button type="button" aria-pressed="false" class="ratio-btn shadcn-button border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs py-2 px-3 rounded-lg flex flex-wrap justify-between items-center gap-1 min-w-0" data-ratio="16:9">
                             <span>16:9</span>
                             <span class="text-[10px] text-zinc-600" data-i18n="ratio_video">Video</span>
                         </button>
-                        <button class="ratio-btn shadcn-button border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs py-2 px-3 rounded-lg flex justify-between items-center" data-ratio="3:2">
+                        <button type="button" aria-pressed="false" class="ratio-btn shadcn-button border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs py-2 px-3 rounded-lg flex flex-wrap justify-between items-center gap-1 min-w-0" data-ratio="3:2">
                             <span>3:2</span>
                             <span class="text-[10px] text-zinc-600" data-i18n="ratio_photo">Photo</span>
                         </button>
-                        <button class="ratio-btn shadcn-button border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs py-2 px-3 rounded-lg flex justify-between items-center" data-ratio="9:16">
+                        <button type="button" aria-pressed="false" class="ratio-btn shadcn-button border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs py-2 px-3 rounded-lg flex flex-wrap justify-between items-center gap-1 min-w-0" data-ratio="9:16">
                             <span>9:16</span>
                             <span class="text-[10px] text-zinc-600" data-i18n="ratio_story">Story</span>
                         </button>
-                        <button class="ratio-btn shadcn-button border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs py-2 px-3 rounded-lg flex justify-between items-center" data-ratio="custom">
+                        <button type="button" aria-pressed="false" class="ratio-btn shadcn-button border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs py-2 px-3 rounded-lg flex flex-wrap justify-between items-center gap-1 min-w-0" data-ratio="custom">
                             <span data-i18n="ratio_custom">Custom</span>
-                            <i data-lucide="settings-2" class="w-3 h-3 text-zinc-600"></i>
+                            <i data-lucide="settings-2" class="w-3 h-3 text-zinc-600 shrink-0"></i>
                         </button>
                     </div>
 
                     <div id="custom-ratio-inputs" class="hidden grid grid-cols-2 gap-4 pt-4 border-t border-zinc-800">
-                        <div class="space-y-1.5">
-                            <label class="text-[10px] font-bold uppercase text-zinc-500 tracking-wider" data-i18n="label_width">Width</label>
-                            <input type="number" id="custom-width" value="1000" class="w-full bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-primary">
+                        <div class="space-y-1.5 min-w-0">
+                            <label for="custom-width" class="text-[10px] font-bold uppercase text-zinc-500 tracking-wider" data-i18n="label_width">Width</label>
+                            <input type="number" id="custom-width" value="1000" min="1" step="1" class="w-full min-w-0 bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-primary">
                         </div>
-                        <div class="space-y-1.5">
-                            <label class="text-[10px] font-bold uppercase text-zinc-500 tracking-wider" data-i18n="label_height">Height</label>
-                            <input type="number" id="custom-height" value="1000" class="w-full bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-primary">
+                        <div class="space-y-1.5 min-w-0">
+                            <label for="custom-height" class="text-[10px] font-bold uppercase text-zinc-500 tracking-wider" data-i18n="label_height">Height</label>
+                            <input type="number" id="custom-height" value="1000" min="1" step="1" class="w-full min-w-0 bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-primary">
                         </div>
                     </div>
                 </section>
@@ -115,11 +135,11 @@
             </div>
 
             <!-- Upload & Results Column -->
-            <div class="lg:col-span-8 flex flex-col gap-8">
+            <div class="lg:col-span-8 flex flex-col gap-8 min-w-0">
 
                 <!-- Dropzone -->
                 <div id="drop-zone"
-                    class="relative shadcn-card border-2 border-dashed p-16 text-center cursor-pointer hover:bg-zinc-900/50 group transition-none overflow-hidden">
+                    class="relative shadcn-card border-2 border-dashed p-8 sm:p-16 text-center cursor-pointer hover:bg-zinc-900/50 group transition-none overflow-hidden">
                     <input id="file-input" type="file" accept="image/*" multiple class="hidden">
                     <div class="flex flex-col items-center gap-6">
                         <div
@@ -130,6 +150,9 @@
                             <p class="text-xl font-semibold text-white" data-i18n="drop_images_msg">Drop images to convert</p>
                             <p class="text-zinc-400 text-sm" data-i18n="drop_images_format">PNG, JPG, or any common image format</p>
                         </div>
+                        <button type="button" id="browse-files-btn"
+                            class="shadcn-button shadcn-button-outline h-9 px-4 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                            data-i18n="drop_browse">or click to browse your files</button>
                     </div>
                     <!-- Processing Progress -->
                     <div id="processing-bar"
@@ -143,18 +166,18 @@
                             <i data-lucide="file-check" class="w-4 h-4"></i>
                             <span data-i18n="label_optimized_images">Optimized Images</span>
                         </h3>
-                        <div class="flex gap-2">
-                            <button id="download-zip-btn" class="shadcn-button border-zinc-800 bg-zinc-900 hover:bg-zinc-800 h-9 px-4 text-xs gap-2">
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" id="download-zip-btn" class="shadcn-button border-zinc-800 bg-zinc-900 hover:bg-zinc-800 h-9 px-4 text-xs gap-2">
                                 <i data-lucide="package" class="w-3.5 h-3.5"></i>
                                 <span data-i18n="btn_download_zip">Download ZIP</span>
                             </button>
-                            <button id="download-zip-webp-btn" class="shadcn-button shadcn-button-primary h-9 px-4 text-xs gap-2">
+                            <button type="button" id="download-zip-webp-btn" class="shadcn-button shadcn-button-primary h-9 px-4 text-xs gap-2">
                                 <i data-lucide="zap" class="w-3.5 h-3.5"></i>
                                 <span data-i18n="btn_download_zip_webp">Download ZIP (WebP)</span>
                             </button>
                         </div>
                     </div>
-                    <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div id="results-grid" class="wpt-deferred grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Injected by JS -->
                     </div>
                 </section>
@@ -168,10 +191,15 @@
     <wpt-footer></wpt-footer>
 
     <!-- Global Toast Container -->
-    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50 transition-all duration-300">
+    <div id="toast" popover="manual" role="status" aria-live="polite" aria-atomic="true"
+        class="wpt-popover fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
-            <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+            <i data-lucide="check-circle" class="w-4 h-4 text-green-400 shrink-0"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>
+            <button type="button" popovertarget="toast" popovertargetaction="hide" aria-label="Close notification"
+                class="ms-2 p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer">
+                <i data-lucide="x" class="w-3.5 h-3.5 pointer-events-none"></i>
+            </button>
         </div>
     </div>
 </body>

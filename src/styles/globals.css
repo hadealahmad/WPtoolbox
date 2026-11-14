@@ -1,4 +1,7 @@
 :root {
+    color-scheme: dark;
+    scrollbar-color: var(--muted-foreground) transparent;
+    scrollbar-width: auto;
     --font-main: 'Inter', sans-serif;
     --radius: 0.65rem;
     --background: oklch(0.141 0.005 285.823);
@@ -30,12 +33,50 @@ html[lang="ar"] {
     --font-main: 'IBM Plex Sans Arabic', sans-serif;
 }
 
+@layer base {
+    :where(a, button, input, select, textarea) {
+        transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    dialog.wpt-dialog {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        max-width: none;
+        max-height: none;
+        margin: auto;
+    }
+
+    [popover].wpt-popover {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        inset: auto;
+        margin: 0;
+    }
+
+    textarea:not(.resize-none) {
+        resize: vertical;
+    }
+}
+
 /* Enforcing dark mode as the base */
 body {
     font-family: var(--font-main);
+    font-size-adjust: from-font;
     background-color: var(--background);
     color: var(--foreground);
     line-height: 1.5;
+}
+
+code,
+pre,
+kbd,
+samp,
+.font-mono {
+    font-size-adjust: from-font;
 }
 
 .glass-header {
@@ -51,16 +92,28 @@ body {
     border-radius: var(--radius);
 }
 
-.tool-card {
-    background-color: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-}
+@layer components {
+    .tool-card {
+        background-color: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+    }
 
-.tool-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--primary);
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);
+    .tool-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .tool-card {
+            transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-4px);
+        }
+    }
 }
 
 .shadcn-button {
@@ -111,39 +164,32 @@ body {
     background-color: var(--accent);
 }
 
-/* Animations disabled globally */
-.animate-fade-in {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
+/* Essential loading spinner feedback under reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .animate-spin {
+        animation-duration: 6s;
+    }
 }
 
-.animate-spin {
-    animation: none !important;
-}
+/* Custom Scrollbar fallback for browsers without standard scrollbar-color */
+@supports not (scrollbar-color: auto) {
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
 
-/* Disable all transitions for instant UI (Except specifically enabled ones) */
-* {
-    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease !important;
-}
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
+    ::-webkit-scrollbar-thumb {
+        background: var(--muted-foreground);
+        border-radius: 10px;
+    }
 
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--muted-foreground);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary);
+    }
 }
 
 .bg-grid-small {
@@ -174,12 +220,14 @@ body {
     border-color: oklch(0.488 0.243 264.376 / 0.3) !important;
 }
 
-.group\/item:hover div i {
-    transform: scale(1.1);
-}
+@media (prefers-reduced-motion: no-preference) {
+    .group\/item div :is(i, svg) {
+        transition: transform 0.15s ease;
+    }
 
-.transition-all {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    .group\/item:hover div :is(i, svg) {
+        transform: scale(1.1);
+    }
 }
 
 /* Checklist Specific Styles */
@@ -187,7 +235,7 @@ body {
     background-color: var(--primary);
     border-color: var(--primary) !important;
     color: var(--primary-foreground);
-    box-shadow: 0 4px 12px -2px rgba(var(--primary), 0.3);
+    box-shadow: 0 4px 12px -2px color-mix(in oklch, var(--primary) 30%, transparent);
 }
 
 .filter-btn.active i, .filter-btn.active span {
@@ -203,7 +251,7 @@ body {
 }
 
 .task-item {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     border-color: var(--border);
     background-color: oklch(0.25 0.006 285.885 / 0.3);
 }
@@ -211,8 +259,18 @@ body {
 .task-item:hover {
     background-color: oklch(0.25 0.006 285.885 / 0.6);
     border-color: oklch(0.488 0.243 264.376 / 0.5);
-    transform: translateY(-1px);
     box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.3);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .task-item {
+        transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .task-item:hover,
+    html[lang="ar"] .task-item:hover {
+        transform: translateY(-1px);
+    }
 }
 
 /* Fix checkbox visibility and hover */
@@ -230,10 +288,6 @@ body {
     border-color: var(--primary);
 }
 
-html[lang="ar"] .task-item:hover {
-    transform: translateY(-1px);
-}
-
 .task-item p {
     word-break: break-word;
     overflow-wrap: break-word;
@@ -243,7 +297,7 @@ html[lang="ar"] .task-item:hover {
     cursor: pointer;
 }
 
-html[lang="ar"] .task-item i[data-lucide="check"] {
+html[lang="ar"] .task-item :is(i[data-lucide="check"], svg.lucide-check) {
     transform: scaleX(-1);
 }
 
@@ -257,4 +311,98 @@ html[lang="ar"] .task-item i[data-lucide="check"] {
 html[lang="ar"] #sites-list {
     padding-right: 0;
     padding-left: 4px;
+}
+
+/* Top-layer (<dialog> & [popover]) modal backdrop & transitions */
+dialog::backdrop {
+    background-color: rgb(0 0 0 / 0);
+    backdrop-filter: blur(0);
+}
+
+dialog[open]:where(:not([data-closing]))::backdrop {
+    background-color: rgb(0 0 0 / 0.8);
+    backdrop-filter: blur(8px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    dialog,
+    [popover] {
+        opacity: 0;
+        transform: scale(0.96) translateY(6px);
+        transition-property: opacity, transform, display, overlay;
+        transition-duration: 0.2s;
+        transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        transition-behavior: allow-discrete;
+    }
+
+    :is(dialog[open], [popover]:popover-open):where(:not([data-closing])) {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+
+        @starting-style {
+            opacity: 0;
+            transform: scale(0.96) translateY(6px);
+        }
+    }
+
+    dialog::backdrop {
+        transition-property: background-color, backdrop-filter, display, overlay;
+        transition-duration: 0.2s;
+        transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        transition-behavior: allow-discrete;
+    }
+
+    dialog[open]:where(:not([data-closing]))::backdrop {
+        @starting-style {
+            background-color: rgb(0 0 0 / 0);
+            backdrop-filter: blur(0);
+        }
+    }
+}
+
+/* Deferred off-screen grid rendering */
+.wpt-deferred > * {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 280px;
+}
+
+/* Post-interaction form validation styles */
+:is(
+    input:not([type="range"], [type="checkbox"], [type="radio"], [type="file"]),
+    textarea,
+    select
+):user-invalid {
+    border-color: var(--destructive);
+    box-shadow: 0 0 0 1px color-mix(in oklch, var(--destructive) 35%, transparent);
+}
+
+:is(
+    input:not([type="range"], [type="checkbox"], [type="radio"], [type="file"]),
+    textarea,
+    select
+):where([required], [pattern], [min], [max], [minlength], [maxlength], [type="email"], [type="url"], [type="number"]):user-valid:not(:focus) {
+    border-color: oklch(0.696 0.17 162.48 / 0.6);
+}
+
+@keyframes wpt-consent-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.wpt-consent-enter {
+    animation: wpt-consent-slide-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wpt-consent-enter,
+    wpt-consent * {
+        animation: none !important;
+        transition: none !important;
+    }
 }

@@ -4,6 +4,25 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
+import { createIcons, icons } from 'lucide';
+
+const SUPPORTS_CLOSEDBY = typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
+
+function attachBackdropDismiss(dialog, card, onDismiss) {
+    if (!dialog || !card || SUPPORTS_CLOSEDBY) return;
+    let startedOutside = false;
+    const isOutside = (e) => {
+        const r = card.getBoundingClientRect();
+        return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+    };
+    dialog.addEventListener('pointerdown', (e) => {
+        startedOutside = e.target === dialog && isOutside(e);
+    });
+    dialog.addEventListener('pointerup', (e) => {
+        if (startedOutside && e.target === dialog && isOutside(e)) onDismiss();
+        startedOutside = false;
+    });
+}
 
 export const DemoGenerator = App.registerTool('DemoGenerator', {
     fields: [
@@ -26,12 +45,31 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
     },
 
     setupEventListeners() {
-        // Modal Backdrop
         const modal = document.getElementById('field-modal');
+        const modalCard = document.getElementById('field-modal-card');
         if (modal) {
-            modal.onclick = (e) => {
-                if (e.target === modal) this.closeModal();
-            };
+            attachBackdropDismiss(modal, modalCard, () => this.closeModal());
+            modal.addEventListener('close', () => this.clearFieldError());
+        }
+
+        const overlay = document.getElementById('processing-overlay');
+        const overlayCard = document.getElementById('processing-overlay-card');
+        if (overlay) {
+            attachBackdropDismiss(overlay, overlayCard, () => this.cancelProcessing());
+            overlay.addEventListener('close', () => {
+                this.isProcessing = false;
+            });
+        }
+
+        const idInput = document.getElementById('modal-field-id');
+        if (idInput) {
+            idInput.addEventListener('input', () => this.clearFieldError());
+            idInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.confirmAddField();
+                }
+            });
         }
 
         // Action Buttons
@@ -82,6 +120,7 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
         const buttons = document.querySelectorAll(`[id^="${prefix}-"]`);
         buttons.forEach(btn => {
             const isActive = btn.id === `${prefix}-${activeValue}-btn`;
+            btn.setAttribute('aria-pressed', String(isActive));
             if (isActive) {
                 btn.classList.add('bg-zinc-900', 'text-white', 'border-zinc-700', 'shadow-sm');
                 btn.classList.remove('text-zinc-500', 'border-transparent');
@@ -96,35 +135,40 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
         const tbody = document.getElementById('fields-body');
         if (!tbody) return;
 
-        tbody.innerHTML = '';
-        this.fields.forEach((field, index) => {
-            const tr = document.createElement('tr');
-            tr.className = 'group hover:bg-zinc-900/30 transition-all border-b border-zinc-900/50';
-            tr.innerHTML = `
-                <td class="px-6 py-4 text-xs font-medium text-white">${field.id}</td>
-                <td class="px-6 py-4 text-xs text-zinc-500">${this.getTypeLabel(field.type)}</td>
-                <td class="px-6 py-4">
-                    <span class="px-2 py-1 rounded bg-zinc-800 text-[10px] text-zinc-400 font-mono uppercase">${field.mapping}</span>
-                </td>
-                <td class="px-6 py-4 text-right">
-                    ${field.locked ?
-                `<i data-lucide="lock" class="w-3.5 h-3.5 text-zinc-800 ml-auto"></i>` :
-                `<button class="delete-field-btn text-zinc-700 hover:text-red-400 transition-colors" data-index="${index}">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>`
-            }
-                </td>
-            `;
-            
-            const deleteBtn = tr.querySelector('.delete-field-btn');
-            if (deleteBtn) {
-                deleteBtn.onclick = () => this.removeField(index);
-            }
-            
-            tbody.appendChild(tr);
+        const rows = this.fields.map((field, index) => {
+            const actionCell = field.locked
+                ? App.h('i', { attrs: { 'data-lucide': 'lock' }, class: 'w-3.5 h-3.5 text-zinc-800 ms-auto' })
+                : App.h(
+                    'button',
+                    {
+                        type: 'button',
+                        class: 'delete-field-btn p-1 rounded text-zinc-500 hover:text-red-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                        dataset: { index },
+                        attrs: { 'aria-label': `${App.t('btn_delete') || 'Delete'} ${field.id}` },
+                        on: { click: () => this.removeField(index) }
+                    },
+                    App.h('i', { attrs: { 'data-lucide': 'trash-2' }, class: 'w-4 h-4 pointer-events-none' })
+                );
+
+            return App.h(
+                'tr',
+                { class: 'group hover:bg-zinc-900/30 transition-all border-b border-zinc-900/50' },
+                App.h('td', { class: 'px-6 py-4 text-xs font-medium text-white', text: field.id }),
+                App.h('td', { class: 'px-6 py-4 text-xs text-zinc-500', text: this.getTypeLabel(field.type) }),
+                App.h(
+                    'td',
+                    { class: 'px-6 py-4' },
+                    App.h('span', {
+                        class: 'px-2 py-1 rounded bg-zinc-800 text-[10px] text-zinc-400 font-mono uppercase',
+                        text: field.mapping
+                    })
+                ),
+                App.h('td', { class: 'px-6 py-4 text-right' }, actionCell)
+            );
         });
 
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons });
+        tbody.replaceChildren(...rows);
+        createIcons({ icons, root: tbody });
     },
 
     getTypeLabel(type) {
@@ -144,14 +188,38 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
         return labels[type] || type;
     },
 
+    clearFieldError() {
+        const idInput = document.getElementById('modal-field-id');
+        const errEl = document.getElementById('modal-field-id-error');
+        if (idInput) idInput.removeAttribute('aria-invalid');
+        if (errEl) {
+            errEl.textContent = '';
+            errEl.classList.add('hidden');
+        }
+    },
+
+    setFieldError(msg) {
+        const idInput = document.getElementById('modal-field-id');
+        const errEl = document.getElementById('modal-field-id-error');
+        if (idInput) idInput.setAttribute('aria-invalid', 'true');
+        if (errEl) {
+            errEl.textContent = msg;
+            errEl.classList.remove('hidden');
+        }
+    },
+
     addField() {
         const modal = document.getElementById('field-modal');
-        if (modal) modal.classList.remove('hidden');
+        if (modal && !modal.open) {
+            this.clearFieldError();
+            modal.showModal();
+            document.getElementById('modal-field-id')?.focus();
+        }
     },
 
     closeModal() {
         const modal = document.getElementById('field-modal');
-        if (modal) modal.classList.add('hidden');
+        if (modal && modal.open) modal.close();
     },
 
     confirmAddField() {
@@ -161,12 +229,18 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
 
         const id = idInput.value.trim().toLowerCase().replace(/\s+/g, '_');
         if (!id) {
-            App.showToast("Field ID is required", 2000);
+            const msg = App.t('msg_field_id_required') || 'Field ID is required.';
+            this.setFieldError(msg);
+            App.showToast(msg, 'error');
+            idInput.focus();
             return;
         }
 
         if (this.fields.find(f => f.id === id)) {
-            App.showToast("Field ID already exists", 2000);
+            const msg = App.t('msg_field_id_exists') || 'Field ID already exists.';
+            this.setFieldError(msg);
+            App.showToast(msg, 'error');
+            idInput.focus();
             return;
         }
 
@@ -180,7 +254,7 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
         this.renderFields();
         this.closeModal();
         idInput.value = '';
-        App.showToast(App.t("msg_field_added") || "Field added successfully");
+        App.showToast(App.t("msg_field_added") || "Field added successfully", 'success');
     },
 
     removeField(index) {
@@ -204,15 +278,15 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
     cancelProcessing() {
         this.isProcessing = false;
         const overlay = document.getElementById('processing-overlay');
-        if (overlay) overlay.classList.add('hidden');
+        if (overlay && overlay.open) overlay.close();
     },
 
     async generate() {
         const countInput = document.getElementById('record-count');
         const postTypeInput = document.getElementById('post-type');
-        const count = countInput ? parseInt(countInput.value) || 10 : 10;
+        const count = countInput ? parseInt(countInput.value, 10) || 10 : 10;
         const format = this.outputFormat;
-        const postType = postTypeInput ? postTypeInput.value || 'post' : 'post';
+        const postType = postTypeInput ? postTypeInput.value.trim() || 'post' : 'post';
 
         this.isProcessing = true;
         const overlay = document.getElementById('processing-overlay');
@@ -220,14 +294,14 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
         const progressStatus = document.getElementById('progress-status');
         const processedCount = document.getElementById('processed-count');
 
-        if (overlay) overlay.classList.remove('hidden');
+        if (overlay && !overlay.open) overlay.showModal();
         if (progressBar) progressBar.style.width = '0%';
         if (progressStatus) progressStatus.textContent = '0%';
         if (processedCount) processedCount.textContent = `0 / ${count}`;
 
         const records = [];
+        const maybeYield = App.createYielder(50);
 
-        // Use async loop to allow UI updates
         for (let i = 0; i < count; i++) {
             if (!this.isProcessing) return;
 
@@ -238,15 +312,17 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
             });
             records.push(record);
 
-            // Update progress
-            const percent = Math.round(((i + 1) / count) * 100);
-            if (progressBar) progressBar.style.width = `${percent}%`;
-            if (progressStatus) progressStatus.textContent = `${percent}%`;
-            if (processedCount) processedCount.textContent = `${i + 1} / ${count}`;
+            if (i % 10 === 0 || i === count - 1) {
+                const percent = Math.round(((i + 1) / count) * 100);
+                if (progressBar) progressBar.style.width = `${percent}%`;
+                if (progressStatus) progressStatus.textContent = `${percent}%`;
+                if (processedCount) processedCount.textContent = `${i + 1} / ${count}`;
+            }
 
-            // Small delay for visual effect and UI thread breathing
-            await new Promise(r => setTimeout(r, 50));
+            await maybeYield();
         }
+
+        if (!this.isProcessing) return;
 
         if (format === 'xml') {
             this.generatedContent = this.exportToXML(records, postType);
@@ -261,10 +337,10 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
         if (preview) preview.textContent = this.generatedContent;
         if (previewSection) previewSection.classList.remove('hidden');
 
-        if (overlay) overlay.classList.add('hidden');
+        if (overlay && overlay.open) overlay.close();
         this.isProcessing = false;
         App.fireConfetti();
-        App.showToast(App.t("msg_gen_success") || "Content generated successfully");
+        App.showToast(App.t("msg_gen_success") || "Content generated successfully", 'success');
     },
 
     generateValue(type) {
@@ -382,7 +458,7 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
 		<wp:status><![CDATA[publish]]></wp:status>
 		<wp:post_parent>0</wp:post_parent>
 		<wp:menu_order>0</wp:menu_order>
-		<wp:post_type><![CDATA[${postType}]]></wp:post_type>
+		<wp:post_type><![CDATA[${this.escapeCData(postType)}]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>`;
 
@@ -399,11 +475,13 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
 			<wp:meta_value><![CDATA[${this.escapeCData(value)}]]></wp:meta_value>
 		</wp:postmeta>`;
                     } else if (mapping === 'category') {
+                        const slug = App.escapeHtml(String(value).toLowerCase().replace(/\s+/g, '-'));
                         xml += `
-        <category domain="category" nicename="${value.toLowerCase().replace(/\s+/g, '-')}"><![CDATA[${this.escapeCData(value)}]]></category>`;
+        <category domain="category" nicename="${slug}"><![CDATA[${this.escapeCData(value)}]]></category>`;
                     } else if (mapping === 'tag') {
+                        const slug = App.escapeHtml(String(value).toLowerCase().replace(/\s+/g, '-'));
                         xml += `
-        <category domain="post_tag" nicename="${value.toLowerCase().replace(/\s+/g, '-')}"><![CDATA[${this.escapeCData(value)}]]></category>`;
+        <category domain="post_tag" nicename="${slug}"><![CDATA[${this.escapeCData(value)}]]></category>`;
                     } else if (mapping === 'featured_image') {
                         featuredImageUrl = value;
                         xml += `
@@ -426,7 +504,7 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
 		<link>http://wptoolbox.local/?attachment_id=${attachmentId}</link>
 		<pubDate>${new Date().toUTCString()}</pubDate>
 		<dc:creator><![CDATA[admin]]></dc:creator>
-		<guid isPermaLink="false">${featuredImageUrl}</guid>
+		<guid isPermaLink="false">${App.escapeHtml(featuredImageUrl)}</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -442,7 +520,7 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-		<wp:attachment_url><![CDATA[${featuredImageUrl}]]></wp:attachment_url>
+		<wp:attachment_url><![CDATA[${this.escapeCData(featuredImageUrl)}]]></wp:attachment_url>
 	</item>`;
             }
         });
@@ -466,7 +544,7 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
         });
 
         const headers = Object.keys(cleanData[0]);
-        const csvRows = [headers.join(',')];
+        const csvRows = [headers.map(h => App.escapeCSV(h)).join(',')];
 
         cleanData.forEach(item => {
             const values = headers.map(header => App.escapeCSV(item[header]));
@@ -479,7 +557,7 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
     copyPreview(e) {
         const preview = document.getElementById('content-preview');
         if (preview) {
-            App.copyToClipboard(preview.textContent, e.target);
+            App.copyToClipboard(preview.textContent, e.currentTarget || e.target);
         }
     },
 

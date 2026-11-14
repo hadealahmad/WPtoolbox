@@ -2,11 +2,31 @@
 <html lang="en" style="background-color: #09090b; color: white;">
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Oip6BSOueP4OrFxv4cPieX4wlFgT6dUZKKme7nQ4MjY=' https://www.googletagmanager.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta charset="UTF-8">
     <meta name="theme-color" content="#09090b">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+        analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var c = localStorage.getItem('wpt-consent');
+        if (c === 'granted') gtag('consent', 'update', { analytics_storage: 'granted' });
+        else if (c === 'all') gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+      } catch (e) {}
+      gtag('js', new Date());
+    </script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KWMHKN5M"></script>
     <title data-i18n="title_snippets.html">WordPress Snippets | WPToolbox</title>
     <meta name="description" content="Production-ready WordPress snippets for performance, security, and development. Curated and high-impact.">
 
@@ -42,7 +62,7 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
         <header class="mb-10 text-center md:text-start">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_snippets_title">WordPress
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter text-white break-words [overflow-wrap:anywhere] text-balance" data-i18n="tool_snippets_title">WordPress
                 Snippets</h1>
             <p class="text-zinc-500 mt-2" data-i18n="tool_snippets_desc">A curated collection of production-ready
                 snippets for
@@ -52,7 +72,8 @@
         <!-- Search & Actions -->
         <div class="mb-12 space-y-8">
             <div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                <div class="w-full max-w-xl relative group">
+                <div class="w-full max-w-xl relative group min-w-0">
+                    <label for="snippet-search" class="sr-only" data-i18n="search_placeholder">Search snippets...</label>
                     <div
                         class="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-primary transition-none">
                         <i data-lucide="search" class="w-5 h-5"></i>
@@ -62,33 +83,33 @@
                         data-i18n-placeholder="search_placeholder" placeholder="Search snippets...">
                 </div>
 
-                <div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-                    <button id="add-snippet-btn"
-                        class="shadcn-button h-14 px-6 bg-zinc-100 text-zinc-950 hover:bg-white transition-none whitespace-nowrap">
+                <div class="flex flex-wrap gap-2 w-full md:w-auto pb-2 md:pb-0">
+                    <button type="button" id="add-snippet-btn"
+                        class="shadcn-button h-14 px-6 bg-zinc-100 text-zinc-950 hover:bg-white transition-none sm:whitespace-nowrap">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <span data-i18n="add_snippet_btn">Add Snippet</span>
                     </button>
-                    <button id="export-snippets-btn"
-                        class="shadcn-button shadcn-button-outline h-14 w-14 p-0 flex items-center justify-center"
-                        title="Export">
+                    <button type="button" id="export-snippets-btn"
+                        class="shadcn-button shadcn-button-outline h-14 w-14 p-0 flex items-center justify-center shrink-0"
+                        title="Export" aria-label="Export snippets">
                         <i data-lucide="download" class="w-5 h-5"></i>
                     </button>
-                    <button id="import-snippets-trigger"
-                        class="shadcn-button shadcn-button-outline h-14 w-14 p-0 flex items-center justify-center"
-                        title="Import">
+                    <button type="button" id="import-snippets-trigger"
+                        class="shadcn-button shadcn-button-outline h-14 w-14 p-0 flex items-center justify-center shrink-0"
+                        title="Import" aria-label="Import snippets">
                         <i data-lucide="upload" class="w-5 h-5"></i>
-                        <input type="file" id="import-input" class="hidden" accept=".json">
                     </button>
+                    <input type="file" id="import-input" class="hidden" accept=".json">
                 </div>
             </div>
 
-            <div id="categories" class="flex flex-wrap gap-2 p-1 bg-zinc-900 border border-zinc-800 rounded-lg">
+            <div id="categories" class="flex flex-wrap items-center gap-2 p-1.5 bg-zinc-900 border border-zinc-800 rounded-lg">
                 <!-- Injected by JS -->
             </div>
         </div>
 
         <!-- Snippets Grid -->
-        <div id="snippets-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="snippets-container" class="wpt-deferred grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Injected by JS -->
             <div class="col-span-full py-20 text-center">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-zinc-800 border-t-primary">
@@ -103,57 +124,57 @@
     <wpt-footer></wpt-footer>
 
     <!-- Global Toast Container -->
-    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
+    <div id="toast" popover="manual" role="status" aria-live="polite" aria-atomic="true" class="wpt-popover fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>
         </div>
     </div>
 
-    <!-- Add Snippet Modal -->
-    <div id="snippet-modal"
-        class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
-        <div
-            class="w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <!-- Add/Edit Snippet Modal -->
+    <dialog id="snippet-modal" closedby="any" aria-labelledby="snippet-modal-title"
+        class="wpt-dialog w-[min(42rem,calc(100vw-2rem))] overscroll-contain">
+        <div id="snippet-modal-card"
+            class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden">
             <div class="px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-white" data-i18n="modal_add_title">Add New Snippet</h2>
-                <button id="close-modal-btn" class="text-zinc-500 hover:text-white transition-none">
+                <h2 id="snippet-modal-title" class="text-xl font-bold text-white" data-i18n="modal_add_title">Add New Snippet</h2>
+                <button type="button" id="close-modal-btn" aria-label="Close" class="text-zinc-500 hover:text-white transition-none p-1 rounded">
                     <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
             <form id="add-snippet-form" class="p-6 space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-zinc-500 uppercase tracking-widest"
+                        <label for="snippet-title-input" class="block text-xs font-bold text-zinc-500 uppercase tracking-widest"
                             data-i18n="label_title">Title</label>
-                        <input type="text" name="title" required
+                        <input id="snippet-title-input" type="text" name="title" required
                             class="w-full h-12 bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-white focus:outline-none focus:border-primary transition-none">
                     </div>
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-zinc-500 uppercase tracking-widest"
+                        <label for="snippet-category-input" class="block text-xs font-bold text-zinc-500 uppercase tracking-widest"
                             data-i18n="label_category">Category</label>
-                        <input type="text" name="category" required
+                        <input id="snippet-category-input" type="text" name="category" required
                             class="w-full h-12 bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-white focus:outline-none focus:border-primary transition-none"
                             data-i18n-placeholder="placeholder_category"
                             placeholder="e.g. Header, Security">
                     </div>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-zinc-500 uppercase tracking-widest"
+                    <label for="snippet-description-input" class="block text-xs font-bold text-zinc-500 uppercase tracking-widest"
                         data-i18n="label_description">Description</label>
-                    <textarea name="description" required
-                        class="w-full h-24 bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:border-primary transition-none resize-none"></textarea>
+                    <textarea id="snippet-description-input" name="description" required
+                        class="w-full h-24 bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:border-primary transition-none resize-y"></textarea>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-zinc-500 uppercase tracking-widest" data-i18n="label_code">Code
+                    <label for="snippet-code-input" class="block text-xs font-bold text-zinc-500 uppercase tracking-widest" data-i18n="label_code">Code
                         Snippet</label>
-                    <textarea name="code" required
-                        class="w-full h-48 bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-white font-mono text-sm focus:outline-none focus:border-primary transition-none"></textarea>
+                    <textarea id="snippet-code-input" name="code" required
+                        class="w-full h-48 bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-white font-mono text-sm focus:outline-none focus:border-primary transition-none resize-y"></textarea>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-zinc-500 uppercase tracking-widest"
+                    <label for="snippet-language-input" class="block text-xs font-bold text-zinc-500 uppercase tracking-widest"
                         data-i18n="label_language">Language</label>
-                    <input type="text" name="language" required
+                    <input id="snippet-language-input" type="text" name="language" required
                         class="w-full h-12 bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-white focus:outline-none focus:border-primary transition-none"
                         data-i18n-placeholder="placeholder_languages"
                         placeholder="PHP, CSS, JS, SQL, HTML...">
@@ -166,7 +187,7 @@
                 </div>
             </form>
         </div>
-    </div>
+    </dialog>
 </body>
 
 </html>

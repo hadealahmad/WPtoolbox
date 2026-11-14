@@ -2,11 +2,31 @@
 <html lang="en" style="background-color: #09090b; color: white;">
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Oip6BSOueP4OrFxv4cPieX4wlFgT6dUZKKme7nQ4MjY=' https://www.googletagmanager.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta charset="UTF-8">
     <meta name="theme-color" content="#09090b">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+        analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var c = localStorage.getItem('wpt-consent');
+        if (c === 'granted') gtag('consent', 'update', { analytics_storage: 'granted' });
+        else if (c === 'all') gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+      } catch (e) {}
+      gtag('js', new Date());
+    </script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KWMHKN5M"></script>
     <title data-i18n="title_qr_generator">QR Code Generator | WPToolbox</title>
     <meta name="description" content="Generate QR codes from one or multiple links instantly. Download in SVG, PNG, or JPG.">
 
@@ -39,64 +59,64 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
         <header class="mb-10 text-center md:text-start">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_qr_generator_title">QR Code Generator</h1>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter text-white break-words [overflow-wrap:anywhere] text-balance" data-i18n="tool_qr_generator_title">QR Code Generator</h1>
             <p class="text-zinc-500 mt-2" data-i18n="tool_qr_generator_desc">Generate QR codes from one or multiple links instantly. Download in SVG, PNG, or JPG.</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
             <!-- Controls Column -->
-            <div class="lg:col-span-5 space-y-8">
+            <div class="lg:col-span-5 space-y-8 min-w-0">
                 <!-- Data Entry Section -->
                 <section class="shadcn-card p-6">
                     <div class="flex items-center gap-2 mb-6">
                         <i data-lucide="link" class="w-4 h-4 text-primary"></i>
-                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_urls">
+                        <h3 id="label-links" class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_urls">
                             Links (One per line)
                         </h3>
                     </div>
                     
-                    <textarea id="links-input" 
+                    <textarea id="links-input" aria-labelledby="label-links" required
                         class="w-full bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-primary font-mono custom-scrollbar"
                         rows="6" 
                         placeholder="https://example.com/&#10;https://example.com/about"
                         data-i18n-placeholder="placeholder_links"></textarea>
 
-                    <label class="flex items-center justify-between cursor-pointer group mt-4">
+                    <label for="transparent-bg" class="flex items-center justify-between gap-3 cursor-pointer group mt-4">
                         <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="label_transparent_bg">Transparent Background</span>
-                        <div class="relative inline-flex items-center">
-                            <input type="checkbox" id="transparent-bg" class="sr-only peer">
-                            <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                        <div class="relative inline-flex items-center shrink-0">
+                            <input type="checkbox" id="transparent-bg" role="switch" class="sr-only peer">
+                            <div aria-hidden="true" class="w-10 h-5 bg-zinc-800 rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-zinc-900 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
                         </div>
                     </label>
 
                     <!-- Social Media Export Section -->
                     <div class="border-t border-zinc-800 mt-6 pt-6">
-                        <label class="flex items-center justify-between cursor-pointer group mb-4">
+                        <label for="enable-social" class="flex items-center justify-between gap-3 cursor-pointer group mb-4">
                             <span class="text-sm font-bold text-zinc-300 group-hover:text-white" data-i18n="label_social_bg">Social Media Export</span>
-                            <div class="relative inline-flex items-center">
-                                <input type="checkbox" id="enable-social" class="sr-only peer">
-                                <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                            <div class="relative inline-flex items-center shrink-0">
+                                <input type="checkbox" id="enable-social" role="switch" class="sr-only peer">
+                                <div aria-hidden="true" class="w-10 h-5 bg-zinc-800 rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-zinc-900 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
                             </div>
                         </label>
 
                         <div id="social-options" class="hidden space-y-4">
                             <div>
-                                <label class="text-xs text-zinc-500 mb-1 block" data-i18n="label_qr_title">Title (Optional)</label>
+                                <label for="qr-title" class="text-xs text-zinc-500 mb-1 block" data-i18n="label_qr_title">Title (Optional)</label>
                                 <input type="text" id="qr-title" class="w-full bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" placeholder="Scan Me!" data-i18n-placeholder="placeholder_qr_title">
                             </div>
 
-                            <label class="flex items-center justify-between cursor-pointer group mt-4 mb-4">
+                            <label for="show-link" class="flex items-center justify-between gap-3 cursor-pointer group mt-4 mb-4">
                                 <span class="text-sm font-medium text-zinc-300 group-hover:text-white" data-i18n="label_show_link">Show Link Under QR</span>
-                                <div class="relative inline-flex items-center">
-                                    <input type="checkbox" id="show-link" class="sr-only peer" checked>
-                                    <div class="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
+                                <div class="relative inline-flex items-center shrink-0">
+                                    <input type="checkbox" id="show-link" role="switch" class="sr-only peer" checked>
+                                    <div aria-hidden="true" class="w-10 h-5 bg-zinc-800 rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-zinc-900 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary transition-none"></div>
                                 </div>
                             </label>
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="text-xs text-zinc-500 mb-1 block" data-i18n="label_aspect_ratio">Aspect Ratio</label>
+                                    <label for="aspect-ratio" class="text-xs text-zinc-500 mb-1 block" data-i18n="label_aspect_ratio">Aspect Ratio</label>
                                     <select id="aspect-ratio" class="w-full bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-primary">
                                         <option value="1:1">1:1 (Instagram Post)</option>
                                         <option value="4:5">4:5 (Instagram Portrait)</option>
@@ -105,7 +125,7 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="text-xs text-zinc-500 mb-1 block" data-i18n="label_bg_type">Background Type</label>
+                                    <label for="bg-type" class="text-xs text-zinc-500 mb-1 block" data-i18n="label_bg_type">Background Type</label>
                                     <select id="bg-type" class="w-full bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-primary">
                                         <option value="gradient">Gradient</option>
                                         <option value="image">Custom Image</option>
@@ -118,13 +138,13 @@
                             </div>
 
                             <div id="image-options" class="hidden">
-                                <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-zinc-800 border-dashed rounded-lg cursor-pointer hover:border-zinc-700 bg-zinc-900/50 relative overflow-hidden group">
-                                    <img id="bg-image-preview" class="absolute inset-0 w-full h-full object-cover hidden">
+                                <label for="bg-image-upload" class="flex flex-col items-center justify-center w-full h-24 border-2 border-zinc-800 border-dashed rounded-lg cursor-pointer hover:border-zinc-700 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary bg-zinc-900/50 relative overflow-hidden group">
+                                    <img id="bg-image-preview" alt="" width="320" height="96" decoding="async" class="absolute inset-0 w-full h-full object-cover hidden">
                                     <div id="bg-upload-prompt" class="flex flex-col items-center justify-center pt-5 pb-6 bg-zinc-900/80 w-full h-full absolute inset-0 opacity-100 group-hover:opacity-90 transition-opacity">
                                         <i data-lucide="upload-cloud" class="w-6 h-6 text-zinc-500 mb-2"></i>
                                         <p class="text-xs text-zinc-500"><span class="font-semibold text-zinc-300">Click to upload</span></p>
                                     </div>
-                                    <input id="bg-image-upload" type="file" class="hidden" accept="image/*" />
+                                    <input id="bg-image-upload" type="file" class="sr-only" accept="image/*" />
                                 </label>
                             </div>
 
@@ -132,14 +152,14 @@
                             <div id="social-preview-container" class="mt-4 border border-zinc-800 rounded-lg p-4 bg-zinc-950 flex flex-col items-center hidden">
                                 <h4 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-4 w-full text-center" data-i18n="label_live_preview">Live Preview</h4>
                                 <div class="relative w-full max-w-[200px] flex items-center justify-center">
-                                    <img id="social-preview-img" class="w-full h-auto rounded-md border border-zinc-800 shadow-xl object-contain">
+                                    <img id="social-preview-img" alt="QR code social preview" width="200" height="200" decoding="async" class="w-full h-auto rounded-md border border-zinc-800 shadow-xl object-contain">
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex justify-end mt-6">
-                        <button id="generate-btn" class="shadcn-button shadcn-button-primary h-10 px-6 text-sm gap-2">
+                        <button type="button" id="generate-btn" class="shadcn-button shadcn-button-primary h-10 px-6 text-sm gap-2">
                             <i data-lucide="qr-code" class="w-4 h-4"></i>
                             <span data-i18n="btn_generate_qrs">Generate</span>
                         </button>
@@ -165,7 +185,7 @@
             </div>
 
             <!-- Results Column -->
-            <div class="lg:col-span-7 flex flex-col gap-8">
+            <div class="lg:col-span-7 flex flex-col gap-8 min-w-0">
                 <!-- Results Section -->
                 <section id="results-section" class="hidden space-y-4">
                     <div class="flex flex-wrap justify-between items-center gap-4">
@@ -173,8 +193,8 @@
                             <i data-lucide="layout-grid" class="w-4 h-4"></i>
                             <span data-i18n="label_generated_qrs">Generated QR Codes</span>
                         </h3>
-                        <div class="flex gap-2">
-                            <button id="download-all-btn" class="shadcn-button border-zinc-800 bg-zinc-900 hover:bg-zinc-800 h-9 px-4 text-xs gap-2">
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" id="download-all-btn" class="shadcn-button border-zinc-800 bg-zinc-900 hover:bg-zinc-800 h-9 px-4 text-xs gap-2">
                                 <i data-lucide="package" class="w-3.5 h-3.5"></i>
                                 <span data-i18n="btn_download_zip">Download All (ZIP)</span>
                             </button>
@@ -185,7 +205,7 @@
                         <div id="processing-bar" class="absolute top-0 left-0 h-full bg-primary w-0 transition-all duration-300"></div>
                     </div>
                     
-                    <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div id="results-grid" class="wpt-deferred grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Injected by JS -->
                     </div>
                 </section>
@@ -207,10 +227,15 @@
     <wpt-footer></wpt-footer>
 
     <!-- Global Toast Container -->
-    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50 transition-all duration-300">
+    <div id="toast" popover="manual" role="status" aria-live="polite" aria-atomic="true"
+        class="wpt-popover fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
-            <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+            <i data-lucide="check-circle" class="w-4 h-4 text-green-400 shrink-0"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>
+            <button type="button" popovertarget="toast" popovertargetaction="hide" aria-label="Close notification"
+                class="ms-2 p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer">
+                <i data-lucide="x" class="w-3.5 h-3.5 pointer-events-none"></i>
+            </button>
         </div>
     </div>
     

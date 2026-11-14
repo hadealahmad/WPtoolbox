@@ -2,11 +2,31 @@
 <html lang="en" style="background-color: #09090b; color: white;">
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Oip6BSOueP4OrFxv4cPieX4wlFgT6dUZKKme7nQ4MjY=' https://www.googletagmanager.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta charset="UTF-8">
     <meta name="theme-color" content="#09090b">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+        analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var c = localStorage.getItem('wpt-consent');
+        if (c === 'granted') gtag('consent', 'update', { analytics_storage: 'granted' });
+        else if (c === 'all') gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+      } catch (e) {}
+      gtag('js', new Date());
+    </script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KWMHKN5M"></script>
     <title data-i18n="title_demo-generator.html">Demo Content Generator | WPToolbox</title>
     <meta name="description" content="Create mock data for WordPress with custom fields and export to multiple formats.">
 
@@ -39,7 +59,7 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
         <header class="mb-10 text-center md:text-start">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_demo_generator_title">Demo
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter text-white break-words [overflow-wrap:anywhere] text-balance" data-i18n="tool_demo_generator_title">Demo
                 Content Generator</h1>
             <p class="text-zinc-500 mt-2" data-i18n="tool_demo_generator_desc">Generate high-quality mock data for
                 WordPress or any other platform. Export as XML, CSV, or JSON.</p>
@@ -48,42 +68,42 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
             <!-- Sidebar: Configuration -->
-            <aside class="lg:col-span-4 space-y-6">
+            <aside class="lg:col-span-4 space-y-6 min-w-0">
                 <section class="shadcn-card p-6 space-y-6">
                     <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="settings" class="w-4 h-4 text-primary"></i>
+                        <i data-lucide="settings" class="w-4 h-4 text-primary shrink-0"></i>
                         <span data-i18n="label_global_settings">Global Settings</span>
                     </h2>
 
                     <div class="space-y-6">
                         <div>
-                            <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
+                            <label for="post-type" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
                                 data-i18n="label_post_type">Post Type</label>
-                            <input type="text" id="post-type" value="post"
+                            <input type="text" id="post-type" value="post" required
                                 class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-primary transition-all">
                         </div>
 
                         <div class="pt-4 border-t border-zinc-900 space-y-6">
                             <div>
-                                <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
-                                    data-i18n="label_generation_lang">Content Language</label>
-                                <div class="grid grid-cols-2 gap-2 p-1 bg-zinc-950 border border-zinc-800 rounded-xl">
-                                    <button id="lang-en-btn"
+                                <span id="label-gen-lang" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
+                                    data-i18n="label_generation_lang">Content Language</span>
+                                <div role="group" aria-labelledby="label-gen-lang" class="grid grid-cols-2 gap-2 p-1 bg-zinc-950 border border-zinc-800 rounded-xl">
+                                    <button type="button" id="lang-en-btn" aria-pressed="true"
                                         class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">English</button>
-                                    <button id="lang-ar-btn"
+                                    <button type="button" id="lang-ar-btn" aria-pressed="false"
                                         class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">العربية</button>
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
-                                    data-i18n="label_output_format">Output Format</label>
-                                <div class="grid grid-cols-3 gap-2 p-1 bg-zinc-950 border border-zinc-800 rounded-xl">
-                                    <button id="format-xml-btn"
+                                <span id="label-out-format" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
+                                    data-i18n="label_output_format">Output Format</span>
+                                <div role="group" aria-labelledby="label-out-format" class="grid grid-cols-3 gap-2 p-1 bg-zinc-950 border border-zinc-800 rounded-xl">
+                                    <button type="button" id="format-xml-btn" aria-pressed="true"
                                         class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">XML</button>
-                                    <button id="format-csv-btn"
+                                    <button type="button" id="format-csv-btn" aria-pressed="false"
                                         class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">CSV</button>
-                                    <button id="format-json-btn"
+                                    <button type="button" id="format-json-btn" aria-pressed="false"
                                         class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all border border-transparent">JSON</button>
                                 </div>
                             </div>
@@ -91,11 +111,11 @@
 
                         <div class="pt-4 border-t border-zinc-900">
                             <div class="flex justify-between items-center mb-2">
-                                <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500"
+                                <label for="record-count" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500"
                                     data-i18n="label_record_count">Number of Records</label>
                                 <span id="record-count-display" class="text-xs font-mono text-primary">10</span>
                             </div>
-                            <input type="range" id="record-count" value="10" min="1" max="20"
+                            <input type="range" id="record-count" value="10" min="1" max="100"
                                 class="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-primary">
                         </div>
                     </div>
@@ -110,20 +130,20 @@
             </aside>
 
             <!-- Main: Field Builder -->
-            <div class="lg:col-span-8 space-y-6">
+            <div class="lg:col-span-8 space-y-6 min-w-0">
                 <section class="shadcn-card p-0 overflow-hidden">
-                    <div class="p-6 border-b border-zinc-900 bg-zinc-900/30 flex items-center justify-between">
-                        <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                            <i data-lucide="list-plus" class="w-4 h-4 text-primary"></i>
-                            <span data-i18n="label_fields_configuration">Fields Configuration</span>
+                    <div class="p-6 border-b border-zinc-900 bg-zinc-900/30 flex flex-wrap items-center justify-between gap-3">
+                        <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 min-w-0">
+                            <i data-lucide="list-plus" class="w-4 h-4 text-primary shrink-0"></i>
+                            <span data-i18n="label_fields_configuration" class="break-words">Fields Configuration</span>
                         </h2>
-                        <div class="flex items-center gap-3">
-                            <button id="reset-fields-btn"
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button type="button" id="reset-fields-btn"
                                 class="shadcn-button shadcn-button-outline h-9 px-4 text-[10px] gap-2 border-zinc-800 hover:bg-zinc-900">
                                 <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                                 <span data-i18n="btn_reset_defaults">Reset Defaults</span>
                             </button>
-                            <button id="add-field-btn"
+                            <button type="button" id="add-field-btn"
                                 class="shadcn-button shadcn-button-outline h-9 px-4 text-[10px] gap-2">
                                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                                 <span data-i18n="btn_add_field">Add Field</span>
@@ -131,7 +151,7 @@
                         </div>
                     </div>
 
-                    <div class="p-0">
+                    <div class="p-0 overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-zinc-900/50">
@@ -174,7 +194,7 @@
                     </div>
 
                     <div class="p-6 border-t border-zinc-900 bg-zinc-900/30 flex justify-end">
-                        <button id="generate-btn"
+                        <button type="button" id="generate-btn"
                             class="shadcn-button shadcn-button-primary h-12 px-10 text-xs gap-2">
                             <i data-lucide="zap" class="w-4 h-4"></i>
                             <span data-i18n="btn_generate_content">Generate Content</span>
@@ -185,16 +205,16 @@
                 <!-- Preview Area -->
                 <section id="preview-section"
                     class="hidden space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div class="flex justify-between items-center">
+                    <div class="flex flex-wrap justify-between items-center gap-3">
                         <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-500" data-i18n="label_preview">
                             Preview</h3>
-                        <div class="flex items-center gap-3">
-                            <button id="copy-preview-btn"
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button type="button" id="copy-preview-btn"
                                 class="shadcn-button shadcn-button-outline h-10 px-6 text-xs gap-2">
                                 <i data-lucide="copy" class="w-4 h-4"></i>
                                 <span data-i18n="btn_copy">Copy</span>
                             </button>
-                            <button id="download-btn"
+                            <button type="button" id="download-btn"
                                 class="shadcn-button shadcn-button-primary h-10 px-8 text-xs gap-2">
                                 <i data-lucide="download" class="w-4 h-4"></i>
                                 <span data-i18n="btn_download">Download</span>
@@ -215,28 +235,30 @@
     <wpt-footer></wpt-footer>
 
     <!-- Field Modal -->
-    <div id="field-modal"
-        class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="shadcn-card max-w-lg w-full p-0 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <dialog id="field-modal" closedby="any" aria-labelledby="field-modal-title"
+        class="wpt-dialog w-[min(32rem,calc(100vw-2rem))] overscroll-contain">
+        <div id="field-modal-card" class="shadcn-card w-full p-0 overflow-hidden">
             <div class="p-6 border-b border-zinc-900 bg-zinc-900/30 flex items-center justify-between">
-                <h3 class="text-lg font-bold text-white tracking-tight" data-i18n="modal_add_field_title">Add Custom
+                <h3 id="field-modal-title" class="text-lg font-bold text-white tracking-tight" data-i18n="modal_add_field_title">Add Custom
                     Field</h3>
-                <button id="modal-close-btn" class="text-zinc-500 hover:text-white transition-colors">
+                <button type="button" id="modal-close-btn" aria-label="Close" class="p-1 rounded-lg text-zinc-500 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
 
             <div class="p-8 space-y-6">
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
+                    <label for="modal-field-id" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
                         data-i18n="label_field_id">Field Key / ID</label>
-                    <input type="text" id="modal-field-id" placeholder="e.g. price, color, author_bio"
+                    <input type="text" id="modal-field-id" required pattern="[a-zA-Z0-9_\s]+" placeholder="e.g. price, color, author_bio"
+                        aria-describedby="modal-field-id-error"
                         class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-primary transition-all">
+                    <p id="modal-field-id-error" class="hidden text-xs text-red-400 mt-1.5" role="alert"></p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
+                        <label for="modal-field-type" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
                             data-i18n="label_field_type">Type</label>
                         <div class="relative">
                             <select id="modal-field-type"
@@ -260,7 +282,7 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
+                        <label for="modal-wp-mapping" class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2"
                             data-i18n="label_wp_mapping">WP Mapping</label>
                         <div class="relative">
                             <select id="modal-wp-mapping"
@@ -282,24 +304,24 @@
             </div>
 
             <div class="p-6 border-t border-zinc-900 bg-zinc-900/30 flex justify-end gap-3">
-                <button id="modal-cancel-btn" class="shadcn-button shadcn-button-outline px-6 text-xs"
+                <button type="button" id="modal-cancel-btn" class="shadcn-button shadcn-button-outline px-6 text-xs"
                     data-i18n="btn_cancel">Cancel</button>
-                <button id="modal-confirm-btn"
+                <button type="button" id="modal-confirm-btn"
                     class="shadcn-button shadcn-button-primary px-8 text-xs" data-i18n="btn_save_field">Save
                     Field</button>
             </div>
         </div>
-    </div>
+    </dialog>
 
     <!-- Processing Overlay -->
-    <div id="processing-overlay"
-        class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="shadcn-card max-w-md w-full p-8 space-y-6 text-center animate-in fade-in zoom-in-95 duration-200">
+    <dialog id="processing-overlay" closedby="any" aria-labelledby="processing-title"
+        class="wpt-dialog w-[min(28rem,calc(100vw-2rem))] overscroll-contain">
+        <div id="processing-overlay-card" class="shadcn-card w-full p-8 space-y-6 text-center">
             <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
                 <i data-lucide="loader-2" class="w-8 h-8 text-primary animate-spin"></i>
             </div>
             <div class="space-y-2">
-                <h3 class="text-lg font-bold text-white uppercase tracking-tight" data-i18n="processing_title">
+                <h3 id="processing-title" class="text-lg font-bold text-white uppercase tracking-tight" data-i18n="processing_title">
                     Processing...</h3>
                 <p class="text-sm text-zinc-500" data-i18n="processing_desc">Performing generation and formatting. This
                     may
@@ -316,16 +338,16 @@
                 </div>
             </div>
 
-            <button id="cancel-processing-btn"
+            <button type="button" id="cancel-processing-btn"
                 class="shadcn-button shadcn-button-outline w-full h-11 text-xs gap-2 border-red-900/30 text-red-400 hover:bg-red-900/10">
                 <i data-lucide="x-circle" class="w-4 h-4"></i>
                 <span data-i18n="btn_cancel">Cancel</span>
             </button>
         </div>
-    </div>
+    </dialog>
 
     <!-- Global Toast Container -->
-    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
+    <div id="toast" popover="manual" role="status" aria-live="polite" aria-atomic="true" class="wpt-popover fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>

@@ -9,10 +9,11 @@ docs/
 ├── README.md                  ← You are here (project map & feature matrix)
 ├── getting-started.md         ← Stack, dev setup, build & deploy
 ├── design-guidelines.md       ← Styling, theming, coding standards (moved from /guidelines.md)
+├── analytics.md               ← GTM Consent Mode v2 flow & event catalog
 ├── architecture/
 │   ├── overview.md            ← App facade, lifecycle, module graph, data schema
-│   ├── core.md                ← src/core/ deep dive (App, BaseTool, I18n, State, UI, Utils)
-│   └── components.md          ← Web Components (wpt-navbar, wpt-footer)
+│   ├── core.md                ← src/core/ deep dive (App, Analytics, BaseTool, I18n, State, UI, Utils)
+│   └── components.md          ← Web Components (wpt-navbar, wpt-footer, wpt-consent)
 └── tools/
     ├── media.md               ← Media & asset tools
     ├── workflow.md            ← Deployment & workflow tools
@@ -55,7 +56,7 @@ All 15 registered tools (`src/tools/*.js`), grouped exactly as the navigation (`
 - **Privacy-first**: no backend exists; all processing uses Blobs, DataURLs, and browser APIs.
 - **Bilingual**: full English + Arabic support via `src/data/translations.json` (~844 lines) with native RTL.
 - **PWA**: service worker auto-updates via `vite-plugin-pwa`; manifest theme color `#09090b`.
-- **Stale artifacts**: `tailwind.config.js` targets legacy paths (`./*.html`, `./js/**`) and is effectively unused — styling flows through `@tailwindcss/vite` and `src/styles/main.css`. The root `/public/js/data/*.json` duplicates `src/data/*.json`.
+- **Styling & data**: styling flows through `@tailwindcss/vite` and `src/styles/main.css` (legacy `tailwind.config.js` has been removed), and all JSON data lives solely under `src/data/*.json`.
 - **Root README** intentionally excluded from this docs restructure.
 
 *Last updated: August 2026*

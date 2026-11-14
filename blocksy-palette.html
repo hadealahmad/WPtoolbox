@@ -2,11 +2,31 @@
 <html lang="en" style="background-color: #09090b; color: white;">
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Oip6BSOueP4OrFxv4cPieX4wlFgT6dUZKKme7nQ4MjY=' https://www.googletagmanager.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta charset="UTF-8">
     <meta name="theme-color" content="#09090b">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+        analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var c = localStorage.getItem('wpt-consent');
+        if (c === 'granted') gtag('consent', 'update', { analytics_storage: 'granted' });
+        else if (c === 'all') gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+      } catch (e) {}
+      gtag('js', new Date());
+    </script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KWMHKN5M"></script>
     <title data-i18n="title_blocksy_palette">Blocksy Palette Generator | WPToolbox</title>
     <meta name="description" content="Generate custom Blocksy-compatible 8-color palettes for light and dark modes. Save and edit your palettes.">
 
@@ -34,26 +54,26 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
         <header class="mb-10 text-center md:text-start">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_blocksy_palette_title">Blocksy Palette Generator</h1>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter text-white break-words [overflow-wrap:anywhere] text-balance" data-i18n="tool_blocksy_palette_title">Blocksy Palette Generator</h1>
             <p class="text-zinc-500 mt-2" data-i18n="tool_blocksy_palette_desc">Generate custom Blocksy-compatible 8-color palettes for light and dark modes.</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
             <!-- Left Panel: Controls -->
-            <div class="lg:col-span-5 space-y-6">
+            <div class="lg:col-span-5 space-y-6 min-w-0">
 
                 <!-- Generator Card -->
                 <section class="shadcn-card p-6 space-y-5">
                     <div class="flex items-center gap-2 mb-1">
                         <i data-lucide="sliders-horizontal" class="w-4 h-4 text-primary"></i>
-                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_generator">Generator</h3>
+                        <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_generator">Generator</h2>
                     </div>
 
                     <!-- Palette Name -->
                     <div>
-                        <label class="text-xs font-semibold text-zinc-400 mb-1.5 block" data-i18n="label_palette_name">Palette Name</label>
-                        <input id="palette-name" type="text" 
+                        <label for="palette-name" class="text-xs font-semibold text-zinc-400 mb-1.5 block" data-i18n="label_palette_name">Palette Name</label>
+                        <input id="palette-name" type="text"
                                placeholder="My Brand Palette"
                                data-i18n-placeholder="placeholder_palette_name"
                                class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary">
@@ -61,13 +81,13 @@
 
                     <!-- Mode Toggle -->
                     <div>
-                        <label class="text-xs font-semibold text-zinc-400 mb-2 block" data-i18n="label_mode">Mode</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button id="mode-light" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all border-zinc-800 text-zinc-500 hover:border-zinc-600">
+                        <span id="label-mode" class="text-xs font-semibold text-zinc-400 mb-2 block" data-i18n="label_mode">Mode</span>
+                        <div class="grid grid-cols-2 gap-2" role="group" aria-labelledby="label-mode">
+                            <button type="button" id="mode-light" aria-pressed="false" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all border-zinc-800 text-zinc-500 hover:border-zinc-600">
                                 <i data-lucide="sun" class="w-4 h-4"></i>
                                 <span data-i18n="mode_light">Light</span>
                             </button>
-                            <button id="mode-dark" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all border-primary bg-primary/10 text-primary">
+                            <button type="button" id="mode-dark" aria-pressed="true" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all border-primary bg-primary/10 text-primary">
                                 <i data-lucide="moon" class="w-4 h-4"></i>
                                 <span data-i18n="mode_dark">Dark</span>
                             </button>
@@ -76,109 +96,109 @@
 
                     <!-- Quick Color Seed Actions -->
                     <div class="grid grid-cols-2 gap-2">
-                        <button id="random-colors-btn"
+                        <button type="button" id="random-colors-btn"
                                 class="flex items-center justify-center gap-2 h-9 rounded-lg border border-zinc-800 bg-zinc-900 text-xs font-semibold text-zinc-400 hover:text-primary hover:border-primary/40 transition-all">
                             <i data-lucide="shuffle" class="w-3.5 h-3.5"></i>
                             <span data-i18n="btn_random">Random</span>
                         </button>
-                        <label class="flex items-center justify-center gap-2 h-9 rounded-lg border border-zinc-800 bg-zinc-900 text-xs font-semibold text-zinc-400 hover:text-primary hover:border-primary/40 transition-all cursor-pointer"
+                        <label for="logo-upload" class="flex items-center justify-center gap-2 h-9 rounded-lg border border-zinc-800 bg-zinc-900 text-xs font-semibold text-zinc-400 hover:text-primary hover:border-primary/40 focus-within:ring-2 focus-within:ring-primary transition-all cursor-pointer"
                                 id="from-logo-label">
                             <i data-lucide="image-plus" class="w-3.5 h-3.5"></i>
                             <span id="from-logo-text" data-i18n="btn_from_image">From Logo</span>
-                            <input type="file" id="logo-upload" accept="image/*" class="hidden">
+                            <input type="file" id="logo-upload" accept="image/*" class="sr-only">
                         </label>
                     </div>
 
                     <!-- Color 1: Primary -->
                     <div>
-                        <label class="text-xs font-semibold text-zinc-400 mb-1.5 block" data-i18n="label_color1">Color 1 — Primary</label>
+                        <label for="color1-hex" class="text-xs font-semibold text-zinc-400 mb-1.5 block" data-i18n="label_color1">Color 1 — Primary</label>
                         <p class="text-[10px] text-zinc-600 mb-2" data-i18n="desc_color1">Main brand accent. Used for buttons, links, and highlights.</p>
-                        <div class="flex items-center gap-3">
-                            <input id="color1" type="color" value="#2872fa" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <input id="color1" type="color" value="#2872fa" aria-label="Color 1 picker" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5 shrink-0">
                             <input id="color1-hex" type="text" value="#2872FA"
                                    placeholder="#hex / rgb() / hsl()"
-                                   class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-primary">
+                                   class="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-primary">
                         </div>
                     </div>
 
                     <!-- Color 2: Secondary -->
                     <div>
-                        <label class="text-xs font-semibold text-zinc-400 mb-1.5 block" data-i18n="label_color2">Color 2 — Secondary</label>
+                        <label for="color2-hex" class="text-xs font-semibold text-zinc-400 mb-1.5 block" data-i18n="label_color2">Color 2 — Secondary</label>
                         <p class="text-[10px] text-zinc-600 mb-2" data-i18n="desc_color2">Darker variant of primary. Hover states and active elements.</p>
-                        <div class="flex items-center gap-3">
-                            <input id="color2" type="color" value="#1559ed" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <input id="color2" type="color" value="#1559ed" aria-label="Color 2 picker" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5 shrink-0">
                             <input id="color2-hex" type="text" value="#1559ED"
                                    placeholder="#hex / rgb() / hsl()"
-                                   class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-primary">
+                                   class="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-primary">
                         </div>
                     </div>
 
                     <!-- Auto-generate toggle -->
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-zinc-900/50 border border-zinc-800">
-                        <div>
-                            <p class="text-sm font-semibold text-zinc-300" data-i18n="label_auto_generate">Auto-generate neutrals</p>
+                    <div class="flex items-center justify-between gap-3 p-3 rounded-lg bg-zinc-900/50 border border-zinc-800">
+                        <div class="min-w-0">
+                            <label for="auto-generate" class="text-sm font-semibold text-zinc-300 cursor-pointer block" data-i18n="label_auto_generate">Auto-generate neutrals</label>
                             <p class="text-[10px] text-zinc-600" data-i18n="desc_auto_generate">Colors 3–8 derived from your primary</p>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
+                        <label for="auto-generate" class="relative inline-flex items-center cursor-pointer shrink-0">
                             <input type="checkbox" id="auto-generate" class="sr-only peer" checked>
-                            <div class="w-10 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            <div class="w-10 h-6 bg-zinc-700 peer-focus:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                     </div>
 
                     <!-- Manual Colors (hidden when auto) -->
                     <div id="manual-colors" class="space-y-3 hidden">
                         <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mt-1" data-i18n="label_manual_colors">Manual Neutral Colors</p>
-                        <div id="color3-row" class="flex items-center gap-3">
-                            <input id="color3" type="color" value="#3a4f66" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
-                            <span class="text-[10px] text-zinc-500 w-16" data-i18n="label_color3_short">Color 3</span>
+                        <div id="color3-row" class="flex items-center gap-3 min-w-0">
+                            <input id="color3" type="color" value="#3a4f66" aria-label="Color 3 picker" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5 shrink-0">
+                            <label for="color3-hex" class="text-[10px] text-zinc-500 w-16 shrink-0" data-i18n="label_color3_short">Color 3</label>
                             <input id="color3-hex" type="text" value="#3a4f66"
                                    placeholder="#hex / rgb() / hsl()"
-                                   class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
+                                   class="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
                         </div>
-                        <div class="flex items-center gap-3">
-                            <input id="color4" type="color" value="#192a3d" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
-                            <span class="text-[10px] text-zinc-500 w-16" data-i18n="label_color4_short">Color 4</span>
+                        <div class="flex items-center gap-3 min-w-0">
+                            <input id="color4" type="color" value="#192a3d" aria-label="Color 4 picker" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5 shrink-0">
+                            <label for="color4-hex" class="text-[10px] text-zinc-500 w-16 shrink-0" data-i18n="label_color4_short">Color 4</label>
                             <input id="color4-hex" type="text" value="#192a3d"
                                    placeholder="#hex / rgb() / hsl()"
-                                   class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
+                                   class="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
                         </div>
-                        <div class="flex items-center gap-3">
-                            <input id="color5" type="color" value="#e1e8ed" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
-                            <span class="text-[10px] text-zinc-500 w-16" data-i18n="label_color5_short">Color 5</span>
+                        <div class="flex items-center gap-3 min-w-0">
+                            <input id="color5" type="color" value="#e1e8ed" aria-label="Color 5 picker" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5 shrink-0">
+                            <label for="color5-hex" class="text-[10px] text-zinc-500 w-16 shrink-0" data-i18n="label_color5_short">Color 5</label>
                             <input id="color5-hex" type="text" value="#e1e8ed"
                                    placeholder="#hex / rgb() / hsl()"
-                                   class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
+                                   class="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
                         </div>
-                        <div class="flex items-center gap-3">
-                            <input id="color6" type="color" value="#f2f5f7" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
-                            <span class="text-[10px] text-zinc-500 w-16" data-i18n="label_color6_short">Color 6</span>
+                        <div class="flex items-center gap-3 min-w-0">
+                            <input id="color6" type="color" value="#f2f5f7" aria-label="Color 6 picker" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5 shrink-0">
+                            <label for="color6-hex" class="text-[10px] text-zinc-500 w-16 shrink-0" data-i18n="label_color6_short">Color 6</label>
                             <input id="color6-hex" type="text" value="#f2f5f7"
                                    placeholder="#hex / rgb() / hsl()"
-                                   class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
+                                   class="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
                         </div>
-                        <div class="flex items-center gap-3">
-                            <input id="color7" type="color" value="#fafbfc" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
-                            <span class="text-[10px] text-zinc-500 w-16" data-i18n="label_color7_short">Color 7</span>
+                        <div class="flex items-center gap-3 min-w-0">
+                            <input id="color7" type="color" value="#fafbfc" aria-label="Color 7 picker" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5 shrink-0">
+                            <label for="color7-hex" class="text-[10px] text-zinc-500 w-16 shrink-0" data-i18n="label_color7_short">Color 7</label>
                             <input id="color7-hex" type="text" value="#fafbfc"
                                    placeholder="#hex / rgb() / hsl()"
-                                   class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
+                                   class="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
                         </div>
-                        <div class="flex items-center gap-3">
-                            <input id="color8" type="color" value="#ffffff" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5">
-                            <span class="text-[10px] text-zinc-500 w-16" data-i18n="label_color8_short">Color 8</span>
+                        <div class="flex items-center gap-3 min-w-0">
+                            <input id="color8" type="color" value="#ffffff" aria-label="Color 8 picker" class="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-950 cursor-pointer p-0.5 shrink-0">
+                            <label for="color8-hex" class="text-[10px] text-zinc-500 w-16 shrink-0" data-i18n="label_color8_short">Color 8</label>
                             <input id="color8-hex" type="text" value="#ffffff"
                                    placeholder="#hex / rgb() / hsl()"
-                                   class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
+                                   class="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-primary">
                         </div>
                     </div>
 
                     <!-- Action buttons -->
-                    <div class="flex gap-3 pt-1">
-                        <button id="save-palette-btn" class="shadcn-button shadcn-button-primary flex-1 h-10 gap-2">
+                    <div class="flex flex-wrap gap-3 pt-1">
+                        <button type="button" id="save-palette-btn" class="shadcn-button shadcn-button-primary flex-1 h-10 gap-2">
                             <i data-lucide="save" class="w-4 h-4"></i>
                             <span data-i18n="btn_save_palette">Save Palette</span>
                         </button>
-                        <button id="copy-css-btn" class="shadcn-button shadcn-button-outline h-10 px-4 gap-2 border-zinc-800 bg-zinc-900">
+                        <button type="button" id="copy-css-btn" class="shadcn-button shadcn-button-outline h-10 px-4 gap-2 border-zinc-800 bg-zinc-900">
                             <i data-lucide="code-2" class="w-4 h-4"></i>
                             <span data-i18n="btn_copy_css">CSS</span>
                         </button>
@@ -196,16 +216,17 @@
             </div>
 
             <!-- Right Panel: Preview + Saved -->
-            <div class="lg:col-span-7 space-y-6">
+            <div class="lg:col-span-7 space-y-6 min-w-0">
 
                 <!-- Live Preview -->
                 <section class="shadcn-card p-6">
-                    <div class="flex items-center justify-between mb-5">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
                         <div class="flex items-center gap-2">
                             <i data-lucide="eye" class="w-4 h-4 text-primary"></i>
-                            <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_preview">Live Preview</h3>
+                            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_preview">Live Preview</h2>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <label for="color-format" class="sr-only">Color Format</label>
                             <select id="color-format" class="bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-xs font-mono text-zinc-400 focus:outline-none focus:border-primary cursor-pointer">
                                 <option value="hex">HEX</option>
                                 <option value="rgb">RGB</option>
@@ -221,16 +242,29 @@
                     </div>
 
                     <!-- Color Details Grid -->
-                    <div id="color-details" class="grid grid-cols-4 gap-2">
+                    <div id="color-details" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <!-- injected by JS -->
                     </div>
                 </section>
 
                 <!-- Saved Palettes -->
                 <section id="saved-section" class="space-y-3">
-                    <div class="flex items-center gap-2 mb-1">
-                        <i data-lucide="bookmark" class="w-4 h-4 text-primary"></i>
-                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_saved_palettes">Saved Palettes</h3>
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="bookmark" class="w-4 h-4 text-primary"></i>
+                            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_saved_palettes">Saved Palettes</h2>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button type="button" id="import-palettes-btn" class="shadcn-button shadcn-button-outline h-8 px-3 text-[10px] gap-1.5 border-zinc-800 bg-zinc-900">
+                                <i data-lucide="upload" class="w-3 h-3"></i>
+                                <span data-i18n="import_btn">Import</span>
+                            </button>
+                            <input type="file" id="import-palettes-input" accept=".json,application/json" class="hidden">
+                            <button type="button" id="export-palettes-btn" class="shadcn-button shadcn-button-outline h-8 px-3 text-[10px] gap-1.5 border-zinc-800 bg-zinc-900">
+                                <i data-lucide="download" class="w-3 h-3"></i>
+                                <span data-i18n="export_btn">Export</span>
+                            </button>
+                        </div>
                     </div>
                     <div id="saved-palettes-list" class="space-y-2">
                         <!-- injected by JS -->
@@ -245,10 +279,10 @@
 
         <!-- Gradients Section — full width -->
         <section class="mt-8 shadcn-card p-6">
-            <div class="flex items-center gap-3 mb-6">
+            <div class="flex flex-wrap items-center gap-3 mb-6">
                 <i data-lucide="sparkles" class="w-4 h-4 text-primary shrink-0"></i>
-                <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_gradients">Generated Gradients</h3>
-                <div class="flex-1 h-px bg-zinc-900"></div>
+                <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500" data-i18n="label_gradients">Generated Gradients</h2>
+                <div class="flex-1 h-px bg-zinc-900 min-w-[2rem]"></div>
                 <span class="text-[10px] text-zinc-600 shrink-0" data-i18n="desc_gradients_hint">Live · Palette-driven</span>
             </div>
             <div id="gradients-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -258,34 +292,35 @@
     </main>
 
     <!-- Edit Modal -->
-    <div id="edit-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="shadcn-card w-full max-w-md p-6 space-y-5">
+    <dialog id="edit-modal" closedby="any" aria-labelledby="edit-modal-title"
+        class="wpt-dialog w-[min(28rem,calc(100vw-2rem))] overscroll-contain">
+        <div id="edit-modal-card" class="shadcn-card w-full p-6 space-y-5">
             <div class="flex items-center justify-between">
-                <h2 class="text-lg font-bold text-white" data-i18n="modal_edit_palette">Edit Palette</h2>
-                <button id="close-edit-modal-btn" class="text-zinc-500 hover:text-white">
+                <h2 id="edit-modal-title" class="text-lg font-bold text-white" data-i18n="modal_edit_palette">Edit Palette</h2>
+                <button type="button" id="close-edit-modal-btn" aria-label="Close" class="text-zinc-500 hover:text-white p-1 rounded">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <div>
-                <label class="text-xs font-semibold text-zinc-400 mb-1.5 block" data-i18n="label_palette_name">Palette Name</label>
-                <input id="edit-palette-name" type="text" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary">
+                <label for="edit-palette-name" class="text-xs font-semibold text-zinc-400 mb-1.5 block" data-i18n="label_palette_name">Palette Name</label>
+                <input id="edit-palette-name" type="text" required class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary">
             </div>
             <div id="edit-color-inputs" class="space-y-3">
                 <!-- injected by JS -->
             </div>
             <div class="flex gap-3 pt-1">
-                <button id="save-edit-btn" class="shadcn-button shadcn-button-primary flex-1 h-10 gap-2">
+                <button type="button" id="save-edit-btn" class="shadcn-button shadcn-button-primary flex-1 h-10 gap-2">
                     <i data-lucide="save" class="w-4 h-4"></i>
                     <span data-i18n="btn_save_changes">Save Changes</span>
                 </button>
-                <button id="cancel-edit-btn" class="shadcn-button shadcn-button-outline h-10 px-4 border-zinc-800 bg-zinc-900" data-i18n="btn_cancel">Cancel</button>
+                <button type="button" id="cancel-edit-btn" class="shadcn-button shadcn-button-outline h-10 px-4 border-zinc-800 bg-zinc-900" data-i18n="btn_cancel">Cancel</button>
             </div>
         </div>
-    </div>
+    </dialog>
 
     <wpt-footer></wpt-footer>
 
-    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50 transition-all duration-300">
+    <div id="toast" popover="manual" role="status" aria-live="polite" aria-atomic="true" class="wpt-popover fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>

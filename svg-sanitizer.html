@@ -2,11 +2,31 @@
 <html lang="en" style="background-color: #09090b; color: white;">
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Oip6BSOueP4OrFxv4cPieX4wlFgT6dUZKKme7nQ4MjY=' https://www.googletagmanager.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta charset="UTF-8">
     <meta name="theme-color" content="#09090b">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+        analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var c = localStorage.getItem('wpt-consent');
+        if (c === 'granted') gtag('consent', 'update', { analytics_storage: 'granted' });
+        else if (c === 'all') gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+      } catch (e) {}
+      gtag('js', new Date());
+    </script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KWMHKN5M"></script>
     <title data-i18n="title_svg_sanitizer">WordPress SVG Sanitizer | WPToolbox</title>
     <meta name="description" content="Clean, sanitize, and prepare SVG files for safe upload to WordPress media library.">
 
@@ -39,14 +59,14 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
         <header class="mb-10 text-center md:text-start">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_svg_sanitizer_title">WordPress SVG Sanitizer</h1>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter text-white break-words [overflow-wrap:anywhere] text-balance" data-i18n="tool_svg_sanitizer_title">WordPress SVG Sanitizer</h1>
             <p class="text-zinc-500 mt-2" data-i18n="tool_svg_sanitizer_desc">Sanitize and optimize SVG files client-side to safely upload them to WordPress.</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
             <!-- Controls Column -->
-            <div class="lg:col-span-4 space-y-8">
+            <div class="lg:col-span-4 space-y-8 min-w-0">
                 <section class="space-y-4">
                     <div class="flex items-start gap-4 p-4 rounded-xl border border-zinc-900 bg-zinc-900/30">
                         <i data-lucide="shield-check" class="w-5 h-5 text-emerald-500 shrink-0"></i>
@@ -70,7 +90,7 @@
             </div>
 
             <!-- Upload & Results Column -->
-            <div class="lg:col-span-8 flex flex-col gap-8">
+            <div class="lg:col-span-8 flex flex-col gap-8 min-w-0">
 
                 <!-- Dropzone -->
                 <div id="drop-zone"
@@ -86,6 +106,9 @@
                                 convert</p>
                             <p class="text-zinc-400 text-sm">SVG files only</p>
                         </div>
+                        <button type="button" id="browse-files-btn"
+                            class="shadcn-button shadcn-button-outline h-9 px-4 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                            data-i18n="drop_browse">or click to browse your files</button>
                     </div>
                     <!-- Processing Progress -->
                     <div id="processing-bar"
@@ -94,18 +117,18 @@
 
                 <!-- Results -->
                 <section id="results-section" class="hidden space-y-4">
-                    <div class="flex justify-between items-center">
+                    <div class="flex flex-wrap justify-between items-center gap-3">
                         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
                             <i data-lucide="file-check" class="w-4 h-4"></i>
                             <span data-i18n="label_sanitized_svgs">Sanitized SVGs</span>
                         </h3>
-                        <button id="download-zip-btn"
+                        <button type="button" id="download-zip-btn"
                             class="shadcn-button shadcn-button-primary h-10 px-6 text-xs gap-2">
                             <i data-lucide="package" class="w-4 h-4"></i>
                             <span data-i18n="btn_download_zip">Download all (ZIP)</span>
                         </button>
                     </div>
-                    <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div id="results-grid" class="wpt-deferred grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Injected by JS -->
                     </div>
                 </section>
@@ -119,10 +142,15 @@
     <wpt-footer></wpt-footer>
 
     <!-- Global Toast Container -->
-    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
+    <div id="toast" popover="manual" role="status" aria-live="polite" aria-atomic="true"
+        class="wpt-popover fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
-            <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+            <i data-lucide="check-circle" class="w-4 h-4 text-green-400 shrink-0"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>
+            <button type="button" popovertarget="toast" popovertargetaction="hide" aria-label="Close notification"
+                class="ms-2 p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer">
+                <i data-lucide="x" class="w-3.5 h-3.5 pointer-events-none"></i>
+            </button>
         </div>
     </div>
 </body>

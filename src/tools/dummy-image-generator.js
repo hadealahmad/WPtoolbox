@@ -1,7 +1,8 @@
 import '../main.js';
 import { App } from '../core/app.js';
+import { Utils } from '../core/utils.js';
+import { createIcons, icons } from 'lucide';
 import JSZip from 'jszip';
-import { UI } from '../core/ui.js';
 
 export const DummyImageGenerator = App.registerTool('DummyImageGenerator', {
     canvas: null,
@@ -28,14 +29,16 @@ export const DummyImageGenerator = App.registerTool('DummyImageGenerator', {
         const bgInput = document.getElementById('input-bg');
         if (bgInput) {
             bgInput.addEventListener('input', (e) => {
-                document.getElementById('bg-hex').textContent = e.target.value;
+                const bgHex = document.getElementById('bg-hex');
+                if (bgHex) bgHex.textContent = e.target.value;
             });
         }
 
         const colorInput = document.getElementById('input-color');
         if (colorInput) {
             colorInput.addEventListener('input', (e) => {
-                document.getElementById('color-hex').textContent = e.target.value;
+                const colorHex = document.getElementById('color-hex');
+                if (colorHex) colorHex.textContent = e.target.value;
             });
         }
 
@@ -50,11 +53,15 @@ export const DummyImageGenerator = App.registerTool('DummyImageGenerator', {
         if (!input) return [{ w: 1200, h: 630 }];
         const val = input.value.trim();
         if (!val) return [{ w: 1200, h: 630 }];
-        
+
         return val.split('\n').map(line => {
             const match = line.toLowerCase().match(/(\d+)\s*x\s*(\d+)/);
             if (match) {
-                return { w: parseInt(match[1]), h: parseInt(match[2]) };
+                const w = parseInt(match[1], 10);
+                const h = parseInt(match[2], 10);
+                if (w > 0 && h > 0) {
+                    return { w: Math.min(w, 8192), h: Math.min(h, 8192) };
+                }
             }
             return null;
         }).filter(Boolean);
@@ -75,18 +82,20 @@ export const DummyImageGenerator = App.registerTool('DummyImageGenerator', {
         ctx.fillStyle = textColor;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        
+        ctx.direction = Utils.isArabic(displayText) ? 'rtl' : 'ltr';
+
         // Dynamic font size based on height/width
         const fontSize = Math.max(12, Math.min(w, h) * 0.1);
-        ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+        ctx.font = `bold ${fontSize}px 'IBM Plex Sans Arabic', Inter, sans-serif`;
 
         // Text shadow for contrast just in case
-        ctx.shadowColor = "rgba(0,0,0,0.3)";
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
         ctx.shadowBlur = 4;
         ctx.shadowOffsetX = 1;
         ctx.shadowOffsetY = 1;
 
         ctx.fillText(displayText, w / 2, h / 2);
+        ctx.direction = 'ltr';
     },
 
     updatePreview: function() {
@@ -95,19 +104,19 @@ export const DummyImageGenerator = App.registerTool('DummyImageGenerator', {
         if (dims.length === 0) return;
 
         const { w, h } = dims[0]; // Preview the first one
-        
+
         const textInput = document.getElementById('input-text');
         const text = textInput ? textInput.value : '';
-        
+
         const bgInput = document.getElementById('input-bg');
         const bgColor = bgInput ? bgInput.value : '#18181b';
-        
+
         const colorInput = document.getElementById('input-color');
         const textColor = colorInput ? colorInput.value : '#ffffff';
 
         const placeholder = document.getElementById('preview-placeholder');
         if (placeholder) placeholder.classList.add('hidden');
-        
+
         this.canvas.classList.remove('hidden');
         this.drawToCanvas(w, h, text, bgColor, textColor, this.canvas);
     },
@@ -115,52 +124,58 @@ export const DummyImageGenerator = App.registerTool('DummyImageGenerator', {
     generateBatch: async function() {
         const dims = this.getDimensions();
         if (dims.length === 0) {
-            UI.showToast("Please enter valid dimensions", "error");
+            App.showToast('Please enter valid dimensions', { type: 'error' });
             return;
         }
 
         const textInput = document.getElementById('input-text');
         const text = textInput ? textInput.value : '';
-        
+
         const bgInput = document.getElementById('input-bg');
         const bgColor = bgInput ? bgInput.value : '#18181b';
-        
+
         const colorInput = document.getElementById('input-color');
         const textColor = colorInput ? colorInput.value : '#ffffff';
 
         const btn = document.getElementById('btn-generate');
-        const originalBtnText = btn.innerHTML;
-        btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Generating...`;
-        if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons, root: btn});
-        btn.disabled = true;
-
-        const zip = new JSZip();
-        const offscreenCanvas = document.createElement('canvas');
-
-        for (const dim of dims) {
-            this.drawToCanvas(dim.w, dim.h, text, bgColor, textColor, offscreenCanvas);
-            
-            const blob = await new Promise(resolve => offscreenCanvas.toBlob(resolve, 'image/jpeg', 0.9));
-            zip.file(`placeholder_${dim.w}x${dim.h}.jpg`, blob);
+        const originalNodes = btn ? Array.from(btn.childNodes) : [];
+        if (btn) {
+            btn.replaceChildren(
+                App.h('i', { attrs: { 'data-lucide': 'loader-2' }, class: 'w-5 h-5 animate-spin' }),
+                App.h('span', { text: 'Generating...' })
+            );
+            createIcons({ icons, root: btn });
+            btn.disabled = true;
         }
 
         try {
+            const zip = new JSZip();
+            const offscreenCanvas = document.createElement('canvas');
+            const maybeYield = App.createYielder();
+
+            for (const dim of dims) {
+                this.drawToCanvas(dim.w, dim.h, text, bgColor, textColor, offscreenCanvas);
+
+                const blob = await new Promise(resolve => offscreenCanvas.toBlob(resolve, 'image/jpeg', 0.9));
+                if (blob) {
+                    zip.file(`placeholder_${dim.w}x${dim.h}.jpg`, blob);
+                }
+                await maybeYield();
+            }
+
             const content = await zip.generateAsync({ type: 'blob' });
-            const url = URL.createObjectURL(content);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `dummy_images_${Date.now()}.zip`;
-            a.click();
-            URL.revokeObjectURL(url);
-            UI.showToast("Images downloaded successfully!");
+            App.downloadFile(content, `dummy_images_${Date.now()}.zip`, 'application/zip');
+            App.showToast('Images downloaded successfully!', { type: 'success' });
             App.fireConfetti();
         } catch (error) {
-            console.error("Error creating ZIP:", error);
-            UI.showToast("Failed to generate ZIP", "error");
+            console.error('Error creating ZIP:', error);
+            App.showToast('Failed to generate ZIP', { type: 'error' });
         } finally {
-            btn.innerHTML = originalBtnText;
-            if (typeof lucide !== 'undefined') lucide.createIcons({ icons: lucide.icons, root: btn});
-            btn.disabled = false;
+            if (btn) {
+                btn.replaceChildren(...originalNodes);
+                createIcons({ icons, root: btn });
+                btn.disabled = false;
+            }
         }
     }
 });

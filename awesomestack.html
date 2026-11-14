@@ -2,11 +2,31 @@
 <html lang="en" style="background-color: #09090b; color: white;">
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Oip6BSOueP4OrFxv4cPieX4wlFgT6dUZKKme7nQ4MjY=' https://www.googletagmanager.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta charset="UTF-8">
     <meta name="theme-color" content="#09090b">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+        analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var c = localStorage.getItem('wpt-consent');
+        if (c === 'granted') gtag('consent', 'update', { analytics_storage: 'granted' });
+        else if (c === 'all') gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+      } catch (e) {}
+      gtag('js', new Date());
+    </script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KWMHKN5M"></script>
     <title data-i18n="title_awesomestack.html">Awesome Stack Setup | WPToolbox</title>
     <meta name="description" content="Generate production-ready WP-CLI commands for your perfect WordPress theme and plugin stack instantly.">
 
@@ -39,7 +59,7 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
 
         <header class="mb-10 text-center md:text-start">
-            <h1 class="text-4xl font-extrabold tracking-tighter text-white" data-i18n="tool_awesome_stack_title">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter text-white break-words [overflow-wrap:anywhere] text-balance" data-i18n="tool_awesome_stack_title">
                 Awesome Stack</h1>
             <p class="text-zinc-500 mt-2" data-i18n="tool_awesome_stack_desc">Generate a one-liner WP-CLI command to set
                 up your ideal
@@ -49,24 +69,24 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
             <!-- Options Column -->
-            <div class="lg:col-span-4 space-y-8">
+            <div class="lg:col-span-4 space-y-8 min-w-0">
                 <section class="shadcn-card p-6">
-                    <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2"
+                    <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2"
                         data-i18n="stack_select_themes">
                         <i data-lucide="palette" class="w-4 h-4"></i>
                         Select Themes
-                    </h3>
+                    </h2>
                     <div id="theme-options" class="grid grid-cols-1 gap-2">
                         <!-- Injected by JS -->
                     </div>
                 </section>
 
                 <section class="shadcn-card p-6">
-                    <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2"
+                    <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2"
                         data-i18n="stack_select_plugins">
                         <i data-lucide="blocks" class="w-4 h-4"></i>
                         Select Plugins
-                    </h3>
+                    </h2>
                     <div id="plugin-options" class="grid grid-cols-1 gap-2">
                         <!-- Injected by JS -->
                     </div>
@@ -76,7 +96,7 @@
                     <div class="flex items-center gap-3">
                         <div class="relative flex items-center justify-center">
                             <input type="checkbox" id="include-activate" checked
-                                class="peer appearance-none w-4 h-4 rounded border border-primary shrink-0 checked:bg-primary transition-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                class="peer appearance-none w-4 h-4 rounded border border-primary shrink-0 checked:bg-primary transition-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                             <i data-lucide="check"
                                 class="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
                         </div>
@@ -89,12 +109,12 @@
             </div>
 
             <!-- Command Preview -->
-            <div class="lg:col-span-8 flex flex-col gap-6">
+            <div class="lg:col-span-8 flex flex-col gap-6 min-w-0">
                 <div class="shadcn-card bg-zinc-950 border-zinc-800 flex flex-col h-full min-h-[400px] overflow-hidden">
                     <div
                         class="px-6 py-4 border-b border-zinc-800 flex flex-col sm:flex-row gap-4 justify-between items-center bg-zinc-900/40">
                         <div class="flex items-center gap-2 w-full sm:w-auto overflow-hidden">
-                            <div class="flex gap-1.5 shrink-0">
+                            <div class="flex gap-1.5 shrink-0" aria-hidden="true">
                                 <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
                                 <div class="w-3 h-3 rounded-full bg-amber-500/80"></div>
                                 <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
@@ -103,17 +123,17 @@
                                 data-i18n="stack_console">WP-CLI CONSOLE</span>
                         </div>
                         <div class="flex flex-wrap gap-2 justify-end">
-                            <button id="download-sh-btn"
+                            <button type="button" id="download-sh-btn"
                                 class="shadcn-button shadcn-button-outline h-8 px-3 text-[10px] gap-2">
                                 <i data-lucide="terminal" class="w-3 h-3"></i>
                                 <span data-i18n="btn_download_sh">Download .sh</span>
                             </button>
-                            <button id="download-yml-btn"
+                            <button type="button" id="download-yml-btn"
                                 class="shadcn-button shadcn-button-outline h-8 px-3 text-[10px] gap-2">
                                 <i data-lucide="file-code" class="w-3 h-3"></i>
                                 <span data-i18n="btn_blueprint">Blueprint</span>
                             </button>
-                            <button id="copy-btn"
+                            <button type="button" id="copy-btn"
                                 class="shadcn-button shadcn-button-primary h-8 px-3 text-[10px] gap-2">
                                 <i data-lucide="copy" class="w-3 h-3"></i>
                                 <span data-i18n="copy_btn">Copy</span>
@@ -126,10 +146,10 @@
 
                 <!-- Save Stack Section -->
                 <div class="flex flex-col gap-6">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-500"
-                            data-i18n="label_saved_stacks">Saved Stacks</h3>
-                        <button id="save-stack-btn" class="shadcn-button shadcn-button-primary h-10 px-6 text-xs gap-2">
+                    <div class="flex flex-wrap justify-between items-center gap-3">
+                        <h2 class="text-xs font-bold uppercase tracking-widest text-zinc-500"
+                            data-i18n="label_saved_stacks">Saved Stacks</h2>
+                        <button type="button" id="save-stack-btn" class="shadcn-button shadcn-button-primary h-10 px-6 text-xs gap-2">
                             <i data-lucide="save" class="w-4 h-4"></i>
                             <span data-i18n="btn_save_stack">Save Stack</span>
                         </button>
@@ -148,7 +168,7 @@
     <wpt-footer></wpt-footer>
 
     <!-- Global Toast Container -->
-    <div id="toast" class="fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
+    <div id="toast" popover="manual" role="status" aria-live="polite" aria-atomic="true" class="wpt-popover fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
         <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
             <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
             <span id="toast-msg" class="text-sm font-medium">Notification</span>
