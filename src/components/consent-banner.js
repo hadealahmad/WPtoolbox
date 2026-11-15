@@ -3,9 +3,9 @@
  */
 import { State } from '../core/state.js';
 import { I18n } from '../core/i18n.js';
-import { Analytics } from '../core/analytics.js';
+import { Consent } from '../core/consent.js';
 import { Utils } from '../core/utils.js';
-import { createIcons, icons } from 'lucide';
+import { renderIcons } from '../core/icons.js';
 
 export class WptConsent extends HTMLElement {
     constructor() {
@@ -17,7 +17,7 @@ export class WptConsent extends HTMLElement {
         this.onAppReady = this.syncVisibility.bind(this);
         this.onOpenRequest = (e) => this.open(e?.detail?.trigger);
         this.onKeyDown = (e) => {
-            if (e.key === 'Escape' && this._isOpen && Analytics.getConsent() !== null) {
+            if (e.key === 'Escape' && this._isOpen && Consent.getConsent() !== null) {
                 this.close();
             }
         };
@@ -66,7 +66,7 @@ export class WptConsent extends HTMLElement {
     }
 
     syncVisibility() {
-        const stored = Analytics.getConsent();
+        const stored = Consent.getConsent();
         if (this._forceOpen || stored === null) {
             this._isOpen = true;
             this.render();
@@ -78,7 +78,7 @@ export class WptConsent extends HTMLElement {
     }
 
     handleChoice(level) {
-        Analytics.setConsent(level);
+        Consent.setConsent(level);
         this.close();
     }
 
@@ -92,7 +92,7 @@ export class WptConsent extends HTMLElement {
         const langData = State.translations && State.translations[State.currentLang];
         if (!langData) return;
 
-        const stored = Analytics.getConsent();
+        const stored = Consent.getConsent();
         const title = I18n.t('consent_title');
         const desc = I18n.t('consent_desc');
         const acceptAllLabel = I18n.t('consent_accept_all');
@@ -186,7 +186,7 @@ export class WptConsent extends HTMLElement {
         );
 
         this.replaceChildren(banner);
-        createIcons({ icons, root: this });
+        renderIcons(this);
     }
 }
 

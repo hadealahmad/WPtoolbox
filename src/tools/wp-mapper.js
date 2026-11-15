@@ -22,28 +22,61 @@ function attachBackdropDismiss(dialog, card, onDismiss) {
     });
 }
 
-function splitCSVLine(line) {
-    const out = [];
-    let cur = '';
+function parseCSVRows(csvText) {
+    let text = String(csvText || '');
+    if (text.charCodeAt(0) === 0xFEFF) {
+        text = text.slice(1);
+    }
+    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+    const rows = [];
+    let row = [];
+    let field = '';
     let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-        const ch = line[i];
-        if (ch === '"') {
-            if (inQuotes && line[i + 1] === '"') {
-                cur += '"';
-                i++;
+    let atFieldStart = true;
+
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (inQuotes) {
+            if (ch === '"') {
+                if (text[i + 1] === '"') {
+                    field += '"';
+                    i++;
+                } else {
+                    inQuotes = false;
+                }
             } else {
-                inQuotes = !inQuotes;
+                field += ch;
             }
-        } else if (ch === ',' && !inQuotes) {
-            out.push(cur.trim());
-            cur = '';
+        } else if (ch === '"' && atFieldStart) {
+            inQuotes = true;
+            atFieldStart = false;
+        } else if (ch === ',') {
+            row.push(field.trim());
+            field = '';
+            atFieldStart = true;
+        } else if (ch === '\n') {
+            row.push(field.trim());
+            if (row.length > 1 || row[0] !== '') {
+                rows.push(row);
+            }
+            row = [];
+            field = '';
+            atFieldStart = true;
         } else {
-            cur += ch;
+            field += ch;
+            atFieldStart = false;
         }
     }
-    out.push(cur.trim());
-    return out;
+
+    if (field !== '' || row.length > 0) {
+        row.push(field.trim());
+        if (row.length > 1 || row[0] !== '') {
+            rows.push(row);
+        }
+    }
+
+    return rows;
 }
 
 export const WPMapper = App.registerTool('WPMapper', {
@@ -170,12 +203,11 @@ export const WPMapper = App.registerTool('WPMapper', {
     },
 
     parseCSV: function(csv) {
-        const lines = String(csv || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-        if (lines.length < 2) return;
+        const rows = parseCSVRows(csv);
+        if (rows.length < 2) return;
 
-        this.headers = splitCSVLine(lines[0]).filter(Boolean);
-        this.sourceData = lines.slice(1).filter(l => l.trim()).map(line => {
-            const values = splitCSVLine(line);
+        this.headers = rows[0].filter(Boolean);
+        this.sourceData = rows.slice(1).map(values => {
             const obj = {};
             this.headers.forEach((h, i) => {
                 obj[h] = values[i] !== undefined ? values[i] : '';

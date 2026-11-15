@@ -1,0 +1,124 @@
+{
+  "index.html": {
+    "title": "WPToolbox | Professional WordPress Wizardry Tools",
+    "description": "A premium suite of lightweight, browser-based tools for WordPress developers. Fast, private, and powerful.",
+    "ogType": "website",
+    "canonicalPath": "",
+    "ogTitle": "WPToolbox | WordPress Wizardry Tools",
+    "ogDescription": "Clean, convert, and optimize your WordPress workflow with WPToolbox.",
+    "ogImage": "https://hadealahmad.github.io/WPtoolbox/assets/og-image.png",
+    "twitterCard": "summary_large_image",
+    "twitterSite": "@hadealahmad"
+  },
+  "awesomestack.html": {
+    "title": "Awesome Stack Setup | WPToolbox",
+    "titleI18n": "title_awesomestack.html",
+    "description": "Generate production-ready WP-CLI commands for your perfect WordPress theme and plugin stack instantly.",
+    "ogType": "website",
+    "twitterCard": "summary"
+  },
+  "blocksy-palette.html": {
+    "title": "Blocksy Palette Generator | WPToolbox",
+    "titleI18n": "title_blocksy_palette",
+    "description": "Generate custom Blocksy-compatible 8-color palettes for light and dark modes. Save and edit your palettes.",
+    "ogType": "website",
+    "twitterCard": "summary"
+  },
+  "checklist.html": {
+    "title": "New Website Checklist | WPToolbox",
+    "titleI18n": "title_checklist.html",
+    "description": "A comprehensive pre-launch checklist for WordPress, SEO, and WooCommerce to ensure a smooth website launch.",
+    "ogType": "website",
+    "twitterCard": "summary"
+  },
+  "clearfonts.html": {
+    "title": "Font Cleaner | WPToolbox",
+    "titleI18n": "title_clearfonts.html",
+    "description": "Remove hardcoded font families from Gutenberg and Greenshift block comments automatically.",
+    "ogType": "website",
+    "canonicalPath": "clearfonts.html",
+    "twitterCard": "summary",
+    "twitterSite": "@hadealahmad"
+  },
+  "demo-generator.html": {
+    "title": "Demo Content Generator | WPToolbox",
+    "titleI18n": "title_demo-generator.html",
+    "description": "Create mock data for WordPress with custom fields and export to multiple formats.",
+    "ogType": "website",
+    "twitterCard": "summary"
+  },
+  "dummy-image-generator.html": {
+    "title": "Dummy Image Generator | WPToolbox",
+    "titleI18n": "title_dummy_image",
+    "description": "Generate batch dummy placeholder images in a ZIP file for theme development.",
+    "ogType": "website",
+    "twitterCard": "summary"
+  },
+  "img2webp.html": {
+    "title": "WebP Converter | WPToolbox",
+    "titleI18n": "title_img2webp.html",
+    "description": "Convert and compress PNG/JPG images to WebP format directly in your browser for faster site speeds.",
+    "ogType": "website",
+    "twitterCard": "summary"
+  },
+  "qr-generator.html": {
+    "title": "QR Code Generator | WPToolbox",
+    "titleI18n": "title_qr_generator",
+    "description": "Generate QR codes from one or multiple links instantly. Download in SVG, PNG, or JPG.",
+    "ogType": "website",
+    "twitterCard": "summary"
+  },
+  "server-config-generator.html": {
+    "title": "Server Config Generator | WPToolbox",
+    "titleI18n": "title_server_config",
+    "description": "Generate secure and optimized .htaccess or Nginx server configurations for WordPress.",
+    "ogType": "website",
+    "twitterCard": "summary"
+  },
+  "snippets.html": {
+    "title": "WordPress Snippets | WPToolbox",
+    "titleI18n": "title_snippets.html",
+    "description": "Production-ready WordPress snippets for performance, security, and development. Curated and high-impact.",
+    "ogType": "website",
+    "canonicalPath": "snippets.html",
+    "twitterCard": "summary",
+    "twitterSite": "@hadealahmad"
+  },
+  "svg-sanitizer.html": {
+    "title": "WordPress SVG Sanitizer | WPToolbox",
+    "titleI18n": "title_svg_sanitizer",
+    "description": "Clean, sanitize, and prepare SVG files for safe upload to WordPress media library.",
+    "ogType": "website",
+    "twitterCard": "summary"
+  },
+  "tips.html": {
+    "title": "Tips & Facts | WPToolbox",
+    "titleI18n": "title_tips.html",
+    "description": "Obscure WordPress behavior, hosting bottlenecks, and clever production-tested solutions.",
+    "ogType": "website",
+    "canonicalPath": "tips.html",
+    "twitterCard": "summary",
+    "twitterSite": "@hadealahmad"
+  },
+  "unify-aspect-ratio.html": {
+    "title": "Unify Aspect Ratio | WPToolbox",
+    "titleI18n": "title_unify-aspect-ratio.html",
+    "description": "Fit images into a specific aspect ratio with transparent space around them, centering the original image.",
+    "ogType": "website",
+    "twitterCard": "summary"
+  },
+  "wp-cli-builder.html": {
+    "title": "WP-CLI Command Builder | WPToolbox",
+    "titleI18n": "title_wp_cli_builder",
+    "description": "Build complex WP-CLI terminal commands with an easy-to-use visual interface.",
+    "ogType": "website",
+    "twitterCard": "summary"
+  },
+  "wp-mapper.html": {
+    "title": "WordPress Export Mapper | WPToolbox",
+    "titleI18n": "title_wp-mapper.html",
+    "description": "Convert and map data from CSV, JSON, or XML to WordPress-ready XML files with custom fields.",
+    "ogType": "website",
+    "twitterCard": "summary"
+  }
+}

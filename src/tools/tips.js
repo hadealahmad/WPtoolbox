@@ -3,7 +3,7 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
-import { createIcons, icons } from 'lucide';
+import { renderIcons } from '../core/icons.js';
 import tipsData from '../data/tips.json';
 
 export const Tips = App.registerTool('Tips', {
@@ -60,6 +60,6 @@ export const Tips = App.registerTool('Tips', {
         );
 
         container.replaceChildren(...cards);
-        createIcons({ icons, root: container });
+        renderIcons(container);
     }
 });

@@ -4,7 +4,7 @@
 import { State } from './state.js';
 import { I18n } from './i18n.js';
 import { Utils } from './utils.js';
-import { createIcons, icons } from 'lucide';
+import { renderIcons } from './icons.js';
 
 export class BaseTool {
     constructor(id, config) {
@@ -37,7 +37,13 @@ export class BaseTool {
         if (cancelBtn) cancelBtn.onclick = () => this.cancel();
 
         this.init();
-        if (this.onInit) this.onInit();
+        if (this.onInit) {
+            if (!window.App || window.App.isReady) {
+                this.onInit();
+            } else {
+                window.addEventListener('appReady', () => this.onInit(), { once: true });
+            }
+        }
     }
 
     init() {
@@ -71,7 +77,7 @@ export class BaseTool {
         window.addEventListener('languageChanged', this._onLanguageChange);
 
         // Initialize Lucide icons if any were added dynamically
-        createIcons({ icons });
+        renderIcons();
     }
 
     async handleFiles(files) {

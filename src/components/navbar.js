@@ -6,7 +6,7 @@ import { I18n } from '../core/i18n.js';
 import { App } from '../core/app.js';
 import { Utils } from '../core/utils.js';
 import { UI } from '../core/ui.js';
-import { createIcons, icons } from 'lucide';
+import { renderIcons } from '../core/icons.js';
 
 const GITHUB_URL = 'https://github.com/hadealahmad/WPtoolbox';
 
@@ -62,7 +62,7 @@ export class WptNavbar extends HTMLElement {
     }
 
     render() {
-        if (!State.nav || State.nav.length === 0) return;
+        if (!State.nav || State.nav.length === 0 || !State.translations?.[State.currentLang]) return;
 
         this._teardownTransientListeners();
 
@@ -365,7 +365,7 @@ export class WptNavbar extends HTMLElement {
                     class: 'w-6 h-6 pointer-events-none'
                 })
             );
-            createIcons({ icons, root: mobileMenuBtn });
+            renderIcons(mobileMenuBtn);
 
             if (isOpen) {
                 mobileOpener = (document.activeElement && document.activeElement !== document.body)
@@ -477,7 +477,7 @@ export class WptNavbar extends HTMLElement {
         );
 
         this.replaceChildren(navTree);
-        createIcons({ icons, root: this });
+        renderIcons(this);
 
         const closeOpenDropdowns = () => {
             dropdownEntries.forEach(({ panel }) => {

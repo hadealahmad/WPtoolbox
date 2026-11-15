@@ -3,8 +3,7 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
-import { createIcons, icons } from 'lucide';
-import JSZip from 'jszip';
+import { renderIcons } from '../core/icons.js';
 
 function canvasToBlob(canvas, type, quality) {
     return new Promise((resolve, reject) => {
@@ -328,7 +327,7 @@ export const UnifyAspectRatio = App.registerTool('UnifyAspectRatio', {
             )
         );
 
-        createIcons({ icons, root: card });
+        renderIcons(card);
         return card;
     },
 
@@ -354,16 +353,23 @@ export const UnifyAspectRatio = App.registerTool('UnifyAspectRatio', {
     downloadZip: async function(asWebp = false) {
         if (!this.processedImages.length) return;
 
-        const zip = new JSZip();
-        const ext = asWebp ? 'webp' : 'png';
-        this.processedImages.forEach(img => {
-            const blob = asWebp ? img.webpBlob : img.pngBlob;
-            const base = img.originalName.split('.')[0] || img.originalName;
-            zip.file(`unified-${base}.${ext}`, blob);
-        });
+        try {
+            const mod = await import('jszip');
+            const JSZip = mod.default || mod;
+            const zip = new JSZip();
+            const ext = asWebp ? 'webp' : 'png';
+            this.processedImages.forEach(img => {
+                const blob = asWebp ? img.webpBlob : img.pngBlob;
+                const base = img.originalName.split('.')[0] || img.originalName;
+                zip.file(`unified-${base}.${ext}`, blob);
+            });
 
-        const content = await zip.generateAsync({ type: 'blob' });
-        App.downloadFile(content, `unified-images-${ext}.zip`, 'application/zip');
-        App.fireConfetti();
+            const content = await zip.generateAsync({ type: 'blob' });
+            App.downloadFile(content, `unified-images-${ext}.zip`, 'application/zip');
+            App.fireConfetti();
+        } catch (err) {
+            console.error('Error creating ZIP:', err);
+            App.showToast(App.t('msg_zip_failed') || 'Failed to generate ZIP.', { type: 'error' });
+        }
     }
 });

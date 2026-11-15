@@ -76,13 +76,20 @@ erDiagram
 
 - **translations.json** — flat key→string maps per locale; page meta uses `title_<page>` / `desc_<page>` keys.
 - **nav.json** — three groups: `nav_group_media`, `nav_group_workflow`, `nav_group_dev`.
+- **pages.json** — build-time page metadata keyed by root HTML filename (`title`, `description`, optional `titleI18n`, `canonicalPath`, `ogType`, `ogTitle`, `ogDescription`, `ogImage`, `twitterCard`, `twitterSite`, etc.).
 - **tips.json / snippets.json** — each entry carries both `en` and `ar` variants.
 - `src/data/` is the single source of truth for all bundled JSON data.
 
-## Build Pipeline
+## Build Pipeline & Head Injection
 
 `vite.config.js`:
 - Scans root `*.html` files → Rollup multi-page inputs.
 - `base: './'` for relative asset URLs (Pages-friendly).
+- **Shared `<head>` injection (`src/build/head-plugin.js`, `wptHeadPlugin`)**:
+  - Runs as a Vite `transformIndexHtml` hook with `order: 'pre'` in both dev (`vite`) and production (`vite build`) before Vite processes module scripts or stylesheets.
+  - Each root `*.html` file contains only the `<!-- wpt:head -->` marker plus its page-specific `<script type="module" src="...">`.
+  - Reads `src/build/head.html` (shared charset, metas, byte-identical GTM Consent Mode v2 inline script, `gtm.js`, stylesheet/icon/font links) and `src/data/pages.json` (per-page `<title>`, `<meta name="description">`, Open Graph, and Twitter tags).
+  - Computes the `'sha256-…'` CSP hash dynamically from the exact inline `<script>` bytes in `src/build/head.html` and formats the `<meta http-equiv="Content-Security-Policy">` from `CSP_DIRECTIVES`.
+  - Fails loudly if any root HTML page is missing `<!-- wpt:head -->`, lacks a `pages.json` entry, or omits required `title`/`description` fields.
 - Tailwind via `@tailwindcss/vite`.
 - PWA: autoUpdate service worker, manifest named *WPToolbox*, theme `#09090b`, SVG favicon at 192/512.

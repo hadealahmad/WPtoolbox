@@ -2,51 +2,7 @@
 <html lang="en" style="background-color: #09090b; color: white;">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Oip6BSOueP4OrFxv4cPieX4wlFgT6dUZKKme7nQ4MjY=' https://www.googletagmanager.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
-    <link rel="stylesheet" href="src/styles/main.css">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta name="theme-color" content="#09090b">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="dark">
-    <meta name="text-scale" content="scale">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('consent', 'default', {
-        ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
-        analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
-        wait_for_update: 500
-      });
-      try {
-        var c = localStorage.getItem('wpt-consent');
-        if (c === 'granted') gtag('consent', 'update', { analytics_storage: 'granted' });
-        else if (c === 'all') gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
-      } catch (e) {}
-      gtag('js', new Date());
-    </script>
-    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KWMHKN5M"></script>
-    <title data-i18n="title_awesomestack.html">Awesome Stack Setup | WPToolbox</title>
-    <meta name="description" content="Generate production-ready WP-CLI commands for your perfect WordPress theme and plugin stack instantly.">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Awesome Stack Setup | WPToolbox">
-    <meta property="og:description" content="Generate production-ready WP-CLI commands for your perfect WordPress theme and plugin stack instantly.">
-    <meta property="og:locale" content="en_US">
-    <meta property="og:locale:alternate" content="ar_AR">
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Awesome Stack Setup | WPToolbox">
-    <meta name="twitter:description" content="Generate production-ready WP-CLI commands for your perfect WordPress theme and plugin stack instantly.">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
+    <!-- wpt:head -->
     <script type="module" src="src/tools/awesome-stack.js"></script>
 </head>
 

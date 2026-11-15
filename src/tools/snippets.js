@@ -3,7 +3,7 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
-import { createIcons, icons } from 'lucide';
+import { renderIcons } from '../core/icons.js';
 import snippetsData from '../data/snippets.json';
 
 const SUPPORTS_CLOSEDBY = typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
@@ -139,7 +139,7 @@ export const Snippets = App.registerTool('Snippets', {
         if (modal && typeof modal.showModal === 'function' && !modal.open) {
             modal.showModal();
             App.translatePage();
-            createIcons({ icons, root: modal });
+            renderIcons(modal);
             document.getElementById('snippet-title-input')?.focus();
         }
     },
@@ -164,7 +164,7 @@ export const Snippets = App.registerTool('Snippets', {
         if (typeof modal.showModal === 'function' && !modal.open) {
             modal.showModal();
             App.translatePage();
-            createIcons({ icons, root: modal });
+            renderIcons(modal);
             document.getElementById('snippet-title-input')?.focus();
         }
     },
@@ -324,7 +324,7 @@ export const Snippets = App.registerTool('Snippets', {
             });
         }
 
-        createIcons({ icons, root: container });
+        renderIcons(container);
         App.translatePage();
     },
 

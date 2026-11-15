@@ -1,26 +1,31 @@
 /**
  * WPToolbox Footer Component
  */
+import { State } from '../core/state.js';
 import { I18n } from '../core/i18n.js';
 import { Utils } from '../core/utils.js';
-import { createIcons, icons } from 'lucide';
+import { renderIcons } from '../core/icons.js';
 
 export class WptFooter extends HTMLElement {
     constructor() {
         super();
         this.onLanguageChange = this.render.bind(this);
+        this.onDataLoaded = this.render.bind(this);
     }
 
     connectedCallback() {
         window.addEventListener('languageChanged', this.onLanguageChange);
+        window.addEventListener('dataLoaded', this.onDataLoaded);
         this.render();
     }
 
     disconnectedCallback() {
         window.removeEventListener('languageChanged', this.onLanguageChange);
+        window.removeEventListener('dataLoaded', this.onDataLoaded);
     }
 
     render() {
+        if (!State.translations?.[State.currentLang]) return;
         this.className = 'bg-zinc-950 border-t border-zinc-900 py-12 mt-20 transition-none block';
 
         const privacyBtn = Utils.h('button', {
@@ -85,7 +90,7 @@ export class WptFooter extends HTMLElement {
         );
 
         this.replaceChildren(content);
-        createIcons({ icons, root: this });
+        renderIcons(this);
     }
 }
 

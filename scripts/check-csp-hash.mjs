@@ -12,34 +12,97 @@ if (htmlFiles.length === 0) {
   process.exit(1);
 }
 
+const markerRe = /<!--\s*wpt:head\s*-->/;
 const inlineScriptRe = /<script(?![^>]*\bsrc\b)[^>]*>([\s\S]*?)<\/script>/gi;
 const cspMetaRe = /<meta\s+http-equiv=["']Content-Security-Policy["']\s+content=(["'])([\s\S]*?)\1\s*\/?>/i;
 
 let failures = 0;
 const observedHashes = new Set();
 
-function verifyDirectory(dir, label) {
+// 1. Verify head template & pages.json
+const headTemplatePath = join(rootDir, 'src', 'build', 'head.html');
+const pagesJsonPath = join(rootDir, 'src', 'data', 'pages.json');
+
+if (!existsSync(headTemplatePath)) {
+  console.error('[FAIL] Missing src/build/head.html');
+  failures++;
+} else {
+  const tpl = readFileSync(headTemplatePath, 'utf8');
+  if (/'sha256-[A-Za-z0-9+/=]+'/.test(tpl)) {
+    console.error('[FAIL] src/build/head.html must not contain a hard-coded sha256 hash');
+    failures++;
+  }
+}
+
+let pages = {};
+if (!existsSync(pagesJsonPath)) {
+  console.error('[FAIL] Missing src/data/pages.json');
+  failures++;
+} else {
+  try {
+    pages = JSON.parse(readFileSync(pagesJsonPath, 'utf8'));
+  } catch (err) {
+    console.error(`[FAIL] Invalid JSON in src/data/pages.json: ${err.message}`);
+    failures++;
+  }
+}
+
+// 2. Verify source root *.html files contain the marker & pages.json entry
+for (const file of htmlFiles) {
+  const html = readFileSync(join(rootDir, file), 'utf8');
+  if (!markerRe.test(html)) {
+    console.error(`[FAIL] src/${file}: missing <!-- wpt:head --> marker`);
+    failures++;
+  }
+  if (cspMetaRe.test(html)) {
+    console.error(`[FAIL] src/${file}: should not duplicate CSP meta tag (managed by src/build/head-plugin.js)`);
+    failures++;
+  }
+  if (!pages[file]) {
+    console.error(`[FAIL] src/${file}: missing entry in src/data/pages.json`);
+    failures++;
+  }
+}
+
+// 3. Verify built dist/*.html files
+const distDir = join(rootDir, 'dist');
+if (!existsSync(distDir)) {
+  console.error("[FAIL] dist/ directory not found. Run 'npm run build' before 'npm run check:csp'.");
+  failures++;
+} else {
   for (const file of htmlFiles) {
-    const filePath = join(dir, file);
-    if (!existsSync(filePath)) continue;
+    const filePath = join(distDir, file);
+    if (!existsSync(filePath)) {
+      console.error(`[FAIL] dist/${file}: built file missing`);
+      failures++;
+      continue;
+    }
 
     const html = readFileSync(filePath, 'utf8');
     const cspMatch = html.match(cspMetaRe);
     if (!cspMatch) {
-      console.error(`[FAIL] ${label}/${file}: missing <meta http-equiv="Content-Security-Policy">`);
+      console.error(`[FAIL] dist/${file}: missing <meta http-equiv="Content-Security-Policy">`);
       failures++;
       continue;
     }
 
     const csp = cspMatch[2];
-    if (/\bscript-src[^;]*'unsafe-inline'/i.test(csp)) {
-      console.error(`[FAIL] ${label}/${file}: script-src must not contain 'unsafe-inline'`);
+    const scriptSrcMatch = csp.match(/(?:^|;)\s*script-src\s+([^;]+)/i);
+    if (!scriptSrcMatch) {
+      console.error(`[FAIL] dist/${file}: CSP missing script-src directive`);
+      failures++;
+      continue;
+    }
+
+    const scriptSrc = scriptSrcMatch[1];
+    if (/'unsafe-inline'/i.test(scriptSrc)) {
+      console.error(`[FAIL] dist/${file}: script-src must not contain 'unsafe-inline'`);
       failures++;
     }
 
     const scripts = [...html.matchAll(inlineScriptRe)];
     if (scripts.length === 0) {
-      console.error(`[FAIL] ${label}/${file}: expected inline consent <script>, found none`);
+      console.error(`[FAIL] dist/${file}: expected inline consent <script>, found none`);
       failures++;
       continue;
     }
@@ -47,28 +110,19 @@ function verifyDirectory(dir, label) {
     for (const [idx, match] of scripts.entries()) {
       const hash = `sha256-${createHash('sha256').update(match[1], 'utf8').digest('base64')}`;
       observedHashes.add(hash);
-      if (!csp.includes(`'${hash}'`)) {
-        console.error(`[FAIL] ${label}/${file} (inline script #${idx + 1}): CSP missing '${hash}'`);
+      if (!scriptSrc.includes(`'${hash}'`)) {
+        console.error(`[FAIL] dist/${file} (inline script #${idx + 1}): script-src missing '${hash}'`);
         failures++;
       }
     }
   }
 }
 
-verifyDirectory(rootDir, 'src');
-
-const distDir = join(rootDir, 'dist');
-if (existsSync(distDir)) {
-  verifyDirectory(distDir, 'dist');
-}
-
 if (failures > 0) {
-  console.error(`\nCSP hash check failed with ${failures} error(s).`);
+  console.error(`\nCSP check failed with ${failures} error(s).`);
   process.exit(1);
 }
 
 console.log(
-  `CSP hash check passed for ${htmlFiles.length} root HTML files` +
-    (existsSync(distDir) ? ' (and dist/)' : '') +
-    `: ${[...observedHashes].join(', ')}`
+  `CSP check passed for ${htmlFiles.length} source + dist HTML files: ${[...observedHashes].join(', ')}`
 );

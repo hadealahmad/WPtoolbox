@@ -5,13 +5,13 @@
 import '../main.js';
 import { App } from '../core/app.js';
 import { I18n } from '../core/i18n.js';
-import { createIcons, icons } from 'lucide';
+import { renderIcons } from '../core/icons.js';
 
 const DEFAULT_PALETTE = ['#2872fa', '#1559ed', '#3a4f66', '#192a3d', '#e1e8ed', '#f2f5f7', '#fafbfc', '#ffffff'];
 const HEX_RE = /^#[0-9a-f]{3,8}$/i;
 const SUPPORTS_CLOSEDBY = typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
 
-function safeHex(val, fallback = '#2872fa') {
+export function safeHex(val, fallback = '#2872fa') {
     const s = String(val || '').trim();
     if (!HEX_RE.test(s)) return fallback;
     if (s.length === 4) {
@@ -20,7 +20,7 @@ function safeHex(val, fallback = '#2872fa') {
     return s.slice(0, 7).toLowerCase();
 }
 
-function sanitizePaletteColors(arr) {
+export function sanitizePaletteColors(arr) {
     const src = Array.isArray(arr) ? arr : [];
     return DEFAULT_PALETTE.map((fb, i) => safeHex(src[i], fb));
 }
@@ -132,7 +132,7 @@ function isLightColor(hex) {
 }
 
 // ── Format ───────────────────────────────────────────────────────────────────
-function parseColorInput(raw) {
+export function parseColorInput(raw) {
     const s = (raw || '').trim();
     if (/^#?[0-9a-fA-F]{6}$/.test(s)) return (s.startsWith('#') ? s : '#' + s).toLowerCase();
     if (/^#?[0-9a-fA-F]{3}$/.test(s)) { const c = s.replace('#',''); return '#' + c.split('').map(x => x+x).join('').toLowerCase(); }
@@ -366,10 +366,12 @@ export const BlocksyPalette = {
             this.renderPreview(this.currentColors);
         });
 
-        window.addEventListener('appReady', () => {
-            this.renderPreview(this.currentColors);
-            this.renderSaved();
-        }, { once: true });
+        if (!App.isReady) {
+            window.addEventListener('appReady', () => {
+                this.renderPreview(this.currentColors);
+                this.renderSaved();
+            }, { once: true });
+        }
     },
 
     setMode: function(mode) {
@@ -655,7 +657,7 @@ export const BlocksyPalette = {
             details.appendChild(card);
         });
 
-        createIcons({ icons, root: details });
+        renderIcons(details);
         this.renderGradients(colors);
     },
 
@@ -809,7 +811,7 @@ export const BlocksyPalette = {
             panelOklch.querySelector('.btn-copy-oklch').onclick = () => this.copyGradient(g.id, 'oklch', card);
             container.appendChild(card);
         });
-        createIcons({ icons, root: container });
+        renderIcons(container);
     },
 
     switchGradientTab: function(gid, fmt, btn, card) {
@@ -966,7 +968,7 @@ export const BlocksyPalette = {
         if (typeof modal.showModal === 'function' && !modal.open) {
             modal.showModal();
         }
-        createIcons({ icons, root: modal });
+        renderIcons(modal);
     },
 
     closeEditModal: function() {
@@ -1076,7 +1078,7 @@ export const BlocksyPalette = {
             );
             list.appendChild(card);
         });
-        createIcons({ icons, root: list });
+        renderIcons(list);
     },
 
     getSaved: () => {

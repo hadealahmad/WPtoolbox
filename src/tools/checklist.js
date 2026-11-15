@@ -3,7 +3,7 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
-import { createIcons, icons } from 'lucide';
+import { renderIcons } from '../core/icons.js';
 import checklistData from '../data/checklist-data.json';
 
 const SUPPORTS_CLOSEDBY = typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
@@ -24,7 +24,7 @@ function attachBackdropDismiss(dialog, card, onDismiss) {
     });
 }
 
-function getSafeHttpUrl(raw) {
+export function getSafeHttpUrl(raw) {
     const val = String(raw || '').trim();
     if (!val) return '';
     try {
@@ -53,7 +53,7 @@ function getTaskCategoryKey(task) {
     return 'wp';
 }
 
-function sanitizeImportedSites(raw) {
+export function sanitizeImportedSites(raw) {
     if (!Array.isArray(raw)) return [];
     return raw
         .filter(s => s && typeof s === 'object')
@@ -448,7 +448,7 @@ export const Checklist = App.registerTool('Checklist', {
             container.appendChild(card);
         });
 
-        createIcons({ icons, root: container });
+        renderIcons(container);
         App.translatePage();
     },
 
@@ -497,7 +497,7 @@ export const Checklist = App.registerTool('Checklist', {
                         App.h('i', { attrs: { 'data-lucide': 'external-link' }, class: 'w-3 h-3 shrink-0' })
                     )
                 );
-                createIcons({ icons, root: urlWrap });
+                renderIcons(urlWrap);
             }
         }
 
@@ -598,7 +598,7 @@ export const Checklist = App.registerTool('Checklist', {
             container.appendChild(groupDiv);
         });
 
-        createIcons({ icons, root: container });
+        renderIcons(container);
     },
 
     toggleTask: function(taskId) {

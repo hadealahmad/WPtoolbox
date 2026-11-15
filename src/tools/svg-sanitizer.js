@@ -1,7 +1,6 @@
 import '../main.js';
 import { App } from '../core/app.js';
-import { createIcons, icons } from 'lucide';
-import JSZip from 'jszip';
+import { renderIcons } from '../core/icons.js';
 
 const ALLOWED_SVG_ELEMENTS = new Set([
     'svg', 'g', 'defs', 'symbol', 'use', 'title', 'desc', 'metadata', 'switch',
@@ -248,7 +247,6 @@ export function sanitizeSVGMarkup(svgText) {
 export const SVGSanitizer = App.registerTool('SVGSanitizer', {
     progressBarId: 'processing-bar',
     results: [],
-    zip: null,
     multiple: true,
 
     onCleanup: function() {
@@ -273,7 +271,6 @@ export const SVGSanitizer = App.registerTool('SVGSanitizer', {
     },
 
     onInit: function() {
-        this.zip = new JSZip();
         this.bindEvents();
     },
 
@@ -325,7 +322,6 @@ export const SVGSanitizer = App.registerTool('SVGSanitizer', {
 
         this.revokeResultUrls();
         this.results = [];
-        this.zip = new JSZip();
 
         const maybeYield = App.createYielder();
         let processed = 0;
@@ -350,7 +346,6 @@ export const SVGSanitizer = App.registerTool('SVGSanitizer', {
                 const newName = `${originalName}-sanitized.svg`;
 
                 this.results.push({ name: newName, url, blob });
-                this.zip.file(newName, blob);
 
                 if (resultsGrid) {
                     this.renderResultCard(resultsGrid, newName, url, blob, origSize, newSize, savedPercent);
@@ -447,7 +442,7 @@ export const SVGSanitizer = App.registerTool('SVGSanitizer', {
         );
 
         container.appendChild(card);
-        createIcons({ icons, root: card });
+        renderIcons(card);
     },
 
     downloadZip: async function() {
@@ -460,12 +455,18 @@ export const SVGSanitizer = App.registerTool('SVGSanitizer', {
                 App.h('i', { attrs: { 'data-lucide': 'loader-2' }, class: 'w-4 h-4 animate-spin' }),
                 App.h('span', { text: 'Zipping...' })
             );
-            createIcons({ icons, root: btn });
+            renderIcons(btn);
             btn.disabled = true;
         }
 
         try {
-            const content = await this.zip.generateAsync({ type: 'blob' });
+            const mod = await import('jszip');
+            const JSZip = mod.default || mod;
+            const zip = new JSZip();
+            this.results.forEach(item => {
+                zip.file(item.name, item.blob);
+            });
+            const content = await zip.generateAsync({ type: 'blob' });
             App.downloadFile(content, `sanitized_svgs_${Date.now()}.zip`, 'application/zip');
             App.showToast('ZIP downloaded successfully!', { type: 'success' });
             App.fireConfetti();
@@ -475,7 +476,7 @@ export const SVGSanitizer = App.registerTool('SVGSanitizer', {
         } finally {
             if (btn) {
                 btn.replaceChildren(...originalNodes);
-                createIcons({ icons, root: btn });
+                renderIcons(btn);
                 btn.disabled = false;
             }
         }

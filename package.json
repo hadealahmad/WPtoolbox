@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check:csp": "node scripts/check-csp-hash.mjs"
+    "check:csp": "node scripts/check-csp-hash.mjs",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "check": "vite build && node scripts/check-csp-hash.mjs && vitest run"
   },
   "keywords": [
     "wordpress",
@@ -16,14 +20,16 @@
     "csv",
     "markdown"
   ],
-  "author": "Antigravity",
+  "author": "Hadi Alahmad",
   "license": "MIT",
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.2.1",
+    "happy-dom": "^21.0.4",
     "tailwindcss": "^4.2.1",
     "vite": "^7.3.1",
     "vite-plugin-pwa": "^1.2.0",
-    "vite-plugin-static-copy": "^3.2.0"
+    "vitest": "^5.1.0"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",

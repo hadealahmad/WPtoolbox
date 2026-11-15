@@ -3,7 +3,7 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
-import { createIcons, icons } from 'lucide';
+import { renderIcons } from '../core/icons.js';
 import stackConfig from '../data/stack-config.json';
 
 export const AwesomeStack = App.registerTool('AwesomeStack', {
@@ -153,7 +153,7 @@ export const AwesomeStack = App.registerTool('AwesomeStack', {
             );
             container.appendChild(card);
         });
-        createIcons({ icons, root: container });
+        renderIcons(container);
     },
 
     applyStack: function(id) {
@@ -204,8 +204,8 @@ export const AwesomeStack = App.registerTool('AwesomeStack', {
             pluginContainer.appendChild(this.createCheckbox(plugin, 'plugin'));
         });
 
-        createIcons({ icons, root: themeContainer });
-        createIcons({ icons, root: pluginContainer });
+        renderIcons(themeContainer);
+        renderIcons(pluginContainer);
     },
 
     createCheckbox: function(item, _type) {

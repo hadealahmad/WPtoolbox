@@ -4,9 +4,7 @@
 import '../main.js';
 import { App } from '../core/app.js';
 import { Utils } from '../core/utils.js';
-import { createIcons, icons } from 'lucide';
-import JSZip from 'jszip';
-import QRCode from 'qrcode';
+import { renderIcons } from '../core/icons.js';
 
 function getValidFilename(urlStr) {
     try {
@@ -158,6 +156,8 @@ export const QRGenerator = App.registerTool('QRGenerator', {
             const bgOption = isTransparent ? '#00000000' : '#ffffff';
 
             try {
+                const mod = await import('qrcode');
+                const QRCode = mod.default || mod;
                 const qrCanvas = document.createElement('canvas');
                 await QRCode.toCanvas(qrCanvas, previewLink, {
                     color: { light: bgOption, dark: '#000000' },
@@ -185,6 +185,7 @@ export const QRGenerator = App.registerTool('QRGenerator', {
                 }
             } catch (err) {
                 console.error('Preview error:', err);
+                App.showToast(App.t('msg_qr_failed') || 'Failed to load QR generator.', { type: 'error' });
             }
         };
 
@@ -265,6 +266,16 @@ export const QRGenerator = App.registerTool('QRGenerator', {
 
         const lines = text.split('\n').map(l => l.trim()).filter(l => l);
         if (lines.length === 0) return;
+
+        let QRCode;
+        try {
+            const mod = await import('qrcode');
+            QRCode = mod.default || mod;
+        } catch (err) {
+            console.error('Failed to load qrcode:', err);
+            App.showToast(App.t('msg_qr_failed') || 'Failed to load QR generator.', { type: 'error' });
+            return;
+        }
 
         const enableSocial = document.getElementById('enable-social')?.checked;
         const aspectRatioVal = document.getElementById('aspect-ratio')?.value || '1:1';
@@ -572,7 +583,7 @@ export const QRGenerator = App.registerTool('QRGenerator', {
             )
         );
 
-        createIcons({ icons, root: card });
+        renderIcons(card);
         return card;
     },
 
@@ -587,14 +598,21 @@ export const QRGenerator = App.registerTool('QRGenerator', {
     downloadZip: async function() {
         if (!this.processedQRs.length) return;
 
-        const zip = new JSZip();
-        this.processedQRs.forEach(qr => {
-            zip.file(`${qr.name}.png`, qr.pngBlob);
-            zip.file(`${qr.name}.svg`, qr.svg);
-        });
+        try {
+            const mod = await import('jszip');
+            const JSZip = mod.default || mod;
+            const zip = new JSZip();
+            this.processedQRs.forEach(qr => {
+                zip.file(`${qr.name}.png`, qr.pngBlob);
+                zip.file(`${qr.name}.svg`, qr.svg);
+            });
 
-        const content = await zip.generateAsync({ type: 'blob' });
-        App.downloadFile(content, 'qr-codes.zip', 'application/zip');
-        App.fireConfetti();
+            const content = await zip.generateAsync({ type: 'blob' });
+            App.downloadFile(content, 'qr-codes.zip', 'application/zip');
+            App.fireConfetti();
+        } catch (err) {
+            console.error('[QRGenerator] Failed to build ZIP:', err);
+            App.showToast(App.t('msg_zip_error') || 'Failed to generate ZIP archive.', 'error');
+        }
     }
 });

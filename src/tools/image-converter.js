@@ -3,8 +3,7 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
-import { createIcons, icons } from 'lucide';
-import JSZip from 'jszip';
+import { renderIcons } from '../core/icons.js';
 
 export const ImageConverter = App.registerTool('ImageConverter', {
     quality: 0.8,
@@ -253,7 +252,7 @@ export const ImageConverter = App.registerTool('ImageConverter', {
             )
         );
 
-        createIcons({ icons, root: card });
+        renderIcons(card);
         return card;
     },
 
@@ -279,13 +278,20 @@ export const ImageConverter = App.registerTool('ImageConverter', {
     downloadZip: async function() {
         if (!this.convertedImages.length) return;
 
-        const zip = new JSZip();
-        this.convertedImages.forEach(img => {
-            zip.file(img.name, img.blob);
-        });
+        try {
+            const mod = await import('jszip');
+            const JSZip = mod.default || mod;
+            const zip = new JSZip();
+            this.convertedImages.forEach(img => {
+                zip.file(img.name, img.blob);
+            });
 
-        const content = await zip.generateAsync({ type: 'blob' });
-        App.downloadFile(content, 'converted-images.zip', 'application/zip');
-        App.fireConfetti();
+            const content = await zip.generateAsync({ type: 'blob' });
+            App.downloadFile(content, 'converted-images.zip', 'application/zip');
+            App.fireConfetti();
+        } catch (err) {
+            console.error('Error creating ZIP:', err);
+            App.showToast(App.t('msg_zip_failed') || 'Failed to generate ZIP.', { type: 'error' });
+        }
     }
 });

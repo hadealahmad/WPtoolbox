@@ -8,11 +8,12 @@ Premium WordPress utilities hub — a fully client-side, multi-page PWA built wi
 docs/
 ├── README.md                  ← You are here (project map & feature matrix)
 ├── getting-started.md         ← Stack, dev setup, build & deploy
+├── testing.md                 ← Unit tests (Vitest), E2E (Playwright), bundle budget & CI
 ├── design-guidelines.md       ← Styling, theming, coding standards (moved from /guidelines.md)
-├── analytics.md               ← GTM Consent Mode v2 flow & event catalog
+├── analytics.md               ← GTM Consent Mode v2 flow & CSP
 ├── architecture/
 │   ├── overview.md            ← App facade, lifecycle, module graph, data schema
-│   ├── core.md                ← src/core/ deep dive (App, Analytics, BaseTool, I18n, State, UI, Utils)
+│   ├── core.md                ← src/core/ deep dive (App, BaseTool, Consent, I18n, State, UI, Utils)
 │   └── components.md          ← Web Components (wpt-navbar, wpt-footer, wpt-consent)
 └── tools/
     ├── media.md               ← Media & asset tools
@@ -56,7 +57,8 @@ All 15 registered tools (`src/tools/*.js`), grouped exactly as the navigation (`
 - **Privacy-first**: no backend exists; all processing uses Blobs, DataURLs, and browser APIs.
 - **Bilingual**: full English + Arabic support via `src/data/translations.json` (~844 lines) with native RTL.
 - **PWA**: service worker auto-updates via `vite-plugin-pwa`; manifest theme color `#09090b`.
-- **Styling & data**: styling flows through `@tailwindcss/vite` and `src/styles/main.css` (legacy `tailwind.config.js` has been removed), and all JSON data lives solely under `src/data/*.json`.
+- **Styling & data**: styling flows through `@tailwindcss/vite` and `src/styles/main.css` (legacy `tailwind.config.js` has been removed), and all JSON data lives solely under `src/data/*.json` (including `src/data/pages.json` for per-page head metadata).
+- **Shared `<head>` & CSP**: common `<head>` tags, GTM Consent Mode v2, and the Content Security Policy (with auto-computed inline script SHA-256 hash) are injected at `<!-- wpt:head -->` by `src/build/head-plugin.js` from `src/build/head.html` and `src/data/pages.json`; run `npm run check:csp` after `npm run build` to verify.
 - **Root README** intentionally excluded from this docs restructure.
 
-*Last updated: August 2026*
+*Last updated: November 2026*

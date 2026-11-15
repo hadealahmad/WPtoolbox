@@ -1,0 +1,178 @@
+/**
+ * WPToolbox Lucide Icon Subset
+ * Imports only the icons actually used across HTML pages, components, and tools.
+ */
+import {
+    createIcons as lucideCreateIcons,
+    ArrowRight,
+    Blocks,
+    Bookmark,
+    Check,
+    CheckCheck,
+    CheckCircle,
+    CheckSquare,
+    ChevronDown,
+    Code2,
+    Copy,
+    Download,
+    Edit3,
+    Eraser,
+    Expand,
+    ExternalLink,
+    Eye,
+    FileCheck,
+    FileCode,
+    FileUp,
+    Github,
+    Heart,
+    Home,
+    Image,
+    ImagePlus,
+    Images,
+    Info,
+    Layers,
+    Layout,
+    LayoutGrid,
+    LayoutList,
+    Lightbulb,
+    Link,
+    ListPlus,
+    Loader2,
+    Lock,
+    Map,
+    Menu,
+    Moon,
+    Package,
+    Palette,
+    Pencil,
+    Play,
+    Plus,
+    QrCode,
+    Ratio,
+    RotateCcw,
+    Save,
+    Scissors,
+    Search,
+    SearchX,
+    Server,
+    Settings,
+    Settings2,
+    Shield,
+    ShieldCheck,
+    ShoppingCart,
+    Shuffle,
+    Sliders,
+    SlidersHorizontal,
+    Sparkles,
+    Sun,
+    Tag,
+    Terminal,
+    TerminalSquare,
+    Trash2,
+    Twitter,
+    Type,
+    Upload,
+    UploadCloud,
+    X,
+    XCircle,
+    Zap
+} from 'lucide';
+
+export const icons = {
+    ArrowRight,
+    Blocks,
+    Bookmark,
+    Check,
+    CheckCheck,
+    CheckCircle,
+    CheckSquare,
+    ChevronDown,
+    Code2,
+    Copy,
+    Download,
+    Edit3,
+    Eraser,
+    Expand,
+    ExternalLink,
+    Eye,
+    FileCheck,
+    FileCode,
+    FileUp,
+    Github,
+    Heart,
+    Home,
+    Image,
+    ImagePlus,
+    Images,
+    Info,
+    Layers,
+    Layout,
+    LayoutGrid,
+    LayoutList,
+    Lightbulb,
+    Link,
+    ListPlus,
+    Loader2,
+    Lock,
+    Map,
+    Menu,
+    Moon,
+    Package,
+    Palette,
+    Pencil,
+    Play,
+    Plus,
+    QrCode,
+    Ratio,
+    RotateCcw,
+    Save,
+    Scissors,
+    Search,
+    SearchX,
+    Server,
+    Settings,
+    Settings2,
+    Shield,
+    ShieldCheck,
+    ShoppingCart,
+    Shuffle,
+    Sliders,
+    SlidersHorizontal,
+    Sparkles,
+    Sun,
+    Tag,
+    Terminal,
+    TerminalSquare,
+    Trash2,
+    Twitter,
+    Type,
+    Upload,
+    UploadCloud,
+    X,
+    XCircle,
+    Zap
+};
+
+function warnMissingIcons(root) {
+    if (!import.meta.env?.DEV || !root || typeof root.querySelectorAll !== 'function') return;
+    root.querySelectorAll('[data-lucide]').forEach((el) => {
+        const name = el.getAttribute('data-lucide');
+        if (!name) return;
+        const pascal = name.replace(/(^|-)([a-z0-9])/g, (_, __, ch) => ch.toUpperCase());
+        if (!icons[pascal]) {
+            console.warn(`[icons] Missing Lucide icon "${name}" (${pascal}) in src/core/icons.js`, el);
+        }
+    });
+}
+
+export function createIcons(options = {}) {
+    return lucideCreateIcons({ icons, ...options });
+}
+
+export function renderIcons(root = document, attrs) {
+    const target = root || document;
+    warnMissingIcons(target);
+    const options = { icons, root: target };
+    if (attrs) options.attrs = attrs;
+    return lucideCreateIcons(options);
+}

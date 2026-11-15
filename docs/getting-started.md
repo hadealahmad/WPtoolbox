@@ -44,19 +44,37 @@ npm run build      # outputs to dist/
 npm run preview    # serve the production build locally
 ```
 
+## Testing
+
+```bash
+npm run test:unit  # Vitest unit tests + bundle-size check (when dist/ exists)
+npm run test:e2e   # Playwright Chromium smoke & tool flow tests against vite preview
+npm run check      # Build + CSP hash check + unit tests
+```
+
+See [Testing Guide](testing.md) for suite details, hermetic E2E setup, and CI workflows.
+
 ## Deployment
 
 GitHub Actions (`.github/workflows/deploy.yml`) deploys `dist/` to **GitHub Pages** on every push to `main`/`master`: checkout → setup-bun → `bun install` → `bun run build` → upload-pages-artifact.
 
 ## Adding a New Tool
 
-1. Create `tool-name.html` at the project root (copy an existing page's skeleton; include `<script type="module" src="/src/main.js">`).
-2. Create `src/tools/tool-name.js` and register it:
+1. Create `tool-name.html` at the project root keeping `<html lang="en" style="background-color: #09090b; color: white;">` and shrinking `<head>` to only the shared injection marker plus the page's module entry:
+   ```html
+   <head>
+       <!-- wpt:head -->
+       <script type="module" src="src/tools/tool-name.js"></script>
+   </head>
+   ```
+   (Do not duplicate charset, CSP, GTM, fonts, or meta tags — `src/build/head-plugin.js` injects them automatically.)
+2. Add an entry keyed by `"tool-name.html"` to `src/data/pages.json` with `title`, `description`, and any optional SEO/Open Graph/Twitter fields (`titleI18n`, `canonicalPath`, `ogType`, `ogTitle`, `ogDescription`, `ogImage`, `twitterCard`, `twitterSite`). Builds fail loudly if an HTML page lacks a `pages.json` entry or the `<!-- wpt:head -->` marker.
+3. Create `src/tools/tool-name.js` and register it:
    ```js
    import { App } from '../core/app.js';
    export const MyTool = App.registerTool('MyTool', {
        onInit() { /* ... */ }
    });
    ```
-3. Add nav entry to `src/data/nav.json` and all strings (en + ar) to `src/data/translations.json`.
-4. Follow `docs/design-guidelines.md` for styling and i18n rules.
+4. Add a navigation entry to `src/data/nav.json` and all UI + meta translations (`en` and `ar`, including `title_*` and `desc_*` keys) to `src/data/translations.json`.
+5. Run `npm run build && npm run check:csp` to verify the build and CSP hashes, and follow `docs/design-guidelines.md` for styling and i18n rules.

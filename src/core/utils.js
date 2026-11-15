@@ -3,8 +3,6 @@
  */
 import { UI } from './ui.js';
 import { I18n } from './i18n.js';
-import { Analytics } from './analytics.js';
-import JSZip from 'jszip';
 
 const _copyFeedbackState = new WeakMap();
 
@@ -159,18 +157,26 @@ export const Utils = {
         document.body.removeChild(a);
 
         if (isBlob) {
-            URL.revokeObjectURL(url);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
     },
 
     async downloadZip(files, zipFilename = 'download.zip') {
-        const zip = new JSZip();
-        files.forEach(file => {
-            zip.file(file.name, file.content || file.blob);
-        });
-        const content = await zip.generateAsync({ type: 'blob' });
-        this.downloadFile(content, zipFilename, 'application/zip');
-        UI.fireConfetti();
+        try {
+            const mod = await import('jszip');
+            const JSZip = mod.default || mod;
+            const zip = new JSZip();
+            files.forEach(file => {
+                zip.file(file.name, file.content || file.blob);
+            });
+            const content = await zip.generateAsync({ type: 'blob' });
+            this.downloadFile(content, zipFilename, 'application/zip');
+            UI.fireConfetti();
+        } catch (err) {
+            console.error('Error creating ZIP:', err);
+            const notify = window.App?.showToast ? window.App.showToast.bind(window.App) : UI.showToast.bind(UI);
+            notify(I18n.t('msg_zip_failed') || 'Failed to generate ZIP.', { type: 'error' });
+        }
     },
 
     async copyToClipboard(text, btnElement, feedbackText) {
@@ -193,9 +199,6 @@ export const Utils = {
                     _copyFeedbackState.delete(btnElement);
                 }, 2000);
             }
-            Analytics.track('copy_to_clipboard', {
-                tool_id: Analytics.getToolId()
-            });
             UI.showToast(I18n.t('copy_btn') + " " + I18n.t('to_clipboard'), { type: 'success' });
             UI.fireConfetti();
         };

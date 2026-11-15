@@ -3,6 +3,7 @@ import { resolve } from 'path';
 import { readdirSync } from 'fs';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { wptHeadPlugin } from './src/build/head-plugin.js';
 
 // Helper to get all HTML files for multi-page build
 const pages = readdirSync(__dirname)
@@ -17,6 +18,7 @@ export default defineConfig({
   root: './',
   base: './', // Ensures assets are linked relatively for easy deployment
   plugins: [
+    wptHeadPlugin(),
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',

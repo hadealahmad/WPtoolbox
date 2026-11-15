@@ -4,7 +4,7 @@
  */
 import '../main.js';
 import { App } from '../core/app.js';
-import { createIcons, icons } from 'lucide';
+import { renderIcons } from '../core/icons.js';
 
 const SUPPORTS_CLOSEDBY = typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
 
@@ -168,7 +168,7 @@ export const DemoGenerator = App.registerTool('DemoGenerator', {
         });
 
         tbody.replaceChildren(...rows);
-        createIcons({ icons, root: tbody });
+        renderIcons(tbody);
     },
 
     getTypeLabel(type) {

@@ -1,8 +1,7 @@
 import '../main.js';
 import { App } from '../core/app.js';
 import { Utils } from '../core/utils.js';
-import { createIcons, icons } from 'lucide';
-import JSZip from 'jszip';
+import { renderIcons } from '../core/icons.js';
 
 export const DummyImageGenerator = App.registerTool('DummyImageGenerator', {
     canvas: null,
@@ -144,11 +143,13 @@ export const DummyImageGenerator = App.registerTool('DummyImageGenerator', {
                 App.h('i', { attrs: { 'data-lucide': 'loader-2' }, class: 'w-5 h-5 animate-spin' }),
                 App.h('span', { text: 'Generating...' })
             );
-            createIcons({ icons, root: btn });
+            renderIcons(btn);
             btn.disabled = true;
         }
 
         try {
+            const mod = await import('jszip');
+            const JSZip = mod.default || mod;
             const zip = new JSZip();
             const offscreenCanvas = document.createElement('canvas');
             const maybeYield = App.createYielder();
@@ -173,7 +174,7 @@ export const DummyImageGenerator = App.registerTool('DummyImageGenerator', {
         } finally {
             if (btn) {
                 btn.replaceChildren(...originalNodes);
-                createIcons({ icons, root: btn });
+                renderIcons(btn);
                 btn.disabled = false;
             }
         }

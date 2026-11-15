@@ -3,10 +3,8 @@
  */
 import { State } from './state.js';
 import { I18n } from './i18n.js';
-import { Analytics } from './analytics.js';
 import { Utils } from './utils.js';
-import { createIcons, icons } from 'lucide';
-import confetti from 'canvas-confetti';
+import { renderIcons } from './icons.js';
 
 const SUPPORTS_CLOSEDBY = typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
 
@@ -45,11 +43,7 @@ export const UI = {
 
     setTheme(theme) {
         const nextTheme = theme === 'light' ? 'light' : 'dark';
-        const isDark = document.documentElement.classList.contains('dark');
         document.documentElement.classList.toggle('dark', nextTheme === 'dark');
-        if ((nextTheme === 'dark') !== isDark) {
-            Analytics.track('theme_change', { theme: nextTheme });
-        }
     },
 
     toggleTheme() {
@@ -154,7 +148,7 @@ export const UI = {
             });
 
             document.body.appendChild(dialog);
-            createIcons({ icons, root: dialog });
+            renderIcons(dialog);
             dialog.showModal();
         });
     },
@@ -258,7 +252,7 @@ export const UI = {
             });
 
             document.body.appendChild(dialog);
-            createIcons({ icons, root: dialog });
+            renderIcons(dialog);
             dialog.showModal();
             input.focus();
             if (initialValue) input.select();
@@ -306,7 +300,7 @@ export const UI = {
         );
 
         document.body.appendChild(palette);
-        createIcons({ icons, root: palette });
+        renderIcons(palette);
 
         let opener = null;
         let activeIndex = -1;
@@ -363,7 +357,7 @@ export const UI = {
             );
 
             results.replaceChildren(...nodes);
-            createIcons({ icons, attrs: { class: 'w-4 h-4' }, root: results });
+            renderIcons(results, { class: 'w-4 h-4' });
         };
 
         const updatePalette = () => {
@@ -377,7 +371,6 @@ export const UI = {
             opener = document.activeElement;
             palette.showModal();
             input.focus();
-            Analytics.track('command_palette_open');
         };
 
         const closePalette = () => {
@@ -431,14 +424,6 @@ export const UI = {
         results.addEventListener('mousemove', (e) => {
             const link = e.target.closest('a[data-index]');
             if (link) setActive(Number(link.dataset.index));
-        });
-
-        results.addEventListener('click', (e) => {
-            const link = e.target.closest('a[href]');
-            if (!link) return;
-            Analytics.track('command_palette_select', {
-                target: link.getAttribute('href') || ''
-            });
         });
 
         updatePalette();
@@ -509,20 +494,27 @@ export const UI = {
         }, duration);
     },
 
-    fireConfetti() {
+    async fireConfetti() {
         const reducedMotion = typeof window !== 'undefined'
             && typeof window.matchMedia === 'function'
             && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (reducedMotion) return;
 
-        if (typeof confetti === 'function') {
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#0ad28d', '#ffffff', '#1a1a1a'],
-                disableForReducedMotion: true
-            });
+        try {
+            const mod = await import('canvas-confetti');
+            const confetti = mod.default || mod;
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#0ad28d', '#ffffff', '#1a1a1a'],
+                    disableForReducedMotion: true
+                });
+            }
+        } catch (err) {
+            console.error('Failed to load confetti:', err);
+            this.showToast(I18n.t('msg_confetti_failed') || 'Failed to load celebration animation.', { type: 'error' });
         }
     }
 };

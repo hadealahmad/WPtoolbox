@@ -2,13 +2,11 @@
  * WPToolbox Internationalization (I18n)
  */
 import { State } from './state.js';
-import { Analytics } from './analytics.js';
-import translations from '../data/translations.json';
 import nav from '../data/nav.json';
 
 export const I18n = {
     async loadData() {
-        // Direct assignment since they are imported
+        const { default: translations } = await import('../data/translations.json');
         State.translations = translations;
         State.nav = nav;
     },
@@ -127,10 +125,7 @@ export const I18n = {
 };
 
 // Language change side effects
-window.addEventListener('languageChanged', (e) => {
+window.addEventListener('languageChanged', () => {
     I18n.updateDirection();
     I18n.translatePage();
-    Analytics.track('language_change', {
-        language: (e && e.detail && e.detail.lang) || State.currentLang
-    });
 });
