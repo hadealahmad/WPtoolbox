@@ -5,6 +5,9 @@ import '../main.js';
 import { App } from '../core/app.js';
 import { renderIcons } from '../core/icons.js';
 import snippetsData from '../data/snippets.json';
+import { sanitizeUserSnippets } from '../core/sanitizers.js';
+
+export { sanitizeUserSnippets };
 
 const SUPPORTS_CLOSEDBY = typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
 
@@ -29,27 +32,6 @@ function localized(val, fallback = '') {
         return String(val[App.currentLang] || val.en || val.ar || fallback);
     }
     return String(val || fallback);
-}
-
-function sanitizeUserSnippets(raw) {
-    if (!Array.isArray(raw)) return [];
-    return raw
-        .filter(s => s && typeof s === 'object')
-        .map((s, idx) => ({
-            id: String(s.id || `user_${Date.now()}_${idx}`),
-            title: s.title && typeof s.title === 'object'
-                ? { en: String(s.title.en || ''), ar: String(s.title.ar || s.title.en || '') }
-                : { en: String(s.title || ''), ar: String(s.title || '') },
-            category: s.category && typeof s.category === 'object'
-                ? { en: String(s.category.en || 'Custom'), ar: String(s.category.ar || s.category.en || 'مخصص') }
-                : { en: String(s.category || 'Custom'), ar: String(s.category || 'Custom') },
-            description: s.description && typeof s.description === 'object'
-                ? { en: String(s.description.en || ''), ar: String(s.description.ar || s.description.en || '') }
-                : { en: String(s.description || ''), ar: String(s.description || '') },
-            code: String(s.code || ''),
-            language: String(s.language || 'PHP'),
-            isUser: true
-        }));
 }
 
 export const Snippets = App.registerTool('Snippets', {

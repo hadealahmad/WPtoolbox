@@ -23,7 +23,7 @@ docs/
 
 ## Feature Matrix
 
-All 15 registered tools (`src/tools/*.js`), grouped exactly as the navigation (`src/data/nav.json`):
+All 16 registered tools (`src/tools/*.js`), grouped exactly as the navigation (`src/data/nav.json`):
 
 ### Media (`nav_group_media`)
 | Tool | Module | Page | Description |
@@ -44,6 +44,7 @@ All 15 registered tools (`src/tools/*.js`), grouped exactly as the navigation (`
 | Awesome Stack | `awesome-stack.js` + `src/data/stack-config.json` | `awesomestack.html` | Quick WordPress stack setup recommendations |
 | Server Config Generator | `server-config-generator.js` | `server-config-generator.html` | Apache/Nginx config generation |
 | WP-CLI Builder | `wp-cli-builder.js` | `wp-cli-builder.html` | Search-and-replace WP-CLI command builder (dry-run, GUID skip options) |
+| Backup & Restore | `backup.js` | `backup.html` | Site-wide local data backup, restore (Merge/Replace), and clear |
 
 ### Dev (`nav_group_dev`)
 | Tool | Module | Page | Description |

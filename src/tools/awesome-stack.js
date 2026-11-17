@@ -5,6 +5,9 @@ import '../main.js';
 import { App } from '../core/app.js';
 import { renderIcons } from '../core/icons.js';
 import stackConfig from '../data/stack-config.json';
+import { sanitizeSavedStacks } from '../core/sanitizers.js';
+
+export { sanitizeSavedStacks };
 
 export const AwesomeStack = App.registerTool('AwesomeStack', {
     config: stackConfig,
@@ -49,7 +52,7 @@ export const AwesomeStack = App.registerTool('AwesomeStack', {
     loadSavedStacks: function() {
         try {
             const raw = JSON.parse(localStorage.getItem('wptoolbox_stacks') || '[]');
-            this.savedStacks = Array.isArray(raw) ? raw : [];
+            this.savedStacks = sanitizeSavedStacks(raw);
         } catch {
             this.savedStacks = [];
         }

@@ -41,6 +41,14 @@ export class WptFooter extends HTMLElement {
             }
         });
 
+        const backupLink = Utils.h('a', {
+            href: 'backup.html',
+            id: 'wpt-footer-backup-link',
+            class: 'text-zinc-400 hover:text-white text-xs font-medium underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md px-1.5 py-0.5 transition-none',
+            dataset: { i18n: 'footer_backup_restore' },
+            text: I18n.t('footer_backup_restore')
+        });
+
         const content = Utils.h(
             'div',
             { class: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
@@ -61,7 +69,8 @@ export class WptFooter extends HTMLElement {
                 ),
                 Utils.h(
                     'div',
-                    { class: 'flex items-center gap-6' },
+                    { class: 'flex flex-wrap items-center justify-center gap-6' },
+                    backupLink,
                     privacyBtn,
                     Utils.h(
                         'a',

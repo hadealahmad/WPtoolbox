@@ -21,3 +21,8 @@ Tools covering deployment prep, WordPress setup, server configuration, CLI gener
 
 ## WP-CLI Builder — `wp-cli-builder.js` → `wp-cli-builder.html`
 - Visually builds `wp search-replace`, `wp user generate`, `wp db export`, and `wp media regenerate` commands with delegated `.builder-input` listeners, associated `<label for="...">` controls, `peer-focus-visible` switches, and `App.copyToClipboard(...)`.
+
+## Backup & Restore — `backup.js` → `backup.html`
+- Site-wide local data export, restore (**Merge** or **Replace** via native radio group), and clear (`App.confirm({ danger: true })`) covering `wptoolbox_*` keys (`wptoolbox_checklist_sites`, `wptoolbox_checklist_active_site`, `wptoolbox_user_snippets`, `wptoolbox_favs`, `wptoolbox_blocksy_palettes`, `wptoolbox_stacks`, `wptoolbox_lang`) while excluding `wpt-consent`.
+- Displays per-type counts and approximate UTF-8 byte sizes rendered via `App.h`, a keyboard-accessible drop zone + file picker (`Enter`/`Space`), and an `aria-live="polite"` status region.
+

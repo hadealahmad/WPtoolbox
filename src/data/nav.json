@@ -78,6 +78,12 @@
                 "text": "nav_wp_cli_builder",
                 "icon": "terminal",
                 "desc": "nav_wp_cli_builder_desc"
+            },
+            {
+                "href": "backup.html",
+                "text": "nav_backup",
+                "icon": "database-backup",
+                "desc": "nav_backup_desc"
             }
         ]
     },

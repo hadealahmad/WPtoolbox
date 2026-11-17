@@ -6,10 +6,23 @@ Singleton `App` object exposing:
 - **State accessors**: `App.translations`, `App.currentLang` (proxied to `State`).
 - **Registry**: `App.tools` map + `App.registerTool(id, config)` → instantiates `BaseTool`.
 - **Consent**: `App.setConsent(level)`, `App.getConsent()`.
+- **Backup & Restore**: `App.exportBackup(opts)`, `App.importBackup(fileOrObject, { mode, reload })`.
 - **UI**: `App.showToast(msg, opts)`, `App.confirm(message, opts)`, `App.prompt(message, defaultValue, opts)`, `App.fireConfetti()`.
 - **Utilities**: `App.yieldToMain()`, `App.createYielder(budgetMs)`, `App.h(tag, props, ...children)`, `App.escapeCSV`, `App.escapeHtml`, `App.htmlToMarkdown`, `App.formatSize`, `App.downloadFile`, `App.downloadZip`, `App.copyToClipboard`.
-- **Lifecycle**: `init()` (idempotent via `isReady` + `_initPromise`), initializes theme (`UI.initTheme()`), sets direction, awaits `I18n.loadData()`, translates page, initializes observer and command palette, renders initial icons via `renderIcons()`, and dispatches `appReady`.
+- **Lifecycle**: `init()` (idempotent via `isReady` + `_initPromise`), initializes theme (`UI.initTheme()`), sets direction, awaits `I18n.loadData()`, translates page, initializes observer and command palette, renders initial icons via `renderIcons()`, surfaces any post-reload `wpt_backup_flash` toast, and dispatches `appReady`.
 - Icon compatibility shim: exposes `window.lucide = { createIcons, icons }` backed by the tree-shaken subset in `src/core/icons.js`.
+
+## `backup.js` — Site-Wide Backup & Restore
+
+Manages single-file JSON backup/restore (`wptoolbox-backup-YYYY-MM-DD.json`) across an explicit `BACKUP_REGISTRY` of known `wptoolbox_*` `localStorage` keys (`wptoolbox_checklist_sites`, `wptoolbox_checklist_active_site`, `wptoolbox_user_snippets`, `wptoolbox_favs`, `wptoolbox_blocksy_palettes`, `wptoolbox_stacks`, `wptoolbox_lang`). Explicitly excludes `wpt-consent` and ignores unknown keys.
+- `exportBackup({ download })`: builds `{ app: 'WPToolbox', schemaVersion: 1, exportedAt, data }` and downloads via `App.downloadFile`.
+- `parseAndValidateBackup(fileOrObject)`: enforces a 5 MiB (`MAX_BACKUP_BYTES`) size cap, validates `app`/`schemaVersion`/`data`, and runs shared tool sanitizers from `sanitizers.js` (including stripping unsafe non-HTTP(S) URLs via `getSafeHttpUrl`).
+- `importBackup(fileOrObject, { mode = 'merge', reload = true })`: prompts with a per-type count summary via `App.confirm`, applies either `'merge'` (union by `id`/name) or `'replace'` (overwrite keys in backup), stores a post-reload toast flash in `sessionStorage`, and reloads the page.
+- `getStorageSummary()` / `clearLocalData()`: computes per-type counts and byte sizes, and removes only `wptoolbox_*` keys (leaving `wpt-consent` intact).
+
+## `sanitizers.js` — Shared Data Sanitizers
+
+Pure, side-effect-free validators/sanitizers (`getSafeHttpUrl`, `sanitizeImportedSites`, `safeHex`, `sanitizePaletteColors`, `sanitizeSavedPalettes`, `sanitizeUserSnippets`, `sanitizeSavedStacks`) shared by `backup.js` and re-exported from their respective tool modules (`checklist.js`, `blocksy-palette.js`, `snippets.js`, `awesome-stack.js`) so backup imports reuse the exact same sanitization without bundling unrelated tool UIs into `main`.
 
 ## `icons.js` — Curated Lucide Icon Subset
 

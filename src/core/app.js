@@ -7,6 +7,7 @@ import { UI } from './ui.js';
 import { Utils } from './utils.js';
 import { BaseTool } from './base-tool.js';
 import { Consent } from './consent.js';
+import { Backup, BACKUP_FLASH_KEY } from './backup.js';
 import { createIcons, icons, renderIcons } from './icons.js';
 
 export const App = {
@@ -40,6 +41,20 @@ export const App = {
 
             renderIcons();
 
+            // Surface any post-reload backup restore notification
+            try {
+                const rawFlash = sessionStorage.getItem(BACKUP_FLASH_KEY);
+                if (rawFlash) {
+                    sessionStorage.removeItem(BACKUP_FLASH_KEY);
+                    const flash = JSON.parse(rawFlash);
+                    if (flash?.message) {
+                        UI.showToast(flash.message, { type: flash.type || 'success' });
+                    }
+                }
+            } catch {
+                // Ignore sessionStorage errors
+            }
+
             // Signal all tools that translations are ready
             this.isReady = true;
             window.dispatchEvent(new Event('appReady'));
@@ -62,6 +77,10 @@ export const App = {
     // Consent
     setConsent: (level) => Consent.setConsent(level),
     getConsent: () => Consent.getConsent(),
+
+    // Backup & Restore
+    exportBackup: (opts) => Backup.exportBackup(opts),
+    importBackup: (fileOrObject, opts) => Backup.importBackup(fileOrObject, opts),
 
     // UI
     showToast: (msg, opts) => UI.showToast(msg, opts),

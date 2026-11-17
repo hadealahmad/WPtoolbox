@@ -5,6 +5,9 @@ import '../main.js';
 import { App } from '../core/app.js';
 import { renderIcons } from '../core/icons.js';
 import checklistData from '../data/checklist-data.json';
+import { getSafeHttpUrl, sanitizeImportedSites } from '../core/sanitizers.js';
+
+export { getSafeHttpUrl, sanitizeImportedSites };
 
 const SUPPORTS_CLOSEDBY = typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
 
@@ -24,20 +27,6 @@ function attachBackdropDismiss(dialog, card, onDismiss) {
     });
 }
 
-export function getSafeHttpUrl(raw) {
-    const val = String(raw || '').trim();
-    if (!val) return '';
-    try {
-        const parsed = new URL(val);
-        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
-            return parsed.href;
-        }
-    } catch {
-        return '';
-    }
-    return '';
-}
-
 function getLocalizedText(field, fallback = '') {
     if (field && typeof field === 'object') {
         return String(field[App.currentLang] || field.en || field.ar || fallback);
@@ -51,32 +40,6 @@ function getTaskCategoryKey(task) {
     if (id.startsWith('seo-') || catEn.includes('seo')) return 'seo';
     if (id.startsWith('woo-') || catEn.includes('woo')) return 'woo';
     return 'wp';
-}
-
-export function sanitizeImportedSites(raw) {
-    if (!Array.isArray(raw)) return [];
-    return raw
-        .filter(s => s && typeof s === 'object')
-        .map((s, idx) => ({
-            id: String(s.id || `site_${Date.now()}_${idx}`),
-            name: String(s.name || 'Imported Site'),
-            url: String(s.url || ''),
-            tasks: Array.isArray(s.tasks)
-                ? s.tasks.filter(t => t && typeof t === 'object').map((t, tIdx) => ({
-                    id: String(t.id || `task_${Date.now()}_${tIdx}`),
-                    category: t.category && typeof t.category === 'object'
-                        ? { en: String(t.category.en || 'General'), ar: String(t.category.ar || t.category.en || 'عام') }
-                        : { en: String(t.category || 'General'), ar: String(t.category || 'General') },
-                    title: t.title && typeof t.title === 'object'
-                        ? { en: String(t.title.en || ''), ar: String(t.title.ar || t.title.en || '') }
-                        : { en: String(t.title || ''), ar: String(t.title || '') },
-                    description: t.description && typeof t.description === 'object'
-                        ? { en: String(t.description.en || ''), ar: String(t.description.ar || t.description.en || '') }
-                        : { en: String(t.description || ''), ar: String(t.description || '') },
-                    completed: Boolean(t.completed)
-                }))
-                : []
-        }));
 }
 
 export const Checklist = App.registerTool('Checklist', {

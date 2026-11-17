@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #09090b; color: white;">
+
+<head>
+    <!-- wpt:head -->
+    <script type="module" src="src/tools/backup.js"></script>
+</head>
+
+<body class="min-h-screen flex flex-col grid-bg">
+
+    <!-- Navbar Container -->
+    <wpt-navbar></wpt-navbar>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
+
+        <header class="mb-10 text-center md:text-start">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter text-white break-words [overflow-wrap:anywhere] text-balance"
+                data-i18n="tool_backup_title">Backup &amp; Restore</h1>
+            <p class="text-zinc-400 mt-2" data-i18n="tool_backup_desc">Export all your local WPToolbox data to a single JSON file, restore from a backup, or clear browser storage.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            <!-- Left Column: Stored Data Overview + Export + Danger Zone -->
+            <div class="lg:col-span-5 space-y-6 min-w-0">
+
+                <section class="shadcn-card p-6 space-y-5" aria-labelledby="storage-overview-heading">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                <i data-lucide="database-backup" class="w-4 h-4"></i>
+                            </div>
+                            <h2 id="storage-overview-heading" class="text-sm font-bold text-white uppercase tracking-wider"
+                                data-i18n="backup_stored_heading">Stored Local Data</h2>
+                        </div>
+                        <span id="backup-total-size"
+                            class="text-[11px] font-mono font-semibold text-zinc-300 bg-zinc-950 border border-zinc-800 px-2.5 py-1 rounded-full shrink-0">0 Bytes</span>
+                    </div>
+
+                    <ul id="backup-storage-list" class="divide-y divide-zinc-800/70">
+                        <!-- Rendered safely via App.h -->
+                    </ul>
+
+                    <p class="text-xs text-zinc-400 leading-relaxed flex items-start gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                        <span data-i18n="backup_privacy_note">Backups include only WPToolbox tool data and language preference. Cookie consent settings are never exported or overwritten.</span>
+                    </p>
+
+                    <button type="button" id="download-backup-btn"
+                        class="w-full shadcn-button shadcn-button-primary h-11 px-6 text-xs gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span data-i18n="backup_btn_download">Download backup</span>
+                    </button>
+                </section>
+
+                <!-- Danger Zone -->
+                <section class="shadcn-card p-6 border-red-900/40 bg-red-950/10 space-y-4" aria-labelledby="danger-zone-heading">
+                    <div class="flex items-center gap-2 text-red-400">
+                        <i data-lucide="trash-2" class="w-4 h-4 shrink-0"></i>
+                        <h2 id="danger-zone-heading" class="text-xs font-bold uppercase tracking-wider"
+                            data-i18n="backup_danger_heading">Danger Zone</h2>
+                    </div>
+                    <p class="text-xs text-zinc-400 leading-relaxed" data-i18n="backup_clear_desc">
+                        Clear all saved checklists, custom snippets, favorites, Blocksy palettes, stacks, and language preferences from this browser. Cookie consent preferences stay intact.
+                    </p>
+                    <button type="button" id="clear-data-btn"
+                        class="w-full shadcn-button h-10 px-4 text-xs gap-2 bg-red-600/15 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 cursor-pointer transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span data-i18n="backup_btn_clear">Clear all local data</span>
+                    </button>
+                </section>
+
+            </div>
+
+            <!-- Right Column: Restore Backup -->
+            <div class="lg:col-span-7 space-y-6 min-w-0">
+
+                <section class="shadcn-card p-6 space-y-6" aria-labelledby="restore-heading">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-200 flex items-center justify-center shrink-0">
+                            <i data-lucide="upload" class="w-4 h-4"></i>
+                        </div>
+                        <h2 id="restore-heading" class="text-sm font-bold text-white uppercase tracking-wider"
+                            data-i18n="backup_restore_heading">Restore from Backup</h2>
+                    </div>
+
+                    <!-- Native Radio Group: Merge vs Replace -->
+                    <fieldset class="space-y-3">
+                        <legend class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2"
+                            data-i18n="backup_mode_label">Restore Mode</legend>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label for="mode-merge"
+                                class="flex items-start gap-3 p-4 rounded-xl border border-zinc-800 bg-zinc-950/60 hover:border-zinc-700 has-[:checked]:border-primary has-[:checked]:bg-primary/5 cursor-pointer">
+                                <input type="radio" id="mode-merge" name="restore-mode" value="merge" checked
+                                    class="mt-1 w-4 h-4 accent-primary shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                                <span class="min-w-0 space-y-1">
+                                    <span class="block text-sm font-semibold text-white" data-i18n="backup_mode_merge">Merge</span>
+                                    <span class="block text-xs text-zinc-400 leading-relaxed" data-i18n="backup_mode_merge_desc">Keep existing items and add non-duplicates from the backup file.</span>
+                                </span>
+                            </label>
+                            <label for="mode-replace"
+                                class="flex items-start gap-3 p-4 rounded-xl border border-zinc-800 bg-zinc-950/60 hover:border-zinc-700 has-[:checked]:border-primary has-[:checked]:bg-primary/5 cursor-pointer">
+                                <input type="radio" id="mode-replace" name="restore-mode" value="replace"
+                                    class="mt-1 w-4 h-4 accent-primary shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                                <span class="min-w-0 space-y-1">
+                                    <span class="block text-sm font-semibold text-white" data-i18n="backup_mode_replace">Replace</span>
+                                    <span class="block text-xs text-zinc-400 leading-relaxed" data-i18n="backup_mode_replace_desc">Overwrite stored data for the keys present in the backup file.</span>
+                                </span>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <!-- Keyboard-Accessible Drop Zone + File Picker -->
+                    <div class="space-y-3">
+                        <input id="file-input" type="file" accept=".json,application/json" class="sr-only" aria-label="Select backup JSON file">
+                        <div id="drop-zone" role="button" tabindex="0"
+                            aria-labelledby="drop-zone-title" aria-describedby="drop-zone-desc"
+                            class="relative border-2 border-dashed border-zinc-800 rounded-2xl p-10 sm:p-14 text-center cursor-pointer hover:bg-zinc-900/50 group transition-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                            <div class="flex flex-col items-center gap-5">
+                                <div
+                                    class="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-300 group-hover:scale-105 group-hover:bg-primary group-hover:text-primary-foreground transition-none">
+                                    <i data-lucide="file-up" class="w-8 h-8"></i>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <p id="drop-zone-title" class="text-lg font-semibold text-white" data-i18n="backup_drop_title">Drop your backup JSON here</p>
+                                    <p id="drop-zone-desc" class="text-zinc-400 text-sm" data-i18n="backup_drop_desc">Supports wptoolbox-backup-*.json files up to 5 MB.</p>
+                                </div>
+                                <span
+                                    class="shadcn-button shadcn-button-outline h-9 px-4 text-xs pointer-events-none"
+                                    data-i18n="backup_drop_browse">Choose backup file</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Region for Results -->
+                    <div id="backup-status" role="status" aria-live="polite" aria-atomic="true"
+                        class="hidden rounded-xl border border-zinc-800 bg-zinc-950/70 p-4 text-xs text-zinc-200">
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Global Footer Container -->
+    <wpt-footer></wpt-footer>
+
+    <!-- Global Toast Container -->
+    <div id="toast" popover="manual" role="status" aria-live="polite" aria-atomic="true"
+        class="wpt-popover fixed bottom-8 end-8 translate-y-24 opacity-0 z-50">
+        <div class="shadcn-card px-6 py-4 bg-zinc-900 border-zinc-800 text-white flex items-center gap-3 shadow-2xl">
+            <i data-lucide="check-circle" class="w-4 h-4 text-green-400 shrink-0"></i>
+            <span id="toast-msg" class="text-sm font-medium">Notification</span>
+            <button type="button" popovertarget="toast" popovertargetaction="hide" aria-label="Close notification"
+                class="ms-2 p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer">
+                <i data-lucide="x" class="w-3.5 h-3.5 pointer-events-none"></i>
+            </button>
+        </div>
+    </div>
+</body>
+
+</html>

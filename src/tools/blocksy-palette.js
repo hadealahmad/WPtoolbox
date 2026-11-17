@@ -6,24 +6,16 @@ import '../main.js';
 import { App } from '../core/app.js';
 import { I18n } from '../core/i18n.js';
 import { renderIcons } from '../core/icons.js';
+import {
+    DEFAULT_PALETTE,
+    safeHex,
+    sanitizePaletteColors,
+    sanitizeSavedPalettes
+} from '../core/sanitizers.js';
 
-const DEFAULT_PALETTE = ['#2872fa', '#1559ed', '#3a4f66', '#192a3d', '#e1e8ed', '#f2f5f7', '#fafbfc', '#ffffff'];
-const HEX_RE = /^#[0-9a-f]{3,8}$/i;
+export { safeHex, sanitizePaletteColors, sanitizeSavedPalettes };
+
 const SUPPORTS_CLOSEDBY = typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
-
-export function safeHex(val, fallback = '#2872fa') {
-    const s = String(val || '').trim();
-    if (!HEX_RE.test(s)) return fallback;
-    if (s.length === 4) {
-        return '#' + s.slice(1).split('').map(c => c + c).join('').toLowerCase();
-    }
-    return s.slice(0, 7).toLowerCase();
-}
-
-export function sanitizePaletteColors(arr) {
-    const src = Array.isArray(arr) ? arr : [];
-    return DEFAULT_PALETTE.map((fb, i) => safeHex(src[i], fb));
-}
 
 function attachBackdropDismiss(dialog, card, onDismiss) {
     if (!dialog || !card || SUPPORTS_CLOSEDBY) return;
@@ -1084,13 +1076,7 @@ export const BlocksyPalette = {
     getSaved: () => {
         try {
             const raw = JSON.parse(localStorage.getItem('wptoolbox_blocksy_palettes') || '[]');
-            if (!Array.isArray(raw)) return [];
-            return raw.filter(p => p && typeof p === 'object').map(p => ({
-                ...p,
-                name: String(p.name || 'Palette'),
-                mode: p.mode === 'light' ? 'light' : 'dark',
-                colors: sanitizePaletteColors(p.colors)
-            }));
+            return sanitizeSavedPalettes(raw);
         } catch {
             return [];
         }

@@ -17,6 +17,15 @@
     "ogType": "website",
     "twitterCard": "summary"
   },
+  "backup.html": {
+    "title": "Backup & Restore | WPToolbox",
+    "titleI18n": "title_backup.html",
+    "description": "Export, restore, or clear all your local WPToolbox data (checklists, snippets, palettes, and stacks) in a single JSON file.",
+    "ogType": "website",
+    "canonicalPath": "backup.html",
+    "twitterCard": "summary",
+    "twitterSite": "@hadealahmad"
+  },
   "blocksy-palette.html": {
     "title": "Blocksy Palette Generator | WPToolbox",
     "titleI18n": "title_blocksy_palette",

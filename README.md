@@ -12,6 +12,7 @@ WPToolbox is organized into three core categories to streamline your workflow:
 - **Server Config Generator**: Generate optimized .htaccess or Nginx configuration blocks for security, caching, and performance.
 - **Website Checklist**: A professional pre-launch verification tool to ensure your site is production-ready.
 - **Demo Content Generator**: Generate high-quality mock data for WordPress or any other platform. Export as XML, CSV, or JSON.
+- **Backup & Restore**: Export, restore (Merge or Replace), or clear all locally stored WPToolbox data in a single JSON file.
 
 ### 🖼️ Media & Assets
 - **Image to WebP Converter**: Fast, client-side image compression and conversion to WebP for better site performance.
